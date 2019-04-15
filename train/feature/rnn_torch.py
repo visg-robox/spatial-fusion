@@ -6,9 +6,8 @@ Test two situations:
 2. time step is not continuous
 """
 import sys
+sys.path.append("/home/zhangjian/code/project/spatial-fusion/")
 import common
-sys.path.append(common.project_path)
-
 import torch
 
 import random
