@@ -35,7 +35,7 @@ class SSNet(nn.Module):
         flag = torch.zeros(input_data.size(0), 1)
         if self._gpu is True:
             h0_t = h0_t.cuda()
-            c0_t = h0_t.cuda()
+            c0_t = c0_t.cuda()
             h1_t = h1_t.cuda()
             c1_t = c1_t.cuda()
         for i in range(time_step):
@@ -134,7 +134,7 @@ class Rnn(nn.Module):
 
 
 def load_icnet_parameter():
-    file_path = '/home/zhangjian/code/project/RnnFusion/icnet_para'
+    file_path = '/home/zhangjian/code/project/spatial-fusion/icnet_para'
     biasis_file = file_path + '/cls_biasis.npy'
     weight_file = file_path + '/cls_weights.npy'
     biasis = np.load(biasis_file)

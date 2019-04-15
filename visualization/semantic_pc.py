@@ -63,7 +63,7 @@ VISUALIZE_BASELINE    = False
 
 if __name__ == '__main__':
     if VISUALIZE_RNN_FEATURE:
-        root_path = '/home/zhangjian/code/project/RnnFusion/'
+        root_path = common.project_path
         model_path = root_path + 'train/feature/59000_model.pkl'
         save_path  = root_path + 'train/feature/'
         data_path  = root_path + 'data/CARLA_episode_0019/test2/test_feature/infer'

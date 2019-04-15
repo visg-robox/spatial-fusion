@@ -61,17 +61,17 @@ def hashmap_to_onehot(hashmap, input_size):
 
 if __name__ == '__main__':
     pass
-    # rootPath = '/home/zhangjian/code/data/CARLA_episode_0019/test/'
-    # pointPath = rootPath + 'infer/'
+    # data_path = '/home/zhangjian/code/data/CARLA_episode_0019/test/'
+    # pointPath = data_path + 'infer/'
     # hashmap = pointlist_to_hashmap(pointPath)
     # print('here')
     # keys_list = list(hashmap.keys())
     # keys_list = keys_list[0:100]
     # labelmap_to_batch(hashmap, keys_list, 100, 50, 13)
 
-    # rootPath = '/home/zhangjian/code/data/CARLA_episode_0019/test1/'
-    # gtPath = rootPath + 'test/gt/'
-    # gt_hashmap = pointlist_to_hashmap(gtPath)
+    # data_path = '/home/zhangjian/code/data/CARLA_episode_0019/test1/'
+    # gt_path = data_path + 'test/gt/'
+    # gt_hashmap = pointlist_to_hashmap(gt_path)
     # hashmap_to_onehot(gt_hashmap, 13)
     # print('1')
 

@@ -152,11 +152,11 @@ def eval_ssnet_cell(test_infer_path,
 
 
 if __name__ == '__main__':
-    root_path = '/home/zhangjian/code/project/RnnFusion/'
-    test_infer_path = root_path + 'data/CARLA_episode_0019/test2/test_feature/infer/'
-    test_gt_path = root_path + 'data/CARLA_episode_0019/test2/test_feature/gt/'
+    data_path = '/home/zhangjian/code/project/RnnFusion/'
+    test_infer_path = data_path + 'data/CARLA_episode_0019/test2/test_feature/infer/'
+    test_gt_path = data_path + 'data/CARLA_episode_0019/test2/test_feature/gt/'
     res_path = './model/'
-    # model_path = root_path + 'train/feature/exe/window_size_50/window_size_50_iter_73000_model.pkl'
+    # model_path = data_path + 'train/feature/exe/window_size_50/window_size_50_iter_73000_model.pkl'
     model_path = '/home/zhangjian/code/project/RnnFusion/train/feature/180000_model.pkl'
     # import sys
     # sys.path.append("/media/zhangjian/U/RnnFusion")

@@ -4,14 +4,13 @@ Written by Zhang Jian
 Test two situations:
 1. window size = 1-50
 2. time step is not continuous
-
-This realization has some mistakes, it will be removed
 """
 import sys
-sys.path.append("/home/zhangjian/code/project/RnnFusion")
+import common
+sys.path.append(common.project_path)
 
 import torch
-import common
+
 import random
 from model.rnn import *
 
@@ -40,19 +39,19 @@ USING_SSNet_FEATURE = common.USING_SSNet_FEATURE
 
 if __name__ == '__main__':
 
-    root_path = '/home/zhangjian/code/project/RnnFusion/'
-    inferPath = root_path + 'data/CARLA_episode_0019/test2/infer_feature/'
-    gtPath = root_path + 'data/CARLA_episode_0019/test2/gt_feature/'
-    test_infer_path = root_path + 'data/CARLA_episode_0019/test2/test_feature/infer/'
-    test_gt_path = root_path + 'data/CARLA_episode_0019/test2/test_feature/gt/'
-    res_save_path = str(os.getcwd()) + '/'
+    data_path = common.data_path
+    infer_path = data_path + 'CARLA_episode_0019/test2/infer_feature/'
+    gt_path = data_path + 'CARLA_episode_0019/test2/gt_feature/'
+    test_infer_path = data_path + 'CARLA_episode_0019/test2/test_feature/infer/'
+    test_gt_path = data_path + 'CARLA_episode_0019/test2/test_feature/gt/'
+    res_save_path = str(os.getcwd()) + '/runs/standard_feature'
 
-    infer_file = get_file_list(inferPath)
+    infer_file = get_file_list(infer_path)
     infer_file.sort()
-    gt_file = get_file_list(gtPath)
+    gt_file = get_file_list(gt_path)
     gt_file.sort()
 
-    writer = SummaryWriter('runs/feature')
+    writer = SummaryWriter('runs/standard_feature')
     rnn = SSNet(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
     optimizer = torch.optim.Adam(rnn.parameters(), lr=LR, weight_decay=1e-5)
     loss_func = nn.CrossEntropyLoss()
@@ -88,8 +87,8 @@ if __name__ == '__main__':
                 loss = loss_func(output, gt)
                 optimizer.zero_grad()
                 loss.backward()
-                for name, param in rnn.named_parameters():
-                    writer.add_histogram(name, param.clone().cpu().data.numpy(), record_iter)
+                # for name, param in rnn.named_parameters():
+                #     writer.add_histogram(name, param.clone().cpu().data.numpy(), record_iter)
                 optimizer.step()
                 record_iter += 1
                 writer.add_scalar('data/feature_training_loss', loss, record_iter)

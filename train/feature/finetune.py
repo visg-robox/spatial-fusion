@@ -27,17 +27,17 @@ TRAIN_ACCURACY = False
 
 if __name__ == '__main__':
 
-    rootPath = '/home/zhangjian/code/project/RnnFusion/'
-    inferPath = rootPath + 'data/CARLA_episode_0019/test2/infer_feature/'
-    gtPath = rootPath + 'data/CARLA_episode_0019/test2/gt_feature/'
+    data_path = common.data_path
+    infer_path = data_path + 'CARLA_episode_0019/test2/infer_feature/'
+    gt_path = data_path + 'CARLA_episode_0019/test2/gt_feature/'
 
-    infer_file = get_file_list(inferPath)
+    infer_file = get_file_list(infer_path)
     infer_file.sort()
-    gt_file = get_file_list(gtPath)
+    gt_file = get_file_list(gt_path)
     gt_file.sort()
 
-    test_inferPath = rootPath + 'data/CARLA_episode_0019/test2/test_feature/infer/'
-    test_gtPath = rootPath + 'data/CARLA_episode_0019/test2/test_feature/gt/'
+    test_inferPath = data_path + 'CARLA_episode_0019/test2/test_feature/infer/'
+    test_gtPath = data_path + 'CARLA_episode_0019/test2/test_feature/gt/'
 
     test_inferFile = get_file_list(test_inferPath)
     test_inferFile.sort()
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     # infer_file = test_inferFile
     # gt_file = test_GtFile
 
-    writer = SummaryWriter('runs/feature')
+    writer = SummaryWriter('runs/finetune')
 
     if USING_SSNet_FEATURE is True:
         rnn = SSNet(INPUT_SIZE, common.feature_num, common.class_num)
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     loss_func = nn.CrossEntropyLoss()
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
 
-    model_path = rootPath + 'train/feature/59000_model.pkl'
+    model_path = data_path + 'train/feature/59000_model.pkl'
     pretrain_model = torch.load(model_path)
     pretrain_dict = pretrain_model.state_dict()
     rnn_dict = rnn.state_dict()

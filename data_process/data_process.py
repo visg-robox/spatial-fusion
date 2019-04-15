@@ -108,16 +108,16 @@ TEST_FLAG = False
 
 if __name__ == '__main__':
     if TRAIN_FLAG is True:
-        root_path = '/home/zhangjian/code/data/CARLA_episode_0019/'
-        infer_path = root_path + 'test1/infer/'
-        gt_path = root_path + 'test1/gt/'
-        pose_path = root_path + 'test1/infer_pose/'
-        infer_save_path = root_path + 'test2/infer/'
-        gt_save_path = root_path + 'test2/gt/'
+        data_path = '/home/zhangjian/code/data/CARLA_episode_0019/'
+        infer_path = data_path + 'test1/infer/'
+        gt_path = data_path + 'test1/gt/'
+        pose_path = data_path + 'test1/infer_pose/'
+        infer_save_path = data_path + 'test2/infer/'
+        gt_save_path = data_path + 'test2/gt/'
         pre_process(infer_path, gt_path, pose_path, infer_save_path, gt_save_path)
 
     if TEST_FLAG is True:
-        root_path = '/home/zhangjian/code/data/CARLA_episode_0019/'
+        data_path = '/home/zhangjian/code/data/CARLA_episode_0019/'
         infer_path = root_path + 'test1/test/infer/'
         gt_path = root_path + 'test1/test/gt/'
         pose_path = root_path + 'test1/test/pose/'

@@ -81,19 +81,19 @@ TEST_FLAG = False
 if __name__ == '__main__':
 
     if TRAIN_FLAG is True:
-        root_path = '/home/zhangjian/code/data/CARLA_episode_0019/'
-        infer_path = root_path + 'test1/infer_feature/'
-        gt_path = root_path + 'test1/gt_feature/'
-        pose_path = root_path + 'test1/pose/'
-        infer_save_path = root_path + 'test2/infer_feature/'
-        gt_save_path = root_path + 'test2/gt_feature/'
+        data_path = '/home/zhangjian/code/data/CARLA_episode_0019/'
+        infer_path = data_path + 'test1/infer_feature/'
+        gt_path = data_path + 'test1/gt_feature/'
+        pose_path = data_path + 'test1/pose/'
+        infer_save_path = data_path + 'test2/infer_feature/'
+        gt_save_path = data_path + 'test2/gt_feature/'
         pre_process(infer_path, gt_path, pose_path, infer_save_path, gt_save_path)
 
     if TEST_FLAG is True:
-        root_path = '/home/zhangjian/code/data/CARLA_episode_0019/'
-        infer_path = root_path + 'test1/test/infer_feature/'
-        gt_path = root_path + 'test1/test/gt_feature/'
-        pose_path = root_path + 'test1/test/pose/'
-        infer_save_path = root_path + 'test2/test_feature/infer/'
-        gt_save_path = root_path + 'test2/test_feature/gt/'
+        data_path = '/home/zhangjian/code/data/CARLA_episode_0019/'
+        infer_path = data_path + 'test1/test/infer_feature/'
+        gt_path = data_path + 'test1/test/gt_feature/'
+        pose_path = data_path + 'test1/test/pose/'
+        infer_save_path = data_path + 'test2/test_feature/infer/'
+        gt_save_path = data_path + 'test2/test_feature/gt/'
         pre_process(infer_path, gt_path, pose_path, infer_save_path, gt_save_path)

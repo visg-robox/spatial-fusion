@@ -40,11 +40,11 @@ def visualize_batch(input_data):
 
 
 if __name__ == '__main__':
-    rootPath = '/home/zhangjian/code/project/RnnFusion/'
-    inferPath = rootPath + 'data/CARLA_episode_0019/test2/infer/'
-    # root_path = '/home/zhangjian/code/data/CARLA_episode_0019/test2/'
-    # inferPath = root_path + 'infer/'
-    batch_data_visualization(inferPath)
+    data_path = '/home/zhangjian/code/project/RnnFusion/'
+    infer_path = data_path + 'data/CARLA_episode_0019/test2/infer/'
+    # data_path = '/home/zhangjian/code/data/CARLA_episode_0019/test2/'
+    # infer_path = data_path + 'infer/'
+    batch_data_visualization(infer_path)
 
 
 

@@ -28,3 +28,9 @@ USING_RNN_FEATURE = False
 USING_SSNet_FEATURE = True
 USING_RNN = False
 USING_SSNet = True
+
+
+# path definition
+project_path = "/home/zhangjian/code/project/spatial-fusion/"
+data_path = "/home/zhangjian/code/project/data/"
+

@@ -1,5 +1,5 @@
 import sys
-sys.path.append("/home/zhangjian/code/project/RnnFusion")
+sys.path.append("/home/zhangjian/code/project/spatial-fusion")
 
 
 from data_process import data_loader_torch
@@ -21,17 +21,17 @@ USING_RNN = False
 TRAIN_ACCURACY = False
 
 if __name__ == '__main__':
-    rootPath = '/home/zhangjian/code/project/RnnFusion/data/CARLA_episode_0019/test2/'
-    inferPath = rootPath + 'infer/'
-    gtPath = rootPath + 'gt/'
+    data_path = '/home/zhangjian/code/project/data/CARLA_episode_0019/test2/'
+    infer_path = data_path + 'infer/'
+    gt_path = data_path + 'gt/'
 
-    infer_file = get_file_list(inferPath)
+    infer_file = get_file_list(infer_path)
     infer_file.sort()
-    gt_file = get_file_list(gtPath)
+    gt_file = get_file_list(gt_path)
     gt_file.sort()
 
-    test_inferPath = rootPath + 'test1/infer/'
-    test_gtPath = rootPath + 'test1/gt/'
+    test_inferPath = data_path + 'test1/infer/'
+    test_gtPath = data_path + 'test1/gt/'
 
     test_inferFile = get_file_list(test_inferPath)
     test_inferFile.sort()
@@ -44,8 +44,8 @@ if __name__ == '__main__':
     # test data
     # test data location
     test_data_size = 10000
-    test_infer_path = rootPath + 'test/infer/'
-    test_gt_path = rootPath + 'test/gt/'
+    test_infer_path = data_path + 'test/infer/'
+    test_gt_path = data_path + 'test/gt/'
 
     # # pre-process
     # test_keys = test_keys_list[0 * test_data_size:(0 + 1) * test_data_size]

@@ -19,18 +19,18 @@ display_step = 100
 
 if __name__ == "__main__":
     # data process
-    rootPath = '/home/zhangjian/code/data/CARLA_episode_0019/test1/'
-    inferPath = rootPath + 'infer/'
-    gtPath = rootPath + 'gt/'
+    data_path = '/home/zhangjian/code/data/CARLA_episode_0019/test1/'
+    infer_path = data_path + 'infer/'
+    gt_path = data_path + 'gt/'
 
     # train data
-    infer_hashmap, gt_hashmap,  keys_list = data_loader_tf.data_to_hashmap(inferPath, gtPath)
+    infer_hashmap, gt_hashmap,  keys_list = data_loader_tf.data_to_hashmap(infer_path, gt_path)
 
     # test data
     # test data location
     test_data_size = 10000
-    test_infer_path = rootPath + 'test/infer/'
-    test_gt_path = rootPath + 'test/gt/'
+    test_infer_path = data_path + 'test/infer/'
+    test_gt_path = data_path + 'test/gt/'
 
     # read data
     test_infer, test_gt, test_keys_list = data_loader_tf.data_to_hashmap(test_infer_path, test_gt_path)

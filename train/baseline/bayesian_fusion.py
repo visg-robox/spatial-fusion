@@ -39,13 +39,13 @@ def softmax(x):
 
 
 if __name__ == '__main__':
-    rootPath = '/home/zhangjian/code/data/CARLA_episode_0019/test2/test1/'
-    inferPath = rootPath + 'infer/'
-    gtPath = rootPath + 'gt/'
+    data_path = common.data_path + 'CARLA_episode_0019/test2/test1/'
+    infer_path = data_path + 'infer/'
+    gt_path = data_path + 'gt/'
 
-    infer_path_list = get_file_list(inferPath)
+    infer_path_list = get_file_list(infer_path)
     infer_path_list.sort()
-    gt_path_list = get_file_list(gtPath)
+    gt_path_list = get_file_list(gt_path)
     gt_path_list.sort()
 
     infer_res = []
