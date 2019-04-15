@@ -37,7 +37,8 @@ def eval_ssnet(test_infer_path,
                model_path,
                res_path,
                window_size,
-               time_step=TIME_STEP):
+               time_step=TIME_STEP,
+               log_dir='.'):
     test_infer_file_list = get_file_list(test_infer_path)
     test_infer_file_list.sort()
     test_gt_file_list = get_file_list(test_gt_path)
@@ -85,7 +86,7 @@ def eval_ssnet(test_infer_path,
     # accuracy = float((test_pred_y == test_gt_y).astype(int).sum()) / float(test_gt_y.size)
     total_accuracy_rnn = getaccuracy(test_pred_y, test_gt_y, common.class_num)
     evaluate_name = 'window_size_' + str(window_size) + '_current_rnn_feature'
-    eval_print_save(total_accuracy_rnn, evaluate_name, '.')
+    eval_print_save(total_accuracy_rnn, evaluate_name, log_dir)
 
 
 # 这个测试的时候是存在问题的，最后一次的输入可能全都是0

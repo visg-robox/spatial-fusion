@@ -43,14 +43,14 @@ if __name__ == '__main__':
     gt_path = data_path + 'CARLA_episode_0019/test2/gt_feature/'
     test_infer_path = data_path + 'CARLA_episode_0019/test2/test_feature/infer/'
     test_gt_path = data_path + 'CARLA_episode_0019/test2/test_feature/gt/'
-    res_save_path = str(os.getcwd()) + '/runs/standard_feature'
+    res_save_path = str(os.getcwd()) + '/runs/average_feature/'
 
     infer_file = get_file_list(infer_path)
     infer_file.sort()
     gt_file = get_file_list(gt_path)
     gt_file.sort()
 
-    writer = SummaryWriter('runs/standard_feature')
+    writer = SummaryWriter('runs/average_feature')
     rnn = SSNet(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
     optimizer = torch.optim.Adam(rnn.parameters(), lr=LR, weight_decay=1e-5)
     loss_func = nn.CrossEntropyLoss()
@@ -92,9 +92,9 @@ if __name__ == '__main__':
                 record_iter += 1
                 writer.add_scalar('data/feature_training_loss', loss, record_iter)
                 print(record_iter)
-                if record_iter % 1000 == 0:
+                if record_iter % 5000 == 0:
                     model_name = res_save_path + str(record_iter) + '_model.pkl'
                     torch.save(rnn, model_name)
-                    eval_ssnet(test_infer_path, test_gt_path, model_name, res_save_path, WINDOW_SIZE, time_step=TIME_STEP)
+                    eval_ssnet(test_infer_path, test_gt_path, model_name, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
     writer.close()
 
