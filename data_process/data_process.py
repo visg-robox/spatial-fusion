@@ -117,7 +117,7 @@ if __name__ == '__main__':
         pre_process(infer_path, gt_path, pose_path, infer_save_path, gt_save_path)
 
     if TEST_FLAG is True:
-        data_path = '/home/zhangjian/code/data/CARLA_episode_0019/'
+        root_path = '/home/zhangjian/code/data/CARLA_episode_0019/'
         infer_path = root_path + 'test1/test/infer/'
         gt_path = root_path + 'test1/test/gt/'
         pose_path = root_path + 'test1/test/pose/'
