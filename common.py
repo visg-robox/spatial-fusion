@@ -4,8 +4,8 @@ voxel_length = 0.05
 class_num = 13
 feature_num = 128
 # region
-region_x = 20
-region_y = 20
+region_x = 10
+region_y = 10
 region_z = 10
 block_len = 5
 

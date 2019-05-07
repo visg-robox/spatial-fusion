@@ -6,3 +6,5 @@ __pycache__/
 train/feature/runs/
 
 \.vscode/
+
+train/feature/log\.txt
