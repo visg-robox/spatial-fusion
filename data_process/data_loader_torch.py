@@ -115,6 +115,31 @@ def featuremap_to_batch(voxel_map, keys_list, batch_size, time_step, input_size)
     return res
 
 
+def featuremap_to_batch_with_distance(voxel_map, keys_list, batch_size, time_step, input_size):
+    res = torch.zeros(batch_size, time_step, input_size + 1)
+    for i in range(len(keys_list)):
+        key = keys_list[i]
+        #related_keys
+        related_feature = get_related_feature(key, voxel_map)
+        feature_info = voxel_map[key].feature_info_list
+        feature_len = len(feature_info)
+        start_num = 0
+        end_num = feature_len + start_num
+        if end_num > time_step:
+            end_num = time_step
+        for j in range(start_num, end_num):
+            feature_list = numpy.append(1, feature_info[j - start_num].feature_list, feature_info.distance)
+            res[i][j] = torch.FloatTensor(feature_list)
+            count = 0
+            for k in range(len(related_feature)):
+                if j < len(related_feature[k]):
+                    feature_list = feature_list + numpy.append(1, related_feature[k][j].feature_list)
+                    count += 1
+            feature_list = feature_list/count
+            res[i][j] = torch.FloatTensor(feature_list)
+    return res
+
+
 # get batch tensor in number form
 def featuremap_to_gt_num(voxel_map, keys_list, batch_size):
     res = torch.zeros(batch_size, dtype=torch.int64)

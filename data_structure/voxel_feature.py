@@ -13,8 +13,9 @@ class FeatureVoxel:
 
 class FeatureInfo:
 
-    def __init__(self, feature_list):
+    def __init__(self, feature_list, vector):
         self.feature_list = feature_list
+        self.vector = vector
 
 
 class FeatureLidarPoint:

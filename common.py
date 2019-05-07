@@ -1,5 +1,5 @@
 from enum import Enum, unique
-
+import itertools
 voxel_length = 0.05
 class_num = 13
 feature_num = 128
@@ -34,3 +34,8 @@ USING_SSNet = True
 project_path = "/home/zhangjian/code/project/spatial-fusion/"
 data_path = "/home/zhangjian/code/project/data/"
 
+# related space
+
+offset_list = []
+for i in itertools.product([-2, -1, 0, 1 ,2], repeat=3):
+    offset_list.append(i)
