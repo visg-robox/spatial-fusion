@@ -5,9 +5,13 @@ all rights reserved by zhang jian
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.autograd import Variable
 import numpy as np
 from model.lstm_cell import *
+
+import transformer.Constants as Constants
+from transformer.Layers import EncoderLayer, DecoderLayer
 
 
 class SSNet(nn.Module):
@@ -21,10 +25,20 @@ class SSNet(nn.Module):
         # model
         self.lstm_cell = ConditionLSTMCell(input_size, hidden_size)
         self.lstm_cell2 = ConditionLSTMCell(hidden_size, hidden_size)
+        self.lstm_cell3 = ConditionLSTMCell(hidden_size, hidden_size)
         self.drop = nn.Dropout(p=dropout)
         self.linear = nn.Linear(hidden_size, output_size)
         self.bn = nn.BatchNorm1d(output_size, affine=False)
+
+        self.max_length = 50
         self.init_linear()
+
+        self.embedding = nn.Embedding(input_size, hidden_size)
+        #一个保存了固定字典和大小的简单查找表。这个模块常用来保存词嵌入和用下标检索它们。
+        # 模块的输入是一个下标的列表，输出是对应的词嵌入
+
+        self.attn = nn.Linear(hidden_size * 2, self.max_length)
+        self.attn_combine = nn.Linear(hidden_size * 2, hidden_size)
 
     def forward(self, input_data, time_step):
         # input_data shape: (batch_size, time_step, input_size)
@@ -32,12 +46,19 @@ class SSNet(nn.Module):
         c0_t = Variable(torch.zeros(input_data.size(0), self._hidden_size), requires_grad=True)
         h1_t = Variable(torch.zeros(input_data.size(0), self._hidden_size), requires_grad=True)
         c1_t = Variable(torch.zeros(input_data.size(0), self._hidden_size), requires_grad=True)
+        h2_t = Variable(torch.zeros(input_data.size(0), self._hidden_size), requires_grad=True)
+        c2_t = Variable(torch.zeros(input_data.size(0), self._hidden_size), requires_grad=True)
+
         flag = torch.zeros(input_data.size(0), 1)
         if self._gpu is True:
             h0_t = h0_t.cuda()
-            c0_t = c0_t.cuda()
+            c0_t = h0_t.cuda()
             h1_t = h1_t.cuda()
             c1_t = c1_t.cuda()
+            h2_t = h2_t.cuda()
+            c2_t = c2_t.cuda()
+
+        outputs = []
         for i in range(time_step):
             h0_t, c0_t = self.lstm_cell(input_data[:, i, :], h0_t, c0_t)
             flag[:, 0] = input_data[:, i, 0]
@@ -45,8 +66,38 @@ class SSNet(nn.Module):
             if self._gpu is True:
                 input_data2 = input_data2.cuda()
             h1_t, c1_t = self.lstm_cell2(input_data2, h1_t, c1_t)
-        outputs = self.linear(h1_t) #[1, 13]
+
+
+        h2_t = self.attn_combine(torch.cat(h1_t))
+        for i in range(time_step):
+            output, h2_t, c2_t, attn_weights = self.attention(input_data[:, i, :], h2_t, c2_t, input_data3)
+
+
+        outputs = self.linear(h2_t)
+
         return outputs
+
+    def attention(self, input, hidden, cell, encoder_outputs):
+
+        embedded = self.embedding(input).view(1, 1, -1)
+        embedded = self.dropout(embedded)
+
+        attn_weights = F.softmax(
+            self.attn(torch.cat((embedded[0], hidden[0]), 1)), dim=1)
+
+        #A set of attention weights
+        attn_applied = torch.bmm(attn_weights.unsqueeze(0),
+                                 encoder_outputs.unsqueeze(0))
+
+        output = torch.cat((embedded[0], attn_applied[0]), 1)
+        output = self.attn_combine(output).unsqueeze(0)
+
+        output = F.relu(output)
+        hidden, cell = self.lstm_cell3(output, hidden, cell)
+
+        #output = F.log_softmax(self.out(output[0]), dim=1)
+        output = F.log_softmax(self.out(hidden[0]), dim=1)
+        return output, hidden, cell, attn_weights
 
     def freeze_linear(self):
         for p in self.linear.parameters():
@@ -95,6 +146,7 @@ class SSNetCell(nn.Module):
             c0_t = h0_t.cuda()
             h1_t = h1_t.cuda()
             c1_t = c1_t.cuda()
+
         time_step = input_data.size(1)
         output_lsit = []
         for step in range(time_step):
@@ -108,6 +160,7 @@ class SSNetCell(nn.Module):
             output_lsit.append(output)
         last_output = output_lsit[-1]
         return last_output, h0_t, c0_t, h1_t, c1_t
+
 
 
 # basic
@@ -140,6 +193,7 @@ def load_icnet_parameter():
     biasis = np.load(biasis_file)
     weights = np.load(weight_file)
     return weights, biasis
+
 
 
 if __name__ == "__main__":

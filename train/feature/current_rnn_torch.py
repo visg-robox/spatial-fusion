@@ -31,7 +31,7 @@ INPUT_SIZE = common.feature_num         # rnn input size / image width
 HIDDEN_SIZE = common.feature_num
 OUTPUT_SIZE = common.class_num
 LR = 0.001                              # learning rate
-WINDOW_SIZE = 20
+WINDOW_SIZE = 50
 
 USING_RNN_FEATURE = common.USING_RNN_FEATURE
 USING_SSNet_FEATURE = common.USING_SSNet_FEATURE
@@ -39,7 +39,7 @@ USING_SSNet_FEATURE = common.USING_SSNet_FEATURE
 
 if __name__ == '__main__':
 
-    root_path = '/home/zhangjian/code/project/RnnFusion/'
+    root_path = '/home/wangkai/project2/RnnFusion/'
     inferPath = root_path + 'data/CARLA_episode_0019/test2/infer_feature/'
     gtPath = root_path + 'data/CARLA_episode_0019/test2/gt_feature/'
     test_infer_path = root_path + 'data/CARLA_episode_0019/test2/test_feature/infer/'
@@ -85,31 +85,31 @@ if __name__ == '__main__':
                 # network forward and backward
                 time_step = input_data.size(1)
                 loss_list = []
-                for window_step in range(time_step - WINDOW_SIZE + 1):
+                #for window_step in range(time_step - WINDOW_SIZE + 1):
                 # for count in range(20):
-                    cur_input = Variable(input_data[:, window_step:window_step+WINDOW_SIZE, :], requires_grad=True).cuda()
+                cur_input = Variable(input_data, requires_grad=True).cuda()
                     # cur_input = Variable(input_data, requires_grad=True).cuda()
                     # if np.sum(cur_input.cpu().detach()[0, :, 0].numpy()) < 5:
                     #     continue
                     # visualize_batch(cur_input.cpu().detach()[0, :, :])
                     # output1 = torch.empty(1, OUTPUT_SIZE)
                     # output2 = torch.empty(1, OUTPUT_SIZE)
-                    output = rnn(cur_input, WINDOW_SIZE)
+                output = rnn(cur_input, WINDOW_SIZE)
                     # output1[0, :] = output[0]
                     # output2[0, :] = output[1]
                     # gt1 = torch.empty(1, dtype=torch.long)
                     # gt2 = torch.empty(1, dtype=torch.long)
                     # gt1[0] = gt[0]
                     # gt2[0] = gt[1]
-                    loss = loss_func(output, gt)
-                    loss_list.append(loss)
-                    optimizer.zero_grad()
-                    loss.backward()
-                    for name, param in rnn.named_parameters():
-                        writer.add_histogram(name, param.clone().cpu().data.numpy(), record_iter)
-                    optimizer.step()
-                    record_iter += 1
-                    writer.add_scalar('data/feature_training_loss', loss, record_iter)
+                loss = loss_func(output, gt)
+                loss_list.append(loss)
+                optimizer.zero_grad()
+                loss.backward()
+                for name, param in rnn.named_parameters():
+                    writer.add_histogram(name, param.clone().cpu().data.numpy(), record_iter)
+                optimizer.step()
+                record_iter += 1
+                writer.add_scalar('data/feature_training_loss', loss, record_iter)
                 # writer.add_scalar('data/feature_training_loss', loss_list[-1], record_iter)
                 # record_iter += 1
                 print(record_iter)

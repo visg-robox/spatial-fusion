@@ -3,6 +3,7 @@ from enum import Enum, unique
 voxel_length = 0.05
 class_num = 13
 feature_num = 128
+feature_num_dist = 129
 # region
 region_x = 20
 region_y = 20

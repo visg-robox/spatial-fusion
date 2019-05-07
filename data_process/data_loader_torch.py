@@ -99,6 +99,60 @@ def featuremap_to_batch(voxel_map, keys_list, batch_size, time_step, input_size)
                 res[i][j] = torch.FloatTensor(feature_list)
     return res
 
+def featuremap_to_batch_with_dist(voxel_map, keys_list, batch_size, time_step, input_size):
+    if USING_RNN_FEATURE is True:
+        res = torch.ones(batch_size, time_step, input_size) * 0.5
+    if USING_SSNet_FEATURE is True:
+        res = torch.zeros(batch_size, time_step, input_size + 2)
+    for i in range(len(keys_list)):
+        key = keys_list[i]
+        feature_info = voxel_map[key].feature_info_list
+        feature_len = len(feature_info)
+        if USING_RNN_FEATURE:
+            start_num = time_step - feature_len
+            if start_num < 0:
+                start_num = 0
+            for j in range(start_num, time_step):
+                feature_list = feature_info[j-start_num].feature_list
+                res[i][j] = torch.FloatTensor(feature_list)
+        if USING_SSNet_FEATURE:
+            start_num = 0
+            end_num = feature_len + start_num
+            if end_num > time_step:
+                end_num = time_step
+            for j in range(start_num, end_num):
+                feature_list = numpy.append(1, feature_info[j - start_num].feature_list, feature_info.distance)
+                res[i][j] = torch.FloatTensor(feature_list)
+
+    return res
+
+def featuremap_to_batch_with_dist2(voxel_map, keys_list, batch_size, time_step, input_size):
+    if USING_RNN_FEATURE is True:
+        res = torch.ones(batch_size, time_step, input_size) * 0.5
+    if USING_SSNet_FEATURE is True:
+        res = torch.zeros(batch_size, time_step, input_size + 5)
+    for i in range(len(keys_list)):
+        key = keys_list[i]
+        feature_info = voxel_map[key].feature_info_list
+        feature_len = len(feature_info)
+        if USING_RNN_FEATURE:
+            start_num = time_step - feature_len
+            if start_num < 0:
+                start_num = 0
+            for j in range(start_num, time_step):
+                feature_list = feature_info[j-start_num].feature_list
+                res[i][j] = torch.FloatTensor(feature_list)
+        if USING_SSNet_FEATURE:
+            start_num = 0
+            end_num = feature_len + start_num
+            if end_num > time_step:
+                end_num = time_step
+            for j in range(start_num, end_num):
+                feature_list = numpy.append(1, feature_info[j - start_num].feature_list, feature_info.distance, key)
+                res[i][j] = torch.FloatTensor(feature_list)
+
+    return res
+
 
 # get batch tensor in number form
 def featuremap_to_gt_num(voxel_map, keys_list, batch_size):

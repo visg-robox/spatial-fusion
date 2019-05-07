@@ -30,13 +30,17 @@ def read_pointcloud_feature_npy(file_name):
     return feature_list
 
 
-def file_to_voxelmap(file_name, voxel_map):
+def cal_distance(pose, voxel_center):
+    return np.sqrt(np.sum(np.square(pose - voxel_center)))
+
+def file_to_voxelmap(file_name, voxel_map, pose):
     start_time = time.time()
     fea_data = read_pointcloud_feature_npy(file_name)
     print(file_name)
     for i in range(len(fea_data)):
         voxel_center = voxel_regular(fea_data[i].location)
-        feature_info = FeatureInfo(fea_data[i].feature_list)
+        voxel_distance = cal_distance(pose, voxel_center)
+        feature_info = FeatureInfo(fea_data[i].feature_list, voxel_distance)
         if voxel_map.find_location(voxel_center) is None:
             current_voxel = FeatureVoxel(voxel_center)
             current_voxel.insert_feature(feature_info)
@@ -62,16 +66,15 @@ def pre_process(infer_path, gt_path, pose_path, infer_save_path, gt_save_path):
     infer_map = VoxelMap(pose_initial)
     for i in range(len(point_file_list)):
         pose = read_pose(pose_file_list[i])
-        file_to_voxelmap(point_file_list[i], infer_map)
+        file_to_voxelmap(point_file_list[i], infer_map, pose)
         infer_map.move(pose, infer_save_path)
     infer_map.unload_map(infer_save_path)
 
     gt_map = VoxelMap(pose_initial)
     for i in range(len(gt_file_list)):
         pose = read_pose(pose_file_list[i])
-        file_to_voxelmap(gt_file_list[i], gt_map)
+        file_to_voxelmap(gt_file_list[i], gt_map, pose)
         gt_map.move(pose, gt_save_path)
-    gt_map.unload_map(gt_save_path)
 
 
 TRAIN_FLAG = True
@@ -81,16 +84,16 @@ TEST_FLAG = False
 if __name__ == '__main__':
 
     if TRAIN_FLAG is True:
-        root_path = '/home/zhangjian/code/data/CARLA_episode_0019/'
+        root_path = '/home/wangkai/project2/RnnFusion/data/CARLA_episode_0019/'
         infer_path = root_path + 'test1/infer_feature/'
         gt_path = root_path + 'test1/gt_feature/'
         pose_path = root_path + 'test1/pose/'
-        infer_save_path = root_path + 'test2/infer_feature/'
-        gt_save_path = root_path + 'test2/gt_feature/'
+        infer_save_path = root_path + 'test3/infer_feature/'
+        gt_save_path = root_path + 'test3/gt_feature/'
         pre_process(infer_path, gt_path, pose_path, infer_save_path, gt_save_path)
 
     if TEST_FLAG is True:
-        root_path = '/home/zhangjian/code/data/CARLA_episode_0019/'
+        root_path = '/home/wangkai/project2/RnnFusion/data/CARLA_episode_0019/'
         infer_path = root_path + 'test1/test/infer_feature/'
         gt_path = root_path + 'test1/test/gt_feature/'
         pose_path = root_path + 'test1/test/pose/'

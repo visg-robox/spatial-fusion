@@ -13,8 +13,9 @@ class FeatureVoxel:
 
 class FeatureInfo:
 
-    def __init__(self, feature_list):
+    def __init__(self, feature_list, distance):
         self.feature_list = feature_list
+        self.distance = distance
 
 
 class FeatureLidarPoint:
