@@ -1,4 +1,6 @@
 from enum import Enum, unique
+import numpy as np
+import itertools
 
 voxel_length = 0.05
 class_num = 13
@@ -29,3 +31,10 @@ USING_RNN_FEATURE = False
 USING_SSNet_FEATURE = True
 USING_RNN = False
 USING_SSNet = True
+
+
+# related space
+
+offset_list = []
+for i in itertools.product([-2, -1, 0, 1 ,2], repeat=3):
+    offset_list.append(i)

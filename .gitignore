@@ -10,3 +10,5 @@ model/__pycache__/
 train/feature/runs/
 
 visualization/__pycache__/
+
+\.idea/
