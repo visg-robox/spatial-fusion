@@ -2,7 +2,9 @@ from enum import Enum, unique
 import itertools
 voxel_length = 0.05
 class_num = 13
-feature_num = 128
+img_feature_size = 128
+vector_size = 3
+feature_num = img_feature_size + vector_size
 # region
 region_x = 10
 region_y = 10

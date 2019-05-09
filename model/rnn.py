@@ -110,6 +110,19 @@ class SSNetCell(nn.Module):
         return last_output, h0_t, c0_t, h1_t, c1_t
 
 
+class Encoder():
+    def __init__(self, ):
+        super(Encoder, self).__init__()
+
+
+class Decoder():
+    def __init__(self):
+        super(Decoder, self).__init__()
+        
+class Attention_mechanism():
+    def __init__(self):
+        super(Attention_mechanism, self).__init__()
+    
 # basic
 class Rnn(nn.Module):
     def __init__(self, INPUT_SIZE, HIDDEN_SIZE, NUM_LAYERS):
@@ -140,6 +153,8 @@ def load_icnet_parameter():
     biasis = np.load(biasis_file)
     weights = np.load(weight_file)
     return weights, biasis
+
+# cal weight for Q between K
 
 
 if __name__ == "__main__":

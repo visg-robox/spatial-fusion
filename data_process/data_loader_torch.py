@@ -115,28 +115,25 @@ def featuremap_to_batch(voxel_map, keys_list, batch_size, time_step, input_size)
     return res
 
 
-def featuremap_to_batch_with_distance(voxel_map, keys_list, batch_size, time_step, input_size):
-    res = torch.zeros(batch_size, time_step, input_size + 1)
-    for i in range(len(keys_list)):
+def featuremap_to_batch_with_distance(voxel_map, keys_list, batch_size, near_num, time_step, input_size):
+    res = torch.zeros(batch_size, near_num, time_step, input_size + 1)
+    for i in range(len(keys_list)):                                                  # batch dim
         key = keys_list[i]
         #related_keys
-        related_feature = get_related_feature(key, voxel_map)
-        feature_info = voxel_map[key].feature_info_list
-        feature_len = len(feature_info)
-        start_num = 0
-        end_num = feature_len + start_num
-        if end_num > time_step:
-            end_num = time_step
-        for j in range(start_num, end_num):
-            feature_list = numpy.append(1, feature_info[j - start_num].feature_list, feature_info.distance)
-            res[i][j] = torch.FloatTensor(feature_list)
-            count = 0
-            for k in range(len(related_feature)):
-                if j < len(related_feature[k]):
-                    feature_list = feature_list + numpy.append(1, related_feature[k][j].feature_list)
-                    count += 1
-            feature_list = feature_list/count
-            res[i][j] = torch.FloatTensor(feature_list)
+        related_feature = get_related_voxels(key, voxel_map)
+        for j in range(len(related_feature)):                                         # near_num dim
+            feature_info = related_feature[j]
+            if(feature_info != None):
+                feature_len = len(feature_info)
+                start_num = 0
+                end_num = feature_len + start_num
+                if end_num > time_step:
+                    end_num = time_step
+
+                for k in range(start_num, end_num):                                      # time_step dim
+                    feature_list = numpy.append(1, feature_info[k - start_num].feature_list, feature_info[k - start_num].vector)  # ???? feature fusion for each time step
+
+                    res[i][j][k] = torch.FloatTensor(feature_list)
     return res
 
 
@@ -150,6 +147,21 @@ def featuremap_to_gt_num(voxel_map, keys_list, batch_size):
         res[i] = int(semantic_info[0].feature_list[0])
         # res[i] = torch.FloatTensor(semantic_info[0].label_list)
     return res
+
+
+def get_related_voxels(key, voxel_map):
+    related_feature = []
+    shape = voxel_map[key].feature_info_list.shape
+    center = key_to_center(key)
+    for item in common.offset_list:
+        related_center = [center[i] + list(item)[i]*common.voxel_length for i in range(len(key))]   # why need center_to_key?
+        related_key = center_to_key(related_center)
+        if related_key in voxel_map:
+            related_feature.append(voxel_map[related_key].feature_info_list)
+        else:
+            related_feature.append(None)
+
+    return related_feature
 
 
 def get_related_feature(key, voxel_map):
