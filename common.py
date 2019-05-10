@@ -17,6 +17,7 @@ block_len = 5
 #
 batch_size = 512
 time_step = 50
+qk_dim = 256
 
 
 # fusion method
