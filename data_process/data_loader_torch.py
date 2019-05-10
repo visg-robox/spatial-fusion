@@ -132,7 +132,6 @@ def featuremap_to_batch_with_distance(voxel_map, keys_list, batch_size, near_num
 
                 for k in range(start_num, end_num):                                      # time_step dim
                     feature_list = numpy.append(1, feature_info[k - start_num].feature_list, feature_info[k - start_num].vector)  # ???? feature fusion for each time step
-
                     res[i][j][k] = torch.FloatTensor(feature_list)
     return res
 
