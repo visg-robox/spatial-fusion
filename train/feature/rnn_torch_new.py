@@ -19,7 +19,7 @@ from visualization.input_data import visualize_batch
 from torch import nn
 from torch.autograd import Variable
 from tensorboardX import SummaryWriter
-
+from model import spnet
 
 # Hyper Parameters
 EPOCH = 100                             # train the training data n times, to save time, we just train 1 epoch
@@ -29,6 +29,7 @@ TIME_STEP = 50  # common.time_step                          # rnn time step / im
 INPUT_SIZE = common.feature_num         # rnn input size / image width
 HIDDEN_SIZE = common.feature_num
 OUTPUT_SIZE = common.class_num
+
 LR = 0.001                              # learning rate
 WINDOW_SIZE = 50
 
@@ -51,13 +52,13 @@ if __name__ == '__main__':
     gt_file.sort()
 
     writer = SummaryWriter('runs/average_feature')
-    rnn = SSNet(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
-    optimizer = torch.optim.Adam(rnn.parameters(), lr=LR, weight_decay=1e-5)
+    model = spnet.SPNet(INPUT_SIZE, INPUT_SIZE, OUTPUT_SIZE)
+    optimizer = torch.optim.Adam(model.parameters(), lr=LR, weight_decay=1e-5)
     loss_func = nn.CrossEntropyLoss()
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
 
     random.seed(10)
-    rnn.cuda()
+    model.cuda()
     record_iter = 0
     for epoch in range(EPOCH):
         scheduler.step()
@@ -82,7 +83,7 @@ if __name__ == '__main__':
                 gt = data_loader_torch.featuremap_to_gt_num(gt_dict, current_keys, BATCH_SIZE)
                 gt = Variable(gt).cuda()
 
-                output = rnn(input_data, TIME_STEP)
+                output = model.forward(input_data)
                 loss = loss_func(output, gt)
                 optimizer.zero_grad()
                 loss.backward()
@@ -94,7 +95,7 @@ if __name__ == '__main__':
                 print(record_iter)
                 if record_iter % 5000 == 0:
                     model_name = res_save_path + str(record_iter) + '_model.pkl'
-                    torch.save(rnn, model_name)
+                    torch.save(model, model_name)
                     eval_ssnet(test_infer_path, test_gt_path, model_name, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
     writer.close()
 

@@ -108,20 +108,6 @@ class SSNetCell(nn.Module):
             output_lsit.append(output)
         last_output = output_lsit[-1]
         return last_output, h0_t, c0_t, h1_t, c1_t
-
-
-class Encoder():
-    def __init__(self, ):
-        super(Encoder, self).__init__()
-
-
-class Decoder():
-    def __init__(self):
-        super(Decoder, self).__init__()
-        
-class Attention_mechanism():
-    def __init__(self):
-        super(Attention_mechanism, self).__init__()
     
 # basic
 class Rnn(nn.Module):
