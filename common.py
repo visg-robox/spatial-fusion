@@ -4,10 +4,16 @@ import itertools
 voxel_length = 0.05
 class_num = 13
 
+# input feature order
 img_feature_size = 128
 vector_size = 3
+offset_size = 3
 location_size = 3
-feature_num = img_feature_size + vector_size + location_size
+
+feature_num = img_feature_size + vector_size + offset_size + location_size
+qk_dim = 256
+
+
 
 # region
 region_x = 10
@@ -18,7 +24,7 @@ block_len = 5
 #
 batch_size = 512
 time_step = 50
-qk_dim = 256
+
 
 
 # fusion method
