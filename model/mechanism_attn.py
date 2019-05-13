@@ -15,6 +15,7 @@ class attention(nn.Module):
         self.label_num = label_num
 
         self.decoder = nn.Linear(self.v_dim, self.label_num)
+        self.regular = nn.Tanh()
 
     def forward(self, K, V, Q, input_data):
         K = K.permute(0, 2, 3, 1)
@@ -39,6 +40,10 @@ class attention(nn.Module):
 
         q = q.unsqueeze(1).expand(-1, shape[1], -1)
         attn_scores = self.get_attn_score(k, q) #[bz, near_num*time_step]
+        attn_scores = attn_scores.unsqueeze(1)
+        attn_scores = attn_scores.unsqueeze(-1)
+        attn_scores = self.regular(attn_scores)
+        attn_scores = attn_scores.squeeze()
 
         attn_scores = torch.exp(attn_scores)
         attn_sum = torch.sum(attn_scores*flag, 1).unsqueeze(1).expand(-1, shape[1])
