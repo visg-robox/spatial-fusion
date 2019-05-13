@@ -24,7 +24,7 @@ class SSNet(nn.Module):
         self.drop = nn.Dropout(p=dropout)
         self.linear = nn.Linear(hidden_size, output_size)
         self.bn = nn.BatchNorm1d(output_size, affine=False)
-        self.init_linear()
+        # self.init_linear()
 
     def forward(self, input_data, time_step):
         # input_data shape: (batch_size, time_step, input_size)
@@ -133,7 +133,7 @@ class Rnn(nn.Module):
 
 
 def load_icnet_parameter():
-    file_path = '/home/zhangjian/code/project/spatial-fusion/icnet_para'
+    file_path = '/home/wangkai/spatial-fusion/icnet_para'
     biasis_file = file_path + '/cls_biasis.npy'
     weight_file = file_path + '/cls_weights.npy'
     biasis = np.load(biasis_file)

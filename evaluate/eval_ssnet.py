@@ -14,11 +14,12 @@ from data_process.data_process_feature import *
 from evaluate.eval_API import *
 
 import torch
+from torch import nn
 from torch.autograd import Variable
 
 
 # Hyper Parameters
-TEST_BATCH_SIZE = 50
+TEST_BATCH_SIZE = 10
 TIME_STEP = common.time_step                          # rnn time step / image height
 INPUT_SIZE = common.feature_num         # rnn input size / image width
 HIDDEN_SIZE = common.feature_num
@@ -44,13 +45,14 @@ def eval_ssnet(test_infer_path,
     test_gt_file_list = get_file_list(test_gt_path)
     test_gt_file_list.sort()
 
+    loss_func = nn.CrossEntropyLoss()
     rnn = torch.load(model_path)
     rnn.cuda()
 
     test_pred_y = np.zeros(1, dtype=int)
     test_gt_y = np.zeros(1, dtype=int)
 
-    # for test_file_idx in range(3):
+    # for test_file_idx in range(1):
     for test_file_idx in range(len(test_infer_file_list)):
         test_infer_filename = test_infer_file_list[test_file_idx]
         test_gt_filename = test_gt_file_list[test_file_idx]
@@ -60,33 +62,26 @@ def eval_ssnet(test_infer_path,
         print('test file: ', test_infer_filename)
         for j in range(len(test_keys_list) // TEST_BATCH_SIZE):
             test_current_keys = test_keys_list[j * TEST_BATCH_SIZE:(j + 1) * TEST_BATCH_SIZE]
-            test_input_data = data_loader_torch.featuremap_to_batch(test_infer_dict,
+            test_input = data_loader_torch.featuremap_to_batch_with_distance(test_infer_dict,
                                                                     test_current_keys,
                                                                     TEST_BATCH_SIZE,
+                                                                    common.near_num,
                                                                     time_step,
                                                                     INPUT_SIZE)
+            test_input = Variable(test_input, requires_grad=True).cuda()
             test_gt = data_loader_torch.featuremap_to_gt_num(test_gt_dict,
                                                              test_current_keys,
                                                              TEST_BATCH_SIZE)
 
-            test_gt = Variable(test_gt).cuda()
-            test_time_step = test_input_data.size(1)
-            test_output_list = []
-            for window_step in range(test_time_step - window_size + 1):
-                test_cur_input = Variable(test_input_data[:, window_step:window_step+window_size, :], requires_grad=True).cuda()
-                test_output = rnn(test_cur_input, window_size)
-                test_output_list.append(test_output)
-            test_output = test_output_list[-1]
-            # test_loss = loss_func(test_output, test_gt.cuda())
+            test_output = rnn(test_input)
+            test_loss = loss_func(test_output, test_gt.cuda())
             test_pred_y = numpy.append(test_pred_y, torch.max(test_output.cpu(), 1)[1].data.numpy().squeeze())
             test_gt_y = numpy.append(test_gt_y, test_gt.cpu().numpy())
 
-    # model_path = res_path + 'window_size_' + str(window_size) + '_model.pkl'
-    # torch.save(rnn, model_path)
-    # accuracy = float((test_pred_y == test_gt_y).astype(int).sum()) / float(test_gt_y.size)
     total_accuracy_rnn = getaccuracy(test_pred_y, test_gt_y, common.class_num)
     evaluate_name = 'window_size_' + str(window_size) + '_current_rnn_feature'
     eval_print_save(total_accuracy_rnn, evaluate_name, log_dir)
+    return test_loss
 
 
 # 这个测试的时候是存在问题的，最后一次的输入可能全都是0
