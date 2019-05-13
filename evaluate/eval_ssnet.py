@@ -60,9 +60,10 @@ def eval_ssnet(test_infer_path,
         print('test file: ', test_infer_filename)
         for j in range(len(test_keys_list) // TEST_BATCH_SIZE):
             test_current_keys = test_keys_list[j * TEST_BATCH_SIZE:(j + 1) * TEST_BATCH_SIZE]
-            test_input_data = data_loader_torch.featuremap_to_batch(test_infer_dict,
+            test_input_data = data_loader_torch.featuremap_to_batch_with_distance(test_infer_dict,
                                                                     test_current_keys,
                                                                     TEST_BATCH_SIZE,
+                                                                    common.near_num,
                                                                     time_step,
                                                                     INPUT_SIZE)
             test_gt = data_loader_torch.featuremap_to_gt_num(test_gt_dict,

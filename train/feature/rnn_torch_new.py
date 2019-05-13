@@ -27,10 +27,11 @@ EPOCH = 100                             # train the training data n times, to sa
 # when batch size = 1, we just want to have a test
 BATCH_SIZE = 8  # common.batch_size
 TIME_STEP = 50  # common.time_step                          # rnn time step / image height
-NEAR_NUM = int(math.pow((common.offset*2+1), 3))
+
 INPUT_SIZE = common.feature_num         # rnn input size / image width
 HIDDEN_SIZE = common.feature_num
 OUTPUT_SIZE = common.class_num
+NEAR_NUM = common.near_num
 
 LR = 0.001                              # learning rate
 WINDOW_SIZE = 50

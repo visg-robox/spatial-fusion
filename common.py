@@ -1,5 +1,6 @@
 from enum import Enum, unique
 import itertools
+import math
 
 voxel_length = 0.05
 class_num = 13
@@ -51,5 +52,6 @@ data_path = "/home/wangkai/project2/RnnFusion/data/"
 
 offset_list = []
 offset = 2
+near_num = int(math.pow((offset*2+1), 3))
 for i in itertools.product([i-2 for i in range(2 * offset + 1)], repeat=3):
     offset_list.append(i)
