@@ -64,12 +64,12 @@ def pre_process(infer_path, gt_path, pose_path, infer_save_path, gt_save_path):
     pose_file_list.sort()
 
     pose_initial = read_pose(pose_file_list[0])
-    # infer_map = VoxelMap(pose_initial)
-    # for i in range(len(point_file_list)):
-    #     pose = read_pose(pose_file_list[i])
-    #     file_to_voxelmap(point_file_list[i], infer_map, pose)
-    #     infer_map.move(pose, infer_save_path)
-    # infer_map.unload_map(infer_save_path)
+    infer_map = VoxelMap(pose_initial)
+    for i in range(len(point_file_list)):
+        pose = read_pose(pose_file_list[i])
+        file_to_voxelmap(point_file_list[i], infer_map, pose)
+        infer_map.move(pose, infer_save_path)
+    infer_map.unload_map(infer_save_path)
 
     gt_map = VoxelMap(pose_initial)
     for i in range(len(gt_file_list)):
@@ -90,8 +90,9 @@ if __name__ == '__main__':
         infer_path = data_path + 'test1/infer_feature/'
         gt_path = data_path + 'test1/gt_feature/'
         pose_path = data_path + 'test1/pose/'
-        infer_save_path = data_path + 'test2/infer_feature/'
-        gt_save_path = data_path + 'test2/gt_feature/'
+        save_path = '/media/data/'
+        infer_save_path = save_path + 'test3/infer_feature/'
+        gt_save_path = save_path + 'test3/gt_feature/'
         pre_process(infer_path, gt_path, pose_path, infer_save_path, gt_save_path)
 
     if TEST_FLAG is True:
@@ -99,6 +100,6 @@ if __name__ == '__main__':
         infer_path = data_path + 'test1/test/infer_feature/'
         gt_path = data_path + 'test1/test/gt_feature/'
         pose_path = data_path + 'test1/test/pose/'
-        infer_save_path = data_path + 'test2/test_feature/infer/'
-        gt_save_path = data_path + 'test2/test_feature/gt/'
+        infer_save_path = data_path + 'test3/test_feature/infer/'
+        gt_save_path = data_path + 'test3/test_feature/gt/'
         pre_process(infer_path, gt_path, pose_path, infer_save_path, gt_save_path)

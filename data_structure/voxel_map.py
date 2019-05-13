@@ -117,10 +117,12 @@ class VoxelMap:
     def unload_block(self, location, path):
         block_idx = center_to_idx(self.get_block_center(location))
         block_center = block_regular(location)
-        block_name = path + '/' + (''.join((str(int(e*100)) + '_') for e in block_center.tolist()))[:-1] + '.npy'
+        block_name = path + (''.join((str(int(e*100)) + '_') for e in block_center.tolist()))[:-1] + '.npy'
         # if len(self.map[block_idx]) < common.batch_size:
         #     self.map[block_idx].clear()
         if len(self.map[block_idx]) > common.batch_size:
+            if os.path.isdir(path) is False:
+                os.makedirs(path)
             np.save(block_name, self.map[block_idx])
         self.map[block_idx].clear()
 
