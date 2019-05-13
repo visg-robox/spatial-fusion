@@ -36,8 +36,8 @@ class encorder(nn.Module):
         self.conv_location = nn.Conv2d(LOCATION_DIM, ENBEDDING_DIM, 1)
         self.conv1 = nn.Conv2d(IMG_FEATURE_DIM + ENBEDDING_DIM * 3, qk_dim, 1)
         self.conv2 = nn.Conv2d(qk_dim, qk_dim, 1)
-        self.relu1 = nn.LeakyReLU(0.2)
-        self.relu2 = nn.LeakyReLU(0.2)
+        self.relu1 = nn.Tanh()
+        self.relu2 = nn.Tanh()
 
 
 

@@ -88,6 +88,7 @@ if __name__ == '__main__':
 
                 output = model.forward(input_data)
                 loss = loss_func(output, gt)
+                print(loss)
                 optimizer.zero_grad()
                 loss.backward()
                 # for name, param in rnn.named_parameters():
@@ -99,6 +100,8 @@ if __name__ == '__main__':
                 if record_iter % 5000 == 0:
                     model_name = res_save_path + str(record_iter) + '_model.pkl'
                     torch.save(model, model_name)
-                    eval_ssnet(test_infer_path, test_gt_path, model_name, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
+                    test_loss = eval_ssnet(test_infer_path, test_gt_path, model_name, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
+                    writer.add_scalar('data/feature_test_loss', test_loss, record_iter)
+
     writer.close()
 
