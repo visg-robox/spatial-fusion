@@ -44,11 +44,12 @@ USING_SSNet = True
 
 
 # path definition
-project_path = "/home/zhangjian/code/project/spatial-fusion/"
-data_path = "/home/zhangjian/code/project/data/"
+project_path = "/home/wangkai/spatial-fusion/"
+data_path = "/home/wangkai/project2/RnnFusion/data/"
 
 # related space
 
 offset_list = []
-for i in itertools.product([-2, -1, 0, 1 ,2], repeat=3):
+offset = 2
+for i in itertools.product([i-2 for i in range(2 * offset + 1)], repeat=3):
     offset_list.append(i)

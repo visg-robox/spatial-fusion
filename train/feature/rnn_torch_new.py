@@ -20,12 +20,14 @@ from torch import nn
 from torch.autograd import Variable
 from tensorboardX import SummaryWriter
 from model import spnet
+import math
 
 # Hyper Parameters
 EPOCH = 100                             # train the training data n times, to save time, we just train 1 epoch
 # when batch size = 1, we just want to have a test
-BATCH_SIZE = 512  # common.batch_size
+BATCH_SIZE = 8  # common.batch_size
 TIME_STEP = 50  # common.time_step                          # rnn time step / image height
+NEAR_NUM = int(math.pow((common.offset*2+1), 3))
 INPUT_SIZE = common.feature_num         # rnn input size / image width
 HIDDEN_SIZE = common.feature_num
 OUTPUT_SIZE = common.class_num
@@ -78,7 +80,7 @@ if __name__ == '__main__':
 
             for i in range(len(keys_list)//BATCH_SIZE):
                 current_keys = random.sample(keys_list, BATCH_SIZE)
-                input_data = data_loader_torch.featuremap_to_batch(voxel_dict, current_keys, BATCH_SIZE, TIME_STEP, INPUT_SIZE)
+                input_data = data_loader_torch.featuremap_to_batch_with_distance(voxel_dict, current_keys, BATCH_SIZE, NEAR_NUM, TIME_STEP, INPUT_SIZE)
                 input_data = Variable(input_data, requires_grad=True).cuda()
                 gt = data_loader_torch.featuremap_to_gt_num(gt_dict, current_keys, BATCH_SIZE)
                 gt = Variable(gt).cuda()

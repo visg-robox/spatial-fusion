@@ -1,7 +1,8 @@
 
 import torch
+import math
 from data_process.data_process import *
-from common import USING_RNN_FEATURE, USING_SSNet_FEATURE, USING_RNN, USING_SSNet
+from common import USING_RNN_FEATURE, USING_SSNet_FEATURE, USING_RNN, USING_SSNet, offset
 
 
 # input:
@@ -121,7 +122,8 @@ def featuremap_to_batch_with_distance(voxel_map, keys_list, batch_size, near_num
         key = keys_list[i]
         #related_keys
         related_feature = get_related_voxels(key, voxel_map)
-        for j in range(len(related_feature)):                                         # near_num dim
+        for j in range(len(related_feature)):# near_num dim
+            offset_vector = index_to_offset(j, offset)
             feature_info = related_feature[j]
             if(feature_info != None):
                 feature_len = len(feature_info)
@@ -130,10 +132,21 @@ def featuremap_to_batch_with_distance(voxel_map, keys_list, batch_size, near_num
                 if end_num > time_step:
                     end_num = time_step
 
-                for k in range(start_num, end_num):                                      # time_step dim
-                    feature_list = numpy.append(1, feature_info[k - start_num].feature_list, feature_info[k - start_num].vector)  # ???? feature fusion for each time step
+                for k in range(start_num, end_num):                                  # time_step dim
+                    feature_list = [1] + list(feature_info[k - start_num].feature_list) + \
+                                   [0, 0, 0] + offset_vector + list(key)  # ???? feature fusion for each time step
                     res[i][j][k] = torch.FloatTensor(feature_list)
     return res
+
+
+def index_to_offset(index, offset):
+    offset_vector = []
+    for i in range(3):
+        tmp = int(math.pow(2*offset+1, 2-i))
+        num = index // tmp
+        offset_vector.append(num)
+        index -= num
+    return offset_vector
 
 
 # get batch tensor in number form
@@ -150,7 +163,6 @@ def featuremap_to_gt_num(voxel_map, keys_list, batch_size):
 
 def get_related_voxels(key, voxel_map):
     related_feature = []
-    shape = voxel_map[key].feature_info_list.shape
     center = key_to_center(key)
     for item in common.offset_list:
         related_center = [center[i] + list(item)[i]*common.voxel_length for i in range(len(key))]   # why need center_to_key?

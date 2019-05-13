@@ -64,12 +64,12 @@ def pre_process(infer_path, gt_path, pose_path, infer_save_path, gt_save_path):
     pose_file_list.sort()
 
     pose_initial = read_pose(pose_file_list[0])
-    # infer_map = VoxelMap(pose_initial)
-    # for i in range(len(point_file_list)):
-    #     pose = read_pose(pose_file_list[i])
-    #     file_to_voxelmap(point_file_list[i], infer_map, pose)
-    #     infer_map.move(pose, infer_save_path)
-    # infer_map.unload_map(infer_save_path)
+    infer_map = VoxelMap(pose_initial)
+    for i in range(len(point_file_list)):
+        pose = read_pose(pose_file_list[i])
+        file_to_voxelmap(point_file_list[i], infer_map, pose)
+        infer_map.move(pose, infer_save_path)
+    infer_map.unload_map(infer_save_path)
 
     gt_map = VoxelMap(pose_initial)
     for i in range(len(gt_file_list)):

@@ -14,15 +14,15 @@ from model.mechanism_attn import *
 q_input_size: 生成query的input data维度
 kv_
 """
-SSNET_HIDDENSIZE = 256
+SSNET_HIDDENSIZE = common.qk_dim
 SSNET_OUTPUTSIZE = common.qk_dim
 SSNET_TIMESTEP = common.time_step
 
 class SPNet(nn.Module):
-    def __init__(self, q_input_size, kv_input_size, label_num, gpu=True):
+    def __init__(self, input_size, kv_input_size, label_num, gpu=True):
         super(SPNet, self).__init__()
         self._gpu = gpu
-        self.lstm = SSNet(None, SSNET_HIDDENSIZE, c, gpu=self._gpu)
+        self.lstm = SSNet(input_size, SSNET_HIDDENSIZE, SSNET_OUTPUTSIZE, gpu=self._gpu)
         self.encoder = encorder(SSNET_OUTPUTSIZE)
         #wait correct
         # encoder 的输入维度与SPnet不协调
