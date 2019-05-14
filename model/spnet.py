@@ -27,7 +27,7 @@ class SPNet(nn.Module):
         #wait correct
         # encoder 的输入维度与SPnet不协调
         # SSNET_OUTPUTSIZE
-
+        self.decoder = nn.Conv2d(256, 13, 1)
         self.attention = attention(SSNET_OUTPUTSIZE, SSNET_OUTPUTSIZE, label_num)
 
     def forward(self, input):
@@ -35,6 +35,9 @@ class SPNet(nn.Module):
         query = self.lstm.forward(input[:, shape[1]//2, :, :], SSNET_TIMESTEP)
         kv = self.encoder.forward(input)
 
-        output = self.attention.forward(kv, kv, query, input)
 
-        return output
+        # output = self.attention.forward(kv, kv, query, input)
+        out = kv[:,:,62:63,0:1]
+        out = self.decoder(out)
+        out = out.squeeze()
+        return out

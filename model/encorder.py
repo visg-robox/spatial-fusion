@@ -1,7 +1,7 @@
 # Encorder for voxel_feature to  encoded feature
 #
 # input: (batch_size, near_num, time_step, 1(flag) + img_feature_dim + vector_dim + offset_dim + location_dim)
-# output:(batch_size, near_num, time_step, qk_dim)
+# output:(batch_size, qk_dim, near_num, time_step)
 #
 # model:
 # vector,offset --> expand to same dim as img_feature_dim
@@ -34,7 +34,7 @@ class encorder(nn.Module):
         self.conv_vector = nn.Conv2d(VECTOR_DIM, ENBEDDING_DIM, 1)
         self.conv_offset = nn.Conv2d(OFFSET_DIM, ENBEDDING_DIM, 1)
         self.conv_location = nn.Conv2d(LOCATION_DIM, ENBEDDING_DIM, 1)
-        self.conv1 = nn.Conv2d(IMG_FEATURE_DIM + ENBEDDING_DIM * 3, qk_dim, 1)
+        self.conv1 = nn.Conv2d(IMG_FEATURE_DIM, qk_dim, 1)
         self.conv2 = nn.Conv2d(qk_dim, qk_dim, 1)
         self.relu1 = nn.Tanh()
         self.relu2 = nn.Tanh()
@@ -57,8 +57,8 @@ class encorder(nn.Module):
 
         location = self.conv_location(location)
         location = self.relu2(location)
-        feature = torch.cat((img_feature, vector, offset, location), dim = 1)
-        feature = self.conv1(feature)
+        # feature = torch.cat((img_feature, vector, offset, location), dim = 1)
+        feature = self.conv1(img_feature)
         feature = self.relu1(feature)
         feature = self.conv2(feature)
         feature = self.relu2(feature)
