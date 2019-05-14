@@ -6,7 +6,7 @@ Test two situations:
 2. time step is not continuous
 """
 import sys
-sys.path.append("/home/zhangjian/code/project/spatial-fusion/")
+# sys.path.append("/home/zhangjian/code/project/spatial-fusion/")
 import common
 import torch
 
@@ -26,8 +26,8 @@ EPOCH = 100                             # train the training data n times, to sa
 # when batch size = 1, we just want to have a test
 BATCH_SIZE = 512  # common.batch_size
 TIME_STEP = 50  # common.time_step                          # rnn time step / image height
-INPUT_SIZE = common.feature_num           # rnn input size / image width
-HIDDEN_SIZE = common.feature_num
+INPUT_SIZE = common.img_feature_size           # rnn input size / image width
+HIDDEN_SIZE = common.img_feature_size
 OUTPUT_SIZE = common.class_num
 LR = 0.001                              # learning rate
 WINDOW_SIZE = 50
@@ -39,10 +39,10 @@ USING_SSNet_FEATURE = common.USING_SSNet_FEATURE
 if __name__ == '__main__':
 
     data_path = common.data_path
-    infer_path = data_path + 'CARLA_episode_0019/test2/infer_feature/'
-    gt_path = data_path + 'CARLA_episode_0019/test2/gt_feature/'
-    test_infer_path = data_path + 'CARLA_episode_0019/test2/test_feature/infer/'
-    test_gt_path = data_path + 'CARLA_episode_0019/test2/test_feature/gt/'
+    infer_path = data_path + 'test3/infer_feature/'
+    gt_path = data_path + 'test3/gt_feature/'
+    # test_infer_path = data_path + 'CARLA_episode_0019/test2/test_feature/infer/'
+    # test_gt_path = data_path + 'CARLA_episode_0019/test2/test_feature/gt/'
     res_save_path = str(os.getcwd()) + '/runs/average_feature/'
 
     infer_file = get_file_list(infer_path)
