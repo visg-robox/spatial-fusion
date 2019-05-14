@@ -45,8 +45,8 @@ USING_SSNet = True
 
 
 # path definition
-project_path = "/home/wangkai/spatial-fusion/"
-data_path = "/home/wangkai/project2/RnnFusion/data/"
+# project_path = "/home/zhangjian/code/project/data/CARLA_episode_0019"
+data_path = "/home/zhangjian/code/project/data/CARLA_episode_0019/"
 
 # related space
 

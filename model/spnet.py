@@ -24,17 +24,18 @@ class SPNet(nn.Module):
         self._gpu = gpu
         self.lstm = SSNet(input_size, SSNET_HIDDENSIZE, SSNET_OUTPUTSIZE, gpu=self._gpu)
         self.encoder = encorder(SSNET_OUTPUTSIZE)
-        #wait correct
-        # encoder 的输入维度与SPnet不协调
-        # SSNET_OUTPUTSIZE
-
         self.attention = attention(SSNET_OUTPUTSIZE, SSNET_OUTPUTSIZE, label_num)
+        #
+        self.decoder = nn.Linear(SSNET_OUTPUTSIZE, common.class_num)
 
     def forward(self, input):
         shape = input.shape  # [batch_size, near_num, time_step, feature_dim]
         query = self.lstm.forward(input[:, shape[1]//2, :, :], SSNET_TIMESTEP)
         kv = self.encoder.forward(input)
 
-        output = self.attention.forward(kv, kv, query, input)
+        # output = self.attention.forward(kv, kv, query, input)
+        output = self.decoder(query)
 
         return output
+
+
