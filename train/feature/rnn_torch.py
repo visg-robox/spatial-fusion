@@ -24,11 +24,13 @@ from tensorboardX import SummaryWriter
 # Hyper Parameters
 EPOCH = 100                             # train the training data n times, to save time, we just train 1 epoch
 # when batch size = 1, we just want to have a test
-BATCH_SIZE = 512  # common.batch_size
+BATCH_SIZE = 32  # common.batch_size
 TIME_STEP = 50  # common.time_step                          # rnn time step / image height
-INPUT_SIZE = common.img_feature_size           # rnn input size / image width
-HIDDEN_SIZE = common.img_feature_size
+INPUT_SIZE = common.feature_num           # rnn input size / image width
+HIDDEN_SIZE = common.feature_num
 OUTPUT_SIZE = common.class_num
+NEAR_NUM = common.near_num
+
 LR = 0.001                              # learning rate
 WINDOW_SIZE = 50
 
@@ -77,7 +79,8 @@ if __name__ == '__main__':
 
             for i in range(len(keys_list)//BATCH_SIZE):
                 current_keys = random.sample(keys_list, BATCH_SIZE)
-                input_data = data_loader_torch.featuremap_to_batch(voxel_dict, current_keys, BATCH_SIZE, TIME_STEP, INPUT_SIZE)
+                input_data = data_loader_torch.featuremap_to_batch_with_distance(voxel_dict, current_keys, BATCH_SIZE, NEAR_NUM, TIME_STEP, INPUT_SIZE)
+                # input_data = data_loader_torch.featuremap_to_batch(voxel_dict, current_keys, BATCH_SIZE, TIME_STEP, INPUT_SIZE)
                 input_data = Variable(input_data, requires_grad=True).cuda()
                 gt = data_loader_torch.featuremap_to_gt_num(gt_dict, current_keys, BATCH_SIZE)
                 gt = Variable(gt).cuda()

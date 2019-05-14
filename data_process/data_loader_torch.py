@@ -110,6 +110,7 @@ def featuremap_to_batch_with_distance(voxel_map, keys_list, batch_size, near_num
                     feature_list = [1] + list(feature_info[k - start_num].feature_list) + \
                                    [1, 1, 1] + offset_vector + list(key)  # list(feature_info[k - start_num].vector
                     res[i][j][k] = torch.FloatTensor(feature_list)
+    res = res[:, near_num//2, :, :]
     return res
 
 
