@@ -6,7 +6,7 @@ Test two situations:
 2. time step is not continuous
 """
 import sys
-sys.path.append("/media/luo/Dataset/RnnFusion/spatial-fusion")
+sys.path.append("../..")
 import common
 import torch
 
@@ -42,19 +42,21 @@ USING_SSNet_FEATURE = common.USING_SSNet_FEATURE
 
 if __name__ == '__main__':
 
-
-    infer_path = '../test3/infer_feature/'
-    gt_path = '../test3/gt_feature/'
+    abs_path = '/media/luo/Dataset/RnnFusion/test3'
+    infer_path = os.path.join(abs_path, 'infer_feature')
+    gt_path = os.path.join(abs_path, 'gt_feature')
     # test_infer_path = data_path + 'CARLA_episode_0019/test2/test_feature/infer/'
     # test_gt_path = data_path + 'CARLA_episode_0019/test2/test_feature/gt/'
-    res_save_path = str(os.getcwd()) + '/runs/test_direct_encorder/'
+    res_save_path = str(os.getcwd()) + '/runs/test_encorder_multi_feature/'
+    if not os.path.isdir(res_save_path):
+        os.makedirs(res_save_path)
 
     infer_file = get_file_list(infer_path)
     infer_file.sort()
     gt_file = get_file_list(gt_path)
     gt_file.sort()
 
-    writer = SummaryWriter('runs/average_feature')
+    writer = SummaryWriter(res_save_path)
     model = spnet.SPNet(INPUT_SIZE, INPUT_SIZE, OUTPUT_SIZE)
     optimizer = torch.optim.Adam(model.parameters(), lr=LR, weight_decay=1e-5)
     loss_func = nn.CrossEntropyLoss()
