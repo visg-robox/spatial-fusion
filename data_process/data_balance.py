@@ -27,9 +27,9 @@ def data_balance(voxel_map, gt_map, label_probability):
         near_keys = near_array[i, :, :]
         probability = label_probability[label]
         if np.random.binomial(1, probability) is 1:
-            for i in range(near_keys.shape[0]):
-                if near_keys[i, 0]+near_keys[i, 1]+near_keys[i, 2] is not 0:
-                    voxel_info.append(voxel_map[tuple(near_keys[i,:])])
+            for j in range(near_keys.shape[0]):
+                if near_keys[j, 0]+near_keys[j, 1]+near_keys[j, 2] is not 0:
+                    voxel_info.append(voxel_map[tuple(near_keys[j,:])])
             voxel_res[key] = voxel_info
             gt_res[key] = gt_map[key]
     return voxel_res, gt_res
