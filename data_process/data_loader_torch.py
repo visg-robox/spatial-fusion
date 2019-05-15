@@ -138,6 +138,30 @@ def featuremap_to_batch_with_distance(voxel_map, keys_list, batch_size, near_num
                     res[i][j][k] = torch.FloatTensor(feature_list)
     return res
 
+def featuremap_to_batch_with_balance(voxel_map, keys_list, batch_size, near_num, time_step, input_size):
+    res = torch.zeros(batch_size, near_num, time_step, input_size + 1)
+    for i in range(len(keys_list)):                                                  # batch dim
+        # len(keys_list == batch_size)
+        key = keys_list[i]
+        #related_keys
+        related_feature = voxel_map[key]
+        for j in range(len(related_feature)):                                        # near_num dim
+            related_key = center_to_key(related_feature[j].center)
+            offset_vector = [key[m] - related_key[m] for m in range(3)]
+            feature_info = related_feature[j].feature_info_list
+            if(feature_info != None):
+                feature_len = len(feature_info)
+                start_num = 0
+                end_num = feature_len + start_num
+                if end_num > time_step:
+                    end_num = time_step
+
+                for k in range(start_num, end_num):                                  # time_step dim
+                    feature_list = [1] + list(feature_info[k - start_num].feature_list) + \
+                                   feature_info[k - start_num].vector + offset_vector  # list(feature_info[k - start_num].vector
+                    res[i][j][k] = torch.FloatTensor(feature_list)
+    return res
+
 
 def index_to_offset(index, offset):
     offset_vector = []
@@ -162,6 +186,19 @@ def featuremap_to_gt_num(voxel_map, keys_list, batch_size):
 
 
 def get_related_voxels(key, voxel_map):
+    related_feature = []
+    center = key_to_center(key)
+    for item in common.offset_list:
+        related_center = [center[i] + list(item)[i]*common.voxel_length for i in range(len(key))]   # why need center_to_key?
+        related_key = center_to_key(related_center)
+        if related_key in voxel_map:
+            related_feature.append(voxel_map[related_key].feature_info_list)
+        else:
+            related_feature.append(None)
+
+    return related_feature
+
+def get_related_voxels_new(key, voxel_map):     #with balance  voxel_map: dict->
     related_feature = []
     center = key_to_center(key)
     for item in common.offset_list:
