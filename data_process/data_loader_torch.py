@@ -134,7 +134,7 @@ def featuremap_to_batch_with_distance(voxel_map, keys_list, batch_size, near_num
 
                 for k in range(start_num, end_num):                                  # time_step dim
                     feature_list = [1] + list(feature_info[k - start_num].feature_list) + \
-                                   [1, 1, 1] + offset_vector + list(key)  # list(feature_info[k - start_num].vector
+                                   feature_info[k - start_num].vector + offset_vector  # list(feature_info[k - start_num].vector
                     res[i][j][k] = torch.FloatTensor(feature_list)
     return res
 
@@ -144,8 +144,8 @@ def index_to_offset(index, offset):
     for i in range(3):
         tmp = int(math.pow(2*offset+1, 2-i))
         num = index // tmp
-        offset_vector.append(num)
-        index -= num
+        offset_vector.append(num-offset)
+        index -= num*tmp
     return offset_vector
 
 
@@ -174,6 +174,18 @@ def get_related_voxels(key, voxel_map):
 
     return related_feature
 
+def get_related_voxels2(key, voxel_map):
+    related_feature = []
+    center = key_to_center(key)
+    for item in common.offset_list:
+        related_center = [center[i] + list(item)[i]*common.voxel_length for i in range(len(key))]   # why need center_to_key?
+        related_key = center_to_key(related_center)
+        if related_key in voxel_map:
+            related_feature.append(voxel_map[related_key].semantic_info_list)
+        else:
+            related_feature.append(None)
+
+    return related_feature
 
 def get_related_feature(key, voxel_map):
     center = key_to_center(key)

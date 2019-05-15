@@ -36,5 +36,6 @@ class SPNet(nn.Module):
         kv = self.encoder.forward(input)
 
         output = self.attention.forward(kv, kv, query, input)
-
+        #print(kv[0, :, 62, 0])
+        #print(query[0])
         return output

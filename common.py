@@ -11,7 +11,7 @@ vector_size = 3
 offset_size = 3
 location_size = 3
 
-feature_num = img_feature_size + vector_size + offset_size + location_size
+feature_num = img_feature_size + vector_size + offset_size
 qk_dim = 256
 
 

@@ -92,7 +92,7 @@ class SSNetCell(nn.Module):
         flag = torch.zeros(input_data.size(0), 1)
         if self._gpu is True:
             h0_t = h0_t.cuda()
-            c0_t = h0_t.cuda()
+            c0_t = c0_t.cuda()
             h1_t = h1_t.cuda()
             c1_t = c1_t.cuda()
         time_step = input_data.size(1)

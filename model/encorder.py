@@ -34,9 +34,12 @@ class encorder(nn.Module):
         self.conv_vector = nn.Conv2d(VECTOR_DIM, ENBEDDING_DIM, 1)
         self.conv_offset = nn.Conv2d(OFFSET_DIM, ENBEDDING_DIM, 1)
         self.conv_location = nn.Conv2d(LOCATION_DIM, ENBEDDING_DIM, 1)
-        self.conv1 = nn.Conv2d(IMG_FEATURE_DIM + ENBEDDING_DIM * 3, qk_dim, 1)
+        self.conv1 = nn.Conv2d(IMG_FEATURE_DIM + ENBEDDING_DIM * 2, qk_dim, 1)
         self.conv2 = nn.Conv2d(qk_dim, qk_dim, 1)
-        self.relu1 = nn.Tanh()
+        self.relu0_1 = nn.LeakyReLU(0.2)
+        self.relu0_2 = nn.LeakyReLU(0.2)
+        self.relu0_3 = nn.LeakyReLU(0.2)
+        self.relu1 = nn.LeakyReLU(0.2)
         self.relu2 = nn.Tanh()
 
 
@@ -46,18 +49,18 @@ class encorder(nn.Module):
         flag = transpose_input[:,:1,:,:]
         img_feature = transpose_input[:,1 : 1 + IMG_FEATURE_DIM,:,:]
         vector = transpose_input[:,1 + IMG_FEATURE_DIM :1 + IMG_FEATURE_DIM + VECTOR_DIM,:,:]
-        offset = transpose_input[:,1 + IMG_FEATURE_DIM + VECTOR_DIM :1 + IMG_FEATURE_DIM + VECTOR_DIM + LOCATION_DIM,:,:]
-        location = transpose_input[:,1 + IMG_FEATURE_DIM + VECTOR_DIM + LOCATION_DIM:,:,:];
+        offset = transpose_input[:,1 + IMG_FEATURE_DIM + VECTOR_DIM:,:,:]
+        #location = transpose_input[:,1 + IMG_FEATURE_DIM + VECTOR_DIM + LOCATION_DIM:,:,:]
 
         vector = self.conv_vector(vector)
-        vector = self.relu1(vector)
+        vector = self.relu0_1(vector)
 
         offset = self.conv_offset(offset)
-        offset = self.relu2(offset)
+        offset = self.relu0_2(offset)
 
-        location = self.conv_location(location)
-        location = self.relu2(location)
-        feature = torch.cat((img_feature, vector, offset, location), dim = 1)
+        #location = self.conv_location(location)
+        #location = self.relu0_3(location)
+        feature = torch.cat((img_feature, vector, offset), dim = 1)
         feature = self.conv1(feature)
         feature = self.relu1(feature)
         feature = self.conv2(feature)

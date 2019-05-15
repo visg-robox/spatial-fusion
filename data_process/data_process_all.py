@@ -8,6 +8,9 @@ from data_structure.voxel_map import *
 from data_structure.voxel_feature import *
 from sklearn.neighbors import KDTree
 
+
+near_num = 25
+max_dist = 1
 # from data_process.data_process import get_file_list, read_pose
 
 
@@ -36,14 +39,41 @@ def cal_vector(pose, voxel_idx):
     return [pose[i] - voxel_idx[i] for i in range(len(pose))]
 
 
+def get_all_voxel_keys(fea_data):
+    keys = np.zeros((len(fea_data), 3))
+    for i in range(len(fea_data)):
+        keys[i] = key_to_center(np.array(fea_data[i].location))
+
+    return keys
+
+
+def search_kd_tree(keys, num, max_dist):
+    near_array = np.zeros((len(keys), num, 3))
+    kdtree = KDTree(keys, leaf_size=num)
+    dist, ind = kdtree.query(keys, k=num)
+    shape = dist.shape
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            if (dist[i][j] <= max_dist):
+                near_array[i][j] = keys[ind[i][j]]
+            else:
+                break
+
+    return near_array
+
+
 def file_to_voxelmap(file_name, voxel_map, pose):
     start_time = time.time()
     fea_data = read_pointcloud_feature_npy(file_name)
     print(file_name)
+
+    keys = get_all_voxel_keys(fea_data)
+    neay_arrays = search_kd_tree(keys, near_num, max_dist)
+
     for i in range(len(fea_data)):
         voxel_center = voxel_regular(fea_data[i].location)
         vector = cal_vector(pose, voxel_center)
-        feature_info = FeatureInfo(fea_data[i].feature_list, vector)
+        feature_info = FeatureInfo_new(fea_data[i].feature_list, vector, neay_arrays[i])
         if voxel_map.find_location(voxel_center) is None:
             current_voxel = FeatureVoxel(voxel_center)
             current_voxel.insert_feature(feature_info)
@@ -51,7 +81,7 @@ def file_to_voxelmap(file_name, voxel_map, pose):
         else:
             # print('here')
             voxel_map.find_location(voxel_center).insert_feature(feature_info)
-        # print(current_voxel)
+            # print(current_voxel)
     end_time = time.time()
     used_time = end_time - start_time
     print('This frame uses', used_time, 's')
@@ -84,16 +114,15 @@ def pre_process(infer_path, gt_path, pose_path, infer_save_path, gt_save_path):
 TRAIN_FLAG = True
 TEST_FLAG = False
 
-
 if __name__ == '__main__':
 
     if TRAIN_FLAG is True:
-        data_path = '/home/zhangjian/code/project/data/CARLA_episode_0019/'
+        data_path = '/home/wangkai/project2/RnnFusion/data/CARLA_episode_0019/'
         infer_path = data_path + 'test1/infer_feature/'
         gt_path = data_path + 'test1/gt_feature/'
         pose_path = data_path + 'test1/pose/'
-        infer_save_path = data_path + 'test2/infer_feature/'
-        gt_save_path = data_path + 'test2/gt_feature/'
+        infer_save_path = data_path + 'test4/infer_feature/'
+        gt_save_path = data_path + 'test4/gt_feature/'
         pre_process(infer_path, gt_path, pose_path, infer_save_path, gt_save_path)
 
     if TEST_FLAG is True:
