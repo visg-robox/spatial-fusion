@@ -103,11 +103,11 @@ if __name__ == '__main__':
                 if epoch % 10 ==0:
                     writer.add_scalar('data/feature_training_loss', loss, record_iter)
                 print(record_iter)
-                if record_iter % 5000 == 0:
+                if record_iter % 1000 == 0:
                     model_name = res_save_path + str(record_iter) + 'newnew_model.pkl'
                     torch.save(model, model_name)
-                    #test_loss = eval_ssnet(test_infer_path, test_gt_path, model_name, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
-                    #writer.add_scalar('data/feature_test_loss', test_loss, record_iter)
+                    test_loss = eval_spnet_balance(test_infer_path, test_gt_path, model_name, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
+                    writer.add_scalar('data/feature_test_loss', test_loss, record_iter)
 
     writer.close()
 

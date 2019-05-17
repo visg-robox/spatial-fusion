@@ -28,12 +28,19 @@ if __name__ == "__main__":
     infer_file.sort()
     gt_file = get_file_list(gt_path)
     gt_file.sort()
-
-    for i in range(len(infer_file)):
-        if i % 5 is 0:
-            cur_infer_file = infer_file[i]
-            cur_gt_file = gt_file[i]
+    count = 0
+    count2 = 0
+    for item in infer_file:
+        count += 1
+        if count % 5 == 0:
+            cur_infer_file = item
             fpath, fname = os.path.split(cur_infer_file)
             shutil.move(cur_infer_file, test_infer_path + fname)
+
+    for item in gt_file:
+        count2 += 1
+        if count2 % 5 == 0:
+            cur_gt_file = item
+            fpath, fname = os.path.split(cur_gt_file)
             shutil.move(cur_gt_file, test_gt_path + fname)
 
