@@ -48,14 +48,14 @@ if __name__ == '__main__':
     gt_path = data_path + 'CARLA_episode_0019/test3/gt_feature/'
     test_infer_path = data_path + 'CARLA_episode_0019/test3/test_feature/infer/'
     test_gt_path = data_path + 'CARLA_episode_0019/test3/test_feature/gt/'
-    res_save_path = str(os.getcwd()) + '/runs/average_feature/'
+    res_save_path = str(os.getcwd()) + '/runs/average_feature_new/'
 
     infer_file = get_file_list(infer_path)
     infer_file.sort()
     gt_file = get_file_list(gt_path)
     gt_file.sort()
 
-    writer = SummaryWriter('runs/average_feature')
+    writer = SummaryWriter('runs/average_feature_new')
     model = spnet.SPNet(INPUT_SIZE, INPUT_SIZE, OUTPUT_SIZE)
     optimizer = torch.optim.Adam(model.parameters(), lr=LR, weight_decay=1e-5)
     loss_func = nn.CrossEntropyLoss()
@@ -63,24 +63,25 @@ if __name__ == '__main__':
 
     random.seed(10)
     model.cuda()
+    model.train()
     record_iter = 0
     label_p = np.loadtxt('../../data_process/data_dropout_ratio.txt')
     for epoch in range(EPOCH):
         scheduler.step()
         print('Epoch: ', epoch)
-        for time in range(len(infer_file)//1):
-            file_idx_list = random.sample(range(len(infer_file)), 1)
+        for time in range(len(infer_file)//5):
+            file_idx_list = random.sample(range(len(infer_file)), 5)
             voxel_dict = dict()
             gt_dict = dict()
-            voxel_dict_res = dict()
-            gt_dict_res = dict()
+            #voxel_dict_res = dict()
+            #gt_dict_res = dict()
             print('start reading file')
             for file_idx in file_idx_list:
                 infer_filename = infer_file[file_idx]
                 gt_filename = gt_file[file_idx]
                 voxel_dict.update(np.load(infer_filename).item())
                 gt_dict.update(np.load(gt_filename).item())
-                voxel_dict_res, gt_dict_res = data_balance.data_balance(voxel_dict, gt_dict, label_p)
+            voxel_dict_res, gt_dict_res = data_balance.data_balance(voxel_dict, gt_dict, label_p)
             keys_list = get_common_keys(voxel_dict_res, gt_dict_res)
             print('finish reading file')
 
@@ -106,8 +107,8 @@ if __name__ == '__main__':
                 if record_iter % 1000 == 0:
                     model_name = res_save_path + str(record_iter) + 'newnew_model.pkl'
                     torch.save(model, model_name)
-                    test_loss = eval_spnet_balance(test_infer_path, test_gt_path, model_name, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
-                    writer.add_scalar('data/feature_test_loss', test_loss, record_iter)
+                    #test_loss = eval_spnet_balance(test_infer_path, test_gt_path, model, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
+                    #writer.add_scalar('data/feature_test_loss', test_loss, record_iter)
 
     writer.close()
 
