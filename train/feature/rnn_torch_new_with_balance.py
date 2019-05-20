@@ -39,7 +39,7 @@ WINDOW_SIZE = 50
 
 USING_RNN_FEATURE = common.USING_RNN_FEATURE
 USING_SSNet_FEATURE = common.USING_SSNet_FEATURE
-
+Pretrained = True
 
 if __name__ == '__main__':
 
@@ -50,13 +50,19 @@ if __name__ == '__main__':
     test_gt_path = data_path + 'CARLA_episode_0019/test3/test_feature/gt/'
     res_save_path = str(os.getcwd()) + '/runs/average_feature_new/'
 
+    model_path = res_save_path + '15000newnew_model.pkl'
+
+
     infer_file = get_file_list(infer_path)
     infer_file.sort()
     gt_file = get_file_list(gt_path)
     gt_file.sort()
 
     writer = SummaryWriter('runs/average_feature_new')
-    model = spnet.SPNet(INPUT_SIZE, INPUT_SIZE, OUTPUT_SIZE)
+    if Pretrained == False:
+        model = spnet.SPNet(INPUT_SIZE, INPUT_SIZE, OUTPUT_SIZE)
+    else:
+        model = torch.load(model_path)
     optimizer = torch.optim.Adam(model.parameters(), lr=LR, weight_decay=1e-5)
     loss_func = nn.CrossEntropyLoss()
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)

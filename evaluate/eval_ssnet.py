@@ -7,6 +7,7 @@ Test two situations:
 """
 
 import sys
+import time
 sys.path.append("/home/zhangjian/code/project/RnnFusion")
 
 from data_process import data_loader_torch
@@ -105,7 +106,7 @@ def eval_spnet_balance(test_infer_path,
     test_gt_y = np.zeros(1, dtype=int)
 
     test_loss_all = 0
-    # for test_file_idx in range(1):
+    #for test_file_idx in range(3):
     for test_file_idx in range(len(test_infer_file_list)):
         test_infer_filename = test_infer_file_list[test_file_idx]
         test_gt_filename = test_gt_file_list[test_file_idx]
@@ -116,6 +117,7 @@ def eval_spnet_balance(test_infer_path,
         test_keys_list = get_common_keys(test_infer_dict_res, test_gt_dict_res)
         print('test file: ', test_infer_filename)
         test_loss_ave = 0
+        time1 = time.time()
         for j in range(len(test_keys_list) // TEST_BATCH_SIZE):
             test_current_keys = test_keys_list[j * TEST_BATCH_SIZE:(j + 1) * TEST_BATCH_SIZE]
             test_input = data_loader_torch.featuremap_to_batch_with_balance(test_infer_dict_res,
@@ -136,6 +138,8 @@ def eval_spnet_balance(test_infer_path,
             # test_loss_ave += test_loss
             test_pred_y = numpy.append(test_pred_y, torch.max(test_output.cpu(), 1)[1].data.numpy().squeeze())
             test_gt_y = numpy.append(test_gt_y, test_gt.cpu().numpy())
+        time2 = time.time()
+        print(time2 - time1)
         #test_loss_ave = test_loss_ave/math.ceil(len(test_keys_list) / TEST_BATCH_SIZE)
         #test_loss_all += test_loss_ave
 
@@ -163,8 +167,8 @@ def eval_ssnet_cell(test_infer_path,
     test_pred_y = np.zeros(1, dtype=int)
     test_gt_y = np.zeros(1, dtype=int)
 
-    # for test_file_idx in range(3):
-    for test_file_idx in range(len(test_infer_file_list)):
+    for test_file_idx in range(3):
+    #for test_file_idx in range(len(test_infer_file_list)):
         test_infer_filename = test_infer_file_list[test_file_idx]
         test_gt_filename = test_gt_file_list[test_file_idx]
         test_infer_dict = np.load(test_infer_filename).item()
@@ -216,8 +220,9 @@ if __name__ == '__main__':
     res_path = './model/'
     # model_path = data_path + 'train/feature/exe/window_size_50/window_size_50_iter_73000_model.pkl'
     model_path = '/home/wangkai/spatial-fusion/train/feature/runs/average_feature_new/15000newnew_model.pkl'
+    save_path = '/home/wangkai/spatial-fusion/train/feature/runs/average_feature_new/'
     # import sys
     # sys.path.append("/media/zhangjian/U/RnnFusion")
     # eval_ssnet(test_infer_path, test_gt_path, model_path, res_path, window_size=20, time_step=20)
     # eval_ssnet_cell(test_infer_path, test_gt_path, model_path, input_window=5, time_step=20)
-    loss = eval_spnet_balance(test_infer_path, test_gt_path, model_path, time_step=50, log_dir=model_path)
+    loss = eval_spnet_balance(test_infer_path, test_gt_path, model_path, time_step=50, log_dir=save_path)
