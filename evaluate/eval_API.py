@@ -43,7 +43,7 @@ def create_loss_acc(img_pred, output, label, num_classes, ignore_label=-1,valid_
 def getaccuracy(pred,gt,validclass=VALIDCLASS,ignoreclass=-1):
     class_num=np.zeros([validclass,3],dtype=np.float32)
     for i in range(validclass):
-        class_num[i,0] = np.sum(np.logical_and(np.equal(pred, i), np.less_equal(gt,validclass)))
+        class_num[i,0] = np.sum(np.logical_and(np.logical_and(np.equal(pred, i), np.less_equal(gt,validclass)),np.greater_equal(gt, 0)))
         class_num[i,1] = np.sum(np.logical_and(np.equal(gt, i), np.equal(gt, pred)))
         class_num[i,2] = np.sum(np.equal(gt, i))
     return class_num

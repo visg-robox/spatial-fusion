@@ -12,6 +12,9 @@ vector_size = 3
 offset_size = 3
 location_size = 3
 
+
+feature_num_raw = img_feature_size
+feature_num_new = img_feature_size + vector_size
 feature_num = img_feature_size + vector_size + offset_size
 qk_dim = 256
 
@@ -46,8 +49,8 @@ USING_SSNet = True
 
 
 # path definition
-project_path = "/media/luo/Dataset/RnnFusion/spatial-fusion"
-data_path = "/media/luo/Dataset/RnnFusion"
+project_path = "/home/wangkai/spatial-fusion/"
+data_path = "/home/wangkai/project2/RnnFusion/data/"
 
 # related space
 
