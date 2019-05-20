@@ -229,4 +229,4 @@ if __name__ == '__main__':
     # sys.path.append("/media/zhangjian/U/RnnFusion")
     # eval_ssnet(test_infer_path, test_gt_path, model_path, res_path, window_size=20, time_step=20)
     # eval_ssnet_cell(test_infer_path, test_gt_path, model_path, input_window=5, time_step=20)
-    loss = eval_spnet_balance(test_infer_path, test_gt_path, model_path, time_step=50, log_dir=save_path, ignore_list = [0, 4, 12])
+    loss = eval_spnet_balance(test_infer_path, test_gt_path, model_path, time_step=50, log_dir=save_path, ignore_list = common.ignore_list)

@@ -4,6 +4,7 @@ import math
 
 voxel_length = 0.05
 class_num = 13
+ignore_list = [0, 4, 12]
 
 # input feature order
 img_feature_size = 128
