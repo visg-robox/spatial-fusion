@@ -174,14 +174,18 @@ def index_to_offset(index, offset):
 
 
 # get batch tensor in number form
-def featuremap_to_gt_num(voxel_map, keys_list, batch_size):
+def featuremap_to_gt_num(voxel_map, keys_list, batch_size, ignore_list):
     res = torch.zeros(batch_size, dtype=torch.int64)
     for i in range(len(keys_list)):
         key = keys_list[i]
         semantic_info = voxel_map[key].feature_info_list
         # no effect?
         res[i] = int(semantic_info[0].feature_list[0])
+        #这里把无效的class置为255
+        if res[i] in ignore_list:
+            res[i] = 255
         # res[i] = torch.FloatTensor(semantic_info[0].label_list)
+
     return res
 
 

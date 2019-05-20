@@ -12,8 +12,6 @@ import time
 
 CLASSNAME=['void','Buildings','Fences','Other','Pedestrians','Poles','RoadLines','Roads','Sidewalks','Vegetation','Vehicles','Walls','TrafficSigns']
 VALIDCLASS=len(CLASSNAME)
-global MIOU
-MIOU=0
 
 
 
@@ -45,42 +43,44 @@ def create_loss_acc(img_pred, output, label, num_classes, ignore_label=-1,valid_
 def getaccuracy(pred,gt,validclass=VALIDCLASS,ignoreclass=-1):
     class_num=np.zeros([validclass,3],dtype=np.float32)
     for i in range(validclass):
-        class_num[i,0] = np.sum(np.logical_and(np.equal(pred, i),np.not_equal(gt,ignoreclass)))
+        class_num[i,0] = np.sum(np.logical_and(np.equal(pred, i), np.less_equal(gt,validclass)))
         class_num[i,1] = np.sum(np.logical_and(np.equal(gt, i), np.equal(gt, pred)))
         class_num[i,2] = np.sum(np.equal(gt, i))
     return class_num
 
 
-def eval_print_save(total_accuracy,method_name,logdir,classname = CLASSNAME, Forcerecord=True):
+def eval_print_save(total_accuracy, method_name, logdir, classname = CLASSNAME, record_valid = True):
     per_class_accuracy = total_accuracy[:, 1] / total_accuracy[:, 2]
     mean_accuracy = np.sum(total_accuracy[:, 1]) / np.sum(total_accuracy[:, 2])
     per_class_iou = total_accuracy[:, 1] / (total_accuracy[:, 0] + total_accuracy[:, 2] - total_accuracy[:, 1])
-    miou = np.mean(per_class_iou)
-    global MIOU
-    if Forcerecord:
-        MIOU=0
-    if 1:
-        MIOU=miou
+    index = np.where(np.greater(total_accuracy[:, 2], 0))
+    new_iou = per_class_iou[index]
+    miou = np.mean(new_iou)
+    if record_valid:
+        classname = np.array(classname)
+        classname = classname[index]
+        per_class_accuracy = per_class_accuracy[index]
+        per_class_iou = new_iou
+        data_distribute = total_accuracy[:,2][index]
+
     #classname=['sky','Building','Road','Sidewalk','Fence','Vegetation','Pole','Car','Traffic Sign','Pedestrian','Bicycle','Lanemarking']
-        workbook = xlwt.Workbook(encoding='utf-8')
-        booksheet = workbook.add_sheet('Sheet 1', cell_overwrite_ok=True)
-        booksheet.write(1,0,'accuracy')
-        booksheet.write(1,1, method_name)
+    workbook = xlwt.Workbook(encoding='utf-8')
+    booksheet = workbook.add_sheet('Sheet 1', cell_overwrite_ok=True)
+    booksheet.write(1,0,'accuracy')
+    booksheet.write(1,1, method_name)
+    booksheet.write(4, 0, 'iou')
+    booksheet.write(4, 1, method_name)
+    booksheet.write(7, 0, 'data_distribution')
+    for i in range(len(classname)):
+        booksheet.write(0, i+3, classname[i])
+        booksheet.write(1, i+3, format(per_class_accuracy[i],'.3%'))
+        booksheet.write(4, i + 3,format(per_class_iou[i],'.3%'))
+        booksheet.write(7, i + 3, format(data_distribute[i]/np.sum(data_distribute),'.3%'))
+    booksheet.write(0,2,'mean')
+    booksheet.write(1, 2 ,format(mean_accuracy,'.3%'))
+    booksheet.write(4, 2  , format(miou,'.3%'))
 
-        booksheet.write(4, 0, 'iou')
-        booksheet.write(4, 1, method_name)
-
-        booksheet.write(7, 0, 'data_distribution')
-        for i in range(len(classname)):
-            booksheet.write(0, i+3, classname[i])
-            booksheet.write(1, i+3, format(per_class_accuracy[i],'.3%'))
-            booksheet.write(4, i + 3,format(per_class_iou[i],'.3%'))
-            booksheet.write(7, i + 3, format(total_accuracy[i,2]/np.sum(total_accuracy[:, 2]),'.3%'))
-        booksheet.write(0,2,'mean')
-        booksheet.write(1, 2 ,format(mean_accuracy,'.3%'))
-        booksheet.write(4, 2  , format(miou,'.3%'))
-
-        workbook.save(logdir+'/'+method_name+'_xlwt.xls')
+    workbook.save(logdir+'/'+method_name+'_xlwt.xls')
 
     if not os.path.isdir(logdir):
         os.makedirs(logdir)
@@ -95,6 +95,7 @@ def eval_print_save(total_accuracy,method_name,logdir,classname = CLASSNAME, For
     log_string(logfile,'miou: %f' % (miou))
     log_string(logfile,'')
     logfile.close()
+    np.savetxt(logdir + '/confusion_matrix.txt', total_accuracy)
 
 
 class eval_time(object):

@@ -21,7 +21,7 @@ from torch.autograd import Variable
 
 
 # Hyper Parameters
-TEST_BATCH_SIZE = 10
+TEST_BATCH_SIZE = 32
 TIME_STEP = common.time_step                          # rnn time step / image height
 INPUT_SIZE = common.feature_num         # rnn input size / image width
 HIDDEN_SIZE = common.feature_num
@@ -92,7 +92,8 @@ def eval_spnet_balance(test_infer_path,
                test_gt_path,
                model_path,
                time_step=TIME_STEP,
-               log_dir='.'):
+               log_dir='.',
+               ignore_list = []):
     test_infer_file_list = get_file_list(test_infer_path)
     test_infer_file_list.sort()
     test_gt_file_list = get_file_list(test_gt_path)
@@ -103,10 +104,11 @@ def eval_spnet_balance(test_infer_path,
     rnn.cuda()
     rnn.eval()
     test_pred_y = np.zeros(1, dtype=int)
-    test_gt_y = np.zeros(1, dtype=int)
+    test_gt_y = np.array([255], dtype = int)
+    #不能使用1,必须使用255使初始是一个无效的voxel
 
     test_loss_all = 0
-    #for test_file_idx in range(3):
+    #for test_file_idx in range(5):
     for test_file_idx in range(len(test_infer_file_list)):
         test_infer_filename = test_infer_file_list[test_file_idx]
         test_gt_filename = test_gt_file_list[test_file_idx]
@@ -131,7 +133,8 @@ def eval_spnet_balance(test_infer_path,
                 test_input = test_input
             test_gt = data_loader_torch.featuremap_to_gt_num(test_gt_dict,
                                                              test_current_keys,
-                                                             TEST_BATCH_SIZE)
+                                                             TEST_BATCH_SIZE,
+                                                             ignore_list = ignore_list)
 
             test_output = rnn(test_input)
             # test_loss = loss_func(test_output, test_gt.cuda())
@@ -165,7 +168,7 @@ def eval_ssnet_cell(test_infer_path,
     rnn.cuda()
 
     test_pred_y = np.zeros(1, dtype=int)
-    test_gt_y = np.zeros(1, dtype=int)
+    test_gt_y = np.array([255], dtype=int)
 
     for test_file_idx in range(3):
     #for test_file_idx in range(len(test_infer_file_list)):
@@ -215,14 +218,15 @@ def eval_ssnet_cell(test_infer_path,
 
 if __name__ == '__main__':
     data_path = common.data_path
-    test_infer_path = data_path + 'CARLA_episode_0019/test3/test_feature/infer'
-    test_gt_path = data_path + 'CARLA_episode_0019/test3/test_feature/gt'
+    test_infer_path = os.path.join(data_path,'CARLA_episode_0019/test3/test_feature/infer')
+    test_gt_path = test_infer_path.replace('infer','gt')
     res_path = './model/'
     # model_path = data_path + 'train/feature/exe/window_size_50/window_size_50_iter_73000_model.pkl'
-    model_path = '/home/wangkai/spatial-fusion/train/feature/runs/average_feature_new/15000newnew_model.pkl'
-    save_path = '/home/wangkai/spatial-fusion/train/feature/runs/average_feature_new/'
+    model_path = os.path.join(common.project_path, 'train/feature/runs/average_feature_new/15000newnew_model.pkl')
+    print(model_path)
+    save_path = os.path.join(common.project_path, 'train/feature/runs/average_feature_new')
     # import sys
     # sys.path.append("/media/zhangjian/U/RnnFusion")
     # eval_ssnet(test_infer_path, test_gt_path, model_path, res_path, window_size=20, time_step=20)
     # eval_ssnet_cell(test_infer_path, test_gt_path, model_path, input_window=5, time_step=20)
-    loss = eval_spnet_balance(test_infer_path, test_gt_path, model_path, time_step=50, log_dir=save_path)
+    loss = eval_spnet_balance(test_infer_path, test_gt_path, model_path, time_step=50, log_dir=save_path, ignore_list = [0, 4, 12])
