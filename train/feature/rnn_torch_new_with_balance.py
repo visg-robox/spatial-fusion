@@ -90,9 +90,9 @@ if __name__ == '__main__':
             voxel_dict_res, gt_dict_res = data_balance.data_balance(voxel_dict, gt_dict, label_p)
             keys_list = get_common_keys(voxel_dict_res, gt_dict_res)
             print('finish reading file')
-
+            random.shuffle(keys_list)
             for i in range(len(keys_list)//BATCH_SIZE):
-                current_keys = random.sample(keys_list, BATCH_SIZE)
+                current_keys = keys_list[i*BATCH_SIZE:(i+1)*BATCH_SIZE]
                 input_data = data_loader_torch.featuremap_to_batch_with_balance(voxel_dict_res, current_keys, BATCH_SIZE, NEAR_NUM, TIME_STEP, INPUT_SIZE)
                 input_data = Variable(input_data, requires_grad=True).cuda()
                 gt = data_loader_torch.featuremap_to_gt_num(gt_dict, current_keys, BATCH_SIZE)
