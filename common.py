@@ -21,9 +21,9 @@ qk_dim = 256
 
 
 # region
-region_x = 10
-region_y = 10
-region_z = 10
+region_x = 1
+region_y = 1
+region_z = 1
 block_len = 5
 
 #

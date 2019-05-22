@@ -115,7 +115,7 @@ def visualize_pc(data_path, save_path, fusion_method, model_path=None):
     if fusion_method is common.FsMethod.GT:
         result_map.write_map(save_path, map_name, onehot = False)
     else:
-        result_map.write_map(save_path, map_name, onehot=True)
+        result_map.write_map(save_path, map_name, onehot = True)
 
 
 # True, False
@@ -153,8 +153,11 @@ if __name__ == '__main__':
         visualize_pc(data_path, save_path, common.FsMethod.BASELINE)
 
     if VISUALIZE_GT:
-        root_path = common.project_path
-        model_path = root_path + 'train/feature/runs/average_feature_new/15000newnew_model.pkl'
-        save_path  = root_path + 'train/feature/runs/average_feature_new/'
-        data_path  = '/media/luo/Dataset/RnnFusion/CARLA_episode_0019/test3/infer_feature'
-        visualize_pc(data_path, save_path, common.FsMethod.GT, model_path)
+        # root_path = common.project_path
+        # model_path = root_path + 'train/feature/runs/average_feature_new/15000newnew_model.pkl'
+        # save_path  = root_path + 'train/feature/runs/average_feature_new/'
+        # data_path  = '/media/luo/Dataset/RnnFusion/CARLA_episode_0019/test3/infer_feature'
+        save_path  = '/home/zhangjian/code/project/data/CARLA_episode_0019/test3/'
+        data_path  = '/home/zhangjian/code/project/data/CARLA_episode_0019/test3/infer_feature'
+        visualize_pc(data_path, save_path, common.FsMethod.GT)
+

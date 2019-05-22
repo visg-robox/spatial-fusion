@@ -1,6 +1,7 @@
 
 import torch
 import math
+from scipy import stats
 from data_process.data_process import *
 from common import USING_RNN_FEATURE, USING_SSNet_FEATURE, USING_RNN, USING_SSNet, offset
 
@@ -223,7 +224,11 @@ def featuremap_to_gt_num(voxel_map, keys_list, batch_size, ignore_list):
         key = keys_list[i]
         semantic_info = voxel_map[key].feature_info_list
         # no effect?
-        res[i] = int(semantic_info[0].feature_list[0])
+        gt_list = list()
+        for j in range(len(semantic_info)):
+            gt_list.append(int(semantic_info[j].feature_list[0]))
+        res[i] = int(stats.mode(gt_list)[0][0])
+        # res[i] = int(semantic_info[0].feature_list[0])
         #这里把无效的class置为255
         if res[i] in ignore_list:
             res[i] = int(-100)
