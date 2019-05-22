@@ -10,7 +10,29 @@ import xlwt
 import time
 
 
-CLASSNAME=['void','Buildings','Fences','Other','Pedestrians','Poles','RoadLines','Roads','Sidewalks','Vegetation','Vehicles','Walls','TrafficSigns']
+CLASSNAME=[' sky ' ,
+           ' car ' ,
+           ' motorbicycle ' ,
+           ' bicycle ' ,
+           ' person ' ,
+           ' rider ' ,
+           ' truck ' ,
+           ' bus ' ,
+           ' tricycle ' ,
+           ' road ' ,
+           ' siderwalk ' ,
+           ' traffic_cone ' ,
+           ' road_pile ' ,
+           ' fence ' ,
+           ' traffic_light ' ,
+           ' pole ' ,
+           ' traffic_sign ' ,
+           ' wall ' ,
+           ' dustbin ' ,
+           ' billboard ' ,
+           ' building ' ,
+           ' vegatation ']
+
 VALIDCLASS=len(CLASSNAME)
 
 

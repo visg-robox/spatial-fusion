@@ -3,7 +3,7 @@ import itertools
 import math
 
 voxel_length = 0.05
-class_num = 13
+class_num = 22
 ignore_list = [0, 4, 12]
 
 # input feature order
@@ -21,14 +21,14 @@ qk_dim = 256
 
 
 # region
-region_x = 1
-region_y = 1
-region_z = 1
+region_x = 10
+region_y = 20
+region_z = 2
 block_len = 5
 
 #
 batch_size = 512
-time_step = 50
+time_step = 20
 
 
 

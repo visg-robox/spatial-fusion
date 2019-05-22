@@ -4,22 +4,30 @@ from PIL import Image
 import os
 # from scipy import misc
 
-VOID=255
-NUM_CLASS=13
-CLASSNAME = [
-' road ' ,
-' siderwalk ' ,
-' traffic_cone ' ,
-' road_pile ' ,
-' fence ' ,
-' traffic_light ' ,
-' pole ' ,
-' traffic_sign ' ,
-' wall ' ,
-' dustbin ' ,
-' billboard ' ,
-' building ' ,
-' vegatation ']
+VOID=-100
+NUM_CLASS=22
+CLASSNAME=[' sky ' ,
+           ' car ' ,
+           ' motorbicycle ' ,
+           ' bicycle ' ,
+           ' person ' ,
+           ' rider ' ,
+           ' truck ' ,
+           ' bus ' ,
+           ' tricycle ' ,
+           ' road ' ,
+           ' siderwalk ' ,
+           ' traffic_cone ' ,
+           ' road_pile ' ,
+           ' fence ' ,
+           ' traffic_light ' ,
+           ' pole ' ,
+           ' traffic_sign ' ,
+           ' wall ' ,
+           ' dustbin ' ,
+           ' billboard ' ,
+           ' building ' ,
+           ' vegatation ']
 
 VALID_CLASS=[' road ' ,
 ' fence ' ,
@@ -27,22 +35,28 @@ VALID_CLASS=[' road ' ,
 ' vegatation ']
 
 
-ID_COLOR = {
-    0: [192 ,128, 192],  # None
-    1: [192 ,128,  64],  # Buildings
-    2: [  0 ,  0, 64],  # Fences
-    3: [  0 ,  0, 192],  # Other
-    4: [ 64 ,64 ,128],  # Pedestrians
-    5: [192 ,64 ,128],  # Poles
-    6: [192 ,128, 128],  # RoadLines
-    7: [  0 , 64,  64],  # Roads
-    8: [192 ,192, 128],  # Sidewalks
-    9: [ 64 ,  0 ,192],  # Vegetation
-    10:[192 ,  0, 192],  # Vehicles
-    11:[192 ,  0 ,128],  # Walls
-    12:[128 ,128, 64],
-    255:[0  ,0  , 0] # TrafficSigns
-}
+ID_COLOR = [( 70, 130, 180),
+                (  0,   0, 142),
+                (  0,   0, 230),
+                (119,  11,  32),
+                (  0, 128, 192),
+                (128,  64, 128),
+                (128,   0, 192),
+                (192,  0,  64),
+                (128, 128, 192),
+                (192, 128, 192),
+                (192, 128,  64),
+                (  0,   0,  64),
+                (  0,   0, 192),
+                ( 64,  64, 128),
+                (192,  64, 128),
+                (192, 128, 128),
+                (  0,  64,  64),
+                (192, 192, 128),
+                ( 64,   0, 192),
+                (192,   0, 192),
+                (192,   0, 128),
+                (128, 128,  64)]
 VALID_INDEX=[i for i in range(len(CLASSNAME)) if CLASSNAME[i]  in VALID_CLASS]
 VOID_INDEX=[i for i in range(len(CLASSNAME)) if CLASSNAME[i] not in VALID_CLASS]
 

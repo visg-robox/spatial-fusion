@@ -57,28 +57,19 @@ def file_to_voxelmap(file_name, voxel_map, pose):
     print('This frame uses', used_time, 's')
 
 
-def pre_process(infer_path, gt_path, pose_path, infer_save_path, gt_save_path):
-    point_file_list = get_file_list(infer_path)
+def pre_process(data_path,save_path, pose_path):
+    point_file_list = get_file_list(data_path)
     point_file_list.sort()
-    gt_file_list = get_file_list(gt_path)
-    gt_file_list.sort()
     pose_file_list = get_file_list(pose_path)
     pose_file_list.sort()
 
     pose_initial = read_pose(pose_file_list[0])
-    infer_map = VoxelMap(pose_initial)
+    file_map = VoxelMap(pose_initial)
     for i in range(len(point_file_list)):
         pose = read_pose(pose_file_list[i])
-        file_to_voxelmap(point_file_list[i], infer_map, pose)
-        infer_map.move(pose, infer_save_path)
-    infer_map.unload_map(infer_save_path)
-
-    gt_map = VoxelMap(pose_initial)
-    for i in range(len(gt_file_list)):
-        pose = read_pose(pose_file_list[i])
-        file_to_voxelmap(gt_file_list[i], gt_map, pose)
-        gt_map.move(pose, gt_save_path)
-    gt_map.unload_map(gt_save_path)
+        file_to_voxelmap(point_file_list[i], file_map, pose)
+        file_map.move(pose, save_path)
+    file_map.unload_map(save_path)
 
 
 TRAIN_FLAG = True
@@ -88,13 +79,18 @@ TEST_FLAG = False
 if __name__ == '__main__':
 
     if TRAIN_FLAG is True:
-        data_path = '/home/zhangjian/code/project/data/CARLA_episode_0019/'
-        infer_path = data_path + 'test1/infer_feature/'
-        gt_path = data_path + 'test1/gt_feature/'
-        pose_path = data_path + 'test1/pose/'
-        infer_save_path = data_path + 'test2/infer_feature/'
-        gt_save_path = data_path + 'test2/gt_feature/'
-        pre_process(infer_path, gt_path, pose_path, infer_save_path, gt_save_path)
+        data_path = '/media/luo/Dataset/RnnFusion/apollo_data/Record067/Camera 6'
+        feature_path = data_path + '/infer_feature/'
+        p_path = data_path + '/infer/'
+        gt_path = data_path + '/gt/'
+        pose_path = data_path + '/pose/'
+        save_path = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data'
+        feature_save_path = save_path + '/infer_feature/'
+        p_save_path = save_path + '/infer/'
+        gt_save_path = save_path + '/gt_feature/'
+        pre_process(feature_path, feature_save_path, pose_path)
+        pre_process(p_path, p_save_path, pose_path)
+        pre_process(gt_path, gt_save_path, pose_path)
 
     if TEST_FLAG is True:
         data_path = '/home/zhangjian/code/project/data/CARLA_episode_0019/'
@@ -103,4 +99,4 @@ if __name__ == '__main__':
         pose_path = data_path + 'test1/test/pose/'
         infer_save_path = data_path + 'test2/test_feature/infer/'
         gt_save_path = data_path + 'test2/test_feature/gt/'
-        pre_process(infer_path, gt_path, pose_path, infer_save_path, gt_save_path)
+        pre_process(gt_path, gt_save_path, pose_path)

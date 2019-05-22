@@ -9,13 +9,13 @@ from data_process import data_loader_torch,data_balance
 
 BATCH_SIZE = 32
 #这里用来修改可视化的中心坐标以及范围
-visionlize_center = [-263, 127, 38]
+visionlize_center = [-12042.5, 2777.5, 42.5]
 Range = np.array([common.region_x, common.region_y, common.region_z]) * common.block_len
 
 
 # input: data file path, result file path, fusion method
 # output: write .txt file
-def visualize_pc(data_path, save_path, fusion_method, model_path=None):
+def visualize_pc(data_path, gt_path = None, save_path = '.', fusion_method = 0, model_path=None):
     if model_path:
         # rnn = SSNet(common.feature_num, common.feature_num, common.class_num)
         rnn = torch.load(model_path)
@@ -25,30 +25,36 @@ def visualize_pc(data_path, save_path, fusion_method, model_path=None):
     map_name = common.FsMethod(fusion_method).name + '_res'
     data_source_path = get_file_list(data_path)
     data_source_path.sort()
+    gt_source_path = get_file_list(data_path)
+    gt_source_path.sort()
 
-    for source_filename in data_source_path:
+    for num,source_filename in enumerate(data_source_path):
         position = source_filename.split('/')[-1].split('.')[0].split('_')
         position = np.array(position,dtype=np.int)
         distance = abs(np.array(visionlize_center) - position/100)
         if not np.greater_equal(distance, Range).any():
-            gt_filename = source_filename.replace('infer', 'gt')
             voxel_dict = np.load(source_filename).item()
-            gt_dict = np.load(gt_filename).item()
-            label_p = np.ones(common.class_num)
-            old_keys_list = list(voxel_dict.keys())
-            gt = data_loader_torch.featuremap_to_gt_num(gt_dict,
-                                                            old_keys_list,
-                                                            len(old_keys_list),
-                                                            ignore_list=common.ignore_list)
-
-            valid_index = np.where(np.logical_and(np.greater_equal(gt, 0), np.less_equal(gt, common.class_num)))
-            print(len(old_keys_list))
-            keys_list = list(np.array(old_keys_list)[valid_index])
-            keys_list = list(map(lambda a:tuple(a), keys_list))
-            gt = gt[valid_index]
+            keys_list = list(voxel_dict.keys())
             print(len(keys_list))
+            if gt_path:
+                gt_filename = gt_source_path[num]
+                gt_dict = np.load(gt_filename).item()
+                gt = data_loader_torch.featuremap_to_gt_num(gt_dict,
+                                                                keys_list,
+                                                                len(keys_list),
+                                                                ignore_list=common.ignore_list)
+
+                valid_index = np.where(np.logical_and(np.greater_equal(gt, 0), np.less_equal(gt, common.class_num)))
+
+                keys_list = list(np.array(keys_list)[valid_index])
+                keys_list = list(map(lambda a:tuple(a), keys_list))
+                gt = gt[valid_index]
+                print(len(keys_list))
+
+
             print('source file name: ', source_filename)
             if fusion_method is common.FsMethod.STF:
+                label_p = np.ones(common.class_num)
                 infer_dict_res, gt_dict_res = data_balance.data_balance(voxel_dict, gt_dict, label_p)
                 batch_num = (len(keys_list) // common.batch_size) + 1
                 for i in range(batch_num):
@@ -115,7 +121,7 @@ def visualize_pc(data_path, save_path, fusion_method, model_path=None):
     if fusion_method is common.FsMethod.GT:
         result_map.write_map(save_path, map_name, onehot = False)
     else:
-        result_map.write_map(save_path, map_name, onehot = True)
+        result_map.write_map(save_path, map_name, onehot=True)
 
 
 # True, False
@@ -153,11 +159,7 @@ if __name__ == '__main__':
         visualize_pc(data_path, save_path, common.FsMethod.BASELINE)
 
     if VISUALIZE_GT:
-        # root_path = common.project_path
-        # model_path = root_path + 'train/feature/runs/average_feature_new/15000newnew_model.pkl'
-        # save_path  = root_path + 'train/feature/runs/average_feature_new/'
-        # data_path  = '/media/luo/Dataset/RnnFusion/CARLA_episode_0019/test3/infer_feature'
-        save_path  = '/home/zhangjian/code/project/data/CARLA_episode_0019/test3/'
-        data_path  = '/home/zhangjian/code/project/data/CARLA_episode_0019/test3/infer_feature'
-        visualize_pc(data_path, save_path, common.FsMethod.GT)
-
+        root_path = common.project_path
+        save_path  = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data'
+        data_path  = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data/gt_feature'
+        visualize_pc(data_path, data_path, save_path, common.FsMethod.GT)
