@@ -39,7 +39,8 @@ class FsMethod(Enum):
     RNN_LABEL = 1
     BAYES = 2
     BASELINE = 3
-
+    GT = 4
+    STF = 5
 
 # tag
 USING_RNN_FEATURE = False
@@ -49,8 +50,8 @@ USING_SSNet = True
 
 
 # path definition
-project_path = "/home/wangkai/spatial-fusion/"
-data_path = "/home/wangkai/project2/RnnFusion/data/"
+project_path = "/media/luo/Dataset/RnnFusion/spatial-fusion/"
+data_path = "/media/luo/Dataset/RnnFusion/"
 
 # related space
 

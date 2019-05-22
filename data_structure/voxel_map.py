@@ -146,13 +146,20 @@ class VoxelMap:
             return False
         return True
 
-    def write_map(self, path, file_name):
+    def write_map(self, path, file_name, onehot = True):
         full_path = path + file_name
         obj_file = open(full_path + '.txt', 'w')
         for i in range(len(self.map)):
             for key in self.map[i]:
                 location = key_to_center(key)
-                color = ID_COLOR[np.argmax(self.map[i][key])]
+                if  onehot:
+                    index = np.argmax(self.map[i][key])
+                else:
+
+                    index =  self.map[i][key]
+                    if index < 0:
+                        index = 0
+                color = ID_COLOR[index]
                 line = str(location[0]) + ' ' + str(location[1]) + ' ' + str(location[2]) + ' ' + \
                        str(color[0]) + ' ' + str(color[1]) + ' ' + str(color[2]) + '\n'
                 obj_file.write(line)
