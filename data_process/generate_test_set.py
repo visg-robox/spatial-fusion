@@ -1,7 +1,6 @@
 import os, shutil
 import common
-
-
+import numpy as np
 
 def get_file_list(data_dir):
     path_list = list()
@@ -14,6 +13,11 @@ def make_path(path):
     if os.path.isdir(path) is False:
         os.makedirs(path)
 
+def to_distance(name, initial_pose):
+    tmp = np.zeros(initial_pose.shape)
+    for i in range(len(name.split('_'))):
+        tmp[i] = int(name.split('_')[i])
+    return np.linalg.norm(tmp - initial_pose)
 
 if __name__ == "__main__":
     data_path = common.data_path
@@ -24,23 +28,23 @@ if __name__ == "__main__":
     make_path(test_infer_path)
     make_path(test_gt_path)
 
+    #initial_pose = np.loadtxt('./raw.txt')
+    initial_pose = np.zeros([3])
     infer_file = get_file_list(infer_path)
-    infer_file.sort()
+    infer_file.sort(key=lambda x:(to_distance(x.split('/')[-1].split('.')[0], initial_pose)))
     gt_file = get_file_list(gt_path)
-    gt_file.sort()
-    count = 0
-    count2 = 0
-    for item in infer_file:
-        count += 1
-        if count % 5 == 0:
-            cur_infer_file = item
-            fpath, fname = os.path.split(cur_infer_file)
-            shutil.move(cur_infer_file, test_infer_path + fname)
+    gt_file.sort(key=lambda x:(to_distance(x.split('/')[-1].split('.')[0], initial_pose)))
 
-    for item in gt_file:
-        count2 += 1
-        if count2 % 5 == 0:
-            cur_gt_file = item
-            fpath, fname = os.path.split(cur_gt_file)
-            shutil.move(cur_gt_file, test_gt_path + fname)
+    move_length = len(infer_file)//5
 
+    infer_file_move = infer_file[-move_length:]
+    gt_file_move = gt_file[-move_length:]
+    for item in infer_file_move:
+        cur_infer_file = item
+        fpath, fname = os.path.split(cur_infer_file)
+        shutil.move(cur_infer_file, test_infer_path + fname)
+
+    for item in gt_file_move:
+        cur_gt_file = item
+        fpath, fname = os.path.split(cur_gt_file)
+        shutil.move(cur_gt_file, test_gt_path + fname)

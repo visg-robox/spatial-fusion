@@ -51,7 +51,7 @@ USING_SSNet = True
 
 # path definition
 project_path = "/media/luo/Dataset/RnnFusion/spatial-fusion/"
-data_path = "/media/luo/Dataset/RnnFusion/"
+data_path = "/home/wangkai/project2/RnnFusion/data/"
 
 # related space
 
