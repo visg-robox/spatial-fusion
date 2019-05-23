@@ -10,6 +10,23 @@ from sklearn.neighbors import KDTree
 NEAR_NUM = 25
 MAX_DISTANCE = np.linalg.norm(center_to_key([1, 1, 1]), 2)
 
+def data_balance_rnn(voxel_map, gt_map, label_probability):
+    voxel_keys = list(voxel_map.keys())
+    gt_keys = list(gt_map.keys())
+    keys = [v for v in voxel_keys if v in gt_keys]
+
+    voxel_res = dict()
+    gt_res = dict()
+
+    for i in range(len(keys)):
+        key = keys[i]
+        label = int(gt_map[key].feature_info_list[0].feature_list[0])
+        probability = label_probability[label]
+        if np.random.binomial(1, probability) is 1:
+            voxel_res[key] = voxel_map[key]
+            gt_res[key] = gt_map[key]
+    return voxel_res, gt_res
+
 
 def data_balance(voxel_map, gt_map, label_probability):
     voxel_keys = list(voxel_map.keys())
