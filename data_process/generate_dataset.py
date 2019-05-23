@@ -32,7 +32,7 @@ def to_distance(name, initial_pose):
 if __name__ == "__main__":
     initial_pose = preprocess_feature()
 
-    lidardata_path = common.lidardata_path
+    lidardata_path = common.blockfile_path
     infer_feature_path = os.path.join(lidardata_path, 'infer_feature')
     infer_label_path = os.path.join(lidardata_path, 'infer')
     gt_path = os.path.join(lidardata_path, 'gt')
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     for item in infer_feature_file_move:
         cur_infer_feature_file = item
         fpath, fname = os.path.split(cur_infer_feature_file)
-        shutil.move(cur_infer_feature_file, test_infer_save_path + fname)
+        shutil.move(cur_infer_feature_file, os.path.join(test_infer_save_path, fname))
 
     for item in infer_label_file_move:
         cur_infer_label_file = item
