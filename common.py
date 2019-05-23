@@ -52,7 +52,9 @@ USING_SSNet = True
 
 # path definition
 project_path = path.project_path
-data_path = path.data_path
+lidardata_path = path.lidardata_path
+blockfile_path = path.blockfile_path
+
 
 # related space
 

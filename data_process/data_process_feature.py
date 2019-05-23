@@ -74,32 +74,22 @@ def pre_process(data_path,save_path, pose_path):
     file_map.unload_map(save_path)
 
 
-TRAIN_FLAG = True
-TEST_FLAG = False
+def preprocess_feature():
+    data_path = common.data_path
+    feature_path = os.path.join(data_path, 'infer_feature')
+    p_path = os.path.join(data_path, 'infer')
+    gt_path = os.path.join(data_path, 'gt')
+    pose_path = os.path.join(data_path, 'pose')
 
+    pose_file_list = get_file_list(pose_path)
+    pose_file_list.sort()
+    pose_initial = read_pose(pose_file_list[0])
 
-if __name__ == '__main__':
-
-    if TRAIN_FLAG is True:
-        data_path = '/media/luo/Dataset/RnnFusion/apollo_data/Record067/Camera 6'
-        feature_path = data_path + '/infer_feature/'
-        p_path = data_path + '/infer/'
-        gt_path = data_path + '/gt/'
-        pose_path = data_path + '/pose/'
-        save_path = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data'
-        feature_save_path = save_path + '/infer_feature/'
-        p_save_path = save_path + '/infer/'
-        gt_save_path = save_path + '/gt_feature/'
-        pre_process(gt_path, gt_save_path, pose_path)
-        pre_process(feature_path, feature_save_path, pose_path)
-        pre_process(p_path, p_save_path, pose_path)
-
-
-    if TEST_FLAG is True:
-        data_path = '/home/zhangjian/code/project/data/CARLA_episode_0019/'
-        infer_path = data_path + 'test1/test/infer_feature/'
-        gt_path = data_path + 'test1/test/gt_feature/'
-        pose_path = data_path + 'test1/test/pose/'
-        infer_save_path = data_path + 'test2/test_feature/infer/'
-        gt_save_path = data_path + 'test2/test_feature/gt/'
-        pre_process(gt_path, gt_save_path, pose_path)
+    save_path = common.blockfile_path
+    feature_save_path = os.path.join(save_path, 'infer_feature')
+    p_save_path = os.path.join(save_path, 'infer')
+    gt_save_path = os.path.join(save_path, 'gt')
+    pre_process(gt_path, gt_save_path, pose_path)
+    pre_process(feature_path, feature_save_path, pose_path)
+    pre_process(p_path, p_save_path, pose_path)
+    return pose_initial[:-1, -1].T
