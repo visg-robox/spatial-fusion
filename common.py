@@ -1,10 +1,11 @@
 from enum import Enum, unique
 import itertools
 import math
+import path
 
 voxel_length = 0.05
 class_num = 22
-ignore_list = [0, 4, 12]
+ignore_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 11, 12]
 
 # input feature order
 img_feature_size = 128
@@ -50,8 +51,8 @@ USING_SSNet = True
 
 
 # path definition
-project_path = "/home/wangkai/spatial-fusion/"
-data_path = "/home/wangkai/project2/RnnFusion/data/"
+project_path = path.project_path
+data_path = path.data_path
 
 # related space
 

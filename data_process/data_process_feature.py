@@ -62,6 +62,8 @@ def pre_process(data_path,save_path, pose_path):
     point_file_list.sort()
     pose_file_list = get_file_list(pose_path)
     pose_file_list.sort()
+    if not os.path.isdir(save_path):
+        os.makedirs(save_path)
 
     pose_initial = read_pose(pose_file_list[0])
     file_map = VoxelMap(pose_initial)
@@ -88,9 +90,10 @@ if __name__ == '__main__':
         feature_save_path = save_path + '/infer_feature/'
         p_save_path = save_path + '/infer/'
         gt_save_path = save_path + '/gt_feature/'
+        pre_process(gt_path, gt_save_path, pose_path)
         pre_process(feature_path, feature_save_path, pose_path)
         pre_process(p_path, p_save_path, pose_path)
-        pre_process(gt_path, gt_save_path, pose_path)
+
 
     if TEST_FLAG is True:
         data_path = '/home/zhangjian/code/project/data/CARLA_episode_0019/'
