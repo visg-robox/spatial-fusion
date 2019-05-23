@@ -2,7 +2,7 @@
 import torch
 import math
 from scipy import stats
-from data_process.data_process import *
+from data_process.data_process_label import *
 from common import USING_RNN_FEATURE, USING_SSNet_FEATURE, USING_RNN, USING_SSNet, offset
 
 

@@ -8,7 +8,7 @@ generate label/feature
 import os, shutil
 import common
 import numpy as np
-from data_process.data_process_feature import *
+from data_process.data_process_feature import preprocess_feature
 
 def get_file_list(data_dir):
     path_list = list()

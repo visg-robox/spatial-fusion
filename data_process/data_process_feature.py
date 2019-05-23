@@ -75,7 +75,7 @@ def pre_process(data_path,save_path, pose_path):
 
 
 def preprocess_feature():
-    data_path = common.data_path
+    data_path = common.lidardata_path
     feature_path = os.path.join(data_path, 'infer_feature')
     p_path = os.path.join(data_path, 'infer')
     gt_path = os.path.join(data_path, 'gt')

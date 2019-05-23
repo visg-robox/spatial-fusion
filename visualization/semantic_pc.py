@@ -4,7 +4,7 @@ import torch
 from random import choice
 from model.rnn import *
 from torch.autograd import Variable
-from data_process.data_process import *
+from data_process.data_process_label import *
 from data_process import data_loader_torch,data_balance
 
 BATCH_SIZE = 32

@@ -2,7 +2,7 @@
 all rights reserved
 """
 
-from data_process.data_process import *
+from data_process.data_process_label import *
 from data_process import data_loader_torch
 from matplotlib import pyplot as plt
 
