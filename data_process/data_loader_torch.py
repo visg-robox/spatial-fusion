@@ -82,6 +82,8 @@ def featuremap_to_batch(voxel_map, keys_list, batch_size, time_step, input_size)
         res = torch.zeros(batch_size, time_step, input_size + 1)
     for i in range(len(keys_list)):
         key = keys_list[i]
+        if len(key) != 3:
+            key = tuple(list(key)[:3])
         related_feature = get_related_feature(key, voxel_map)
         feature_info = voxel_map[key].feature_info_list
         feature_len = len(feature_info)
@@ -188,6 +190,8 @@ def featuremap_to_batch_with_balance(voxel_map, keys_list, batch_size, near_num,
         # len(keys_list == batch_size)
         key = keys_list[i]
         #related_keys
+        if len(key) != 3:
+            key = tuple(list(key)[:3])
         related_feature = voxel_map[key]
         for j in range(len(related_feature)):                                        # near_num dim
             related_key = center_to_key(related_feature[j].center)
