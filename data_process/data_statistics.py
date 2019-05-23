@@ -3,29 +3,32 @@ import os
 from os.path import join
 
 
-CLASS_NUM = 13
+CLASS_NUM = 22
 SAMPLE_NUM = 20000
 
-label_cal = np.zeros([13], dtype = np.float64())
 
-abspath = '/media/luo/Dataset/RnnFusion/test3/gt_feature'
-path_list = os.listdir(abspath)
 
-def get_probabilty(ratio, num, sample_num):
+
+
+def get_probabilty(ratio, num, sample_num, min_num = 100):
     max_ratio = np.max(ratio)
     max_num = np.max(num)
     sample_ratio = sample_num / max_num
     probabilty = sample_ratio * (max_ratio / ratio)
+    for i in range(len(list(num))):
+        if num[i] < min_num:
+            probabilty[i] = 0
     return probabilty
 
-
-if __name__ == '__main__':
+def statistics(data_path, classnum):
+    label_cal = np.zeros([classnum], dtype=np.float64())
+    path_list = os.listdir(data_path)
     num = 0
     for path in path_list:
         num += 1
-        if(num % 5 == 0):
+        if (num % 5 == 0):
             print(num)
-        a = np.load(join(abspath, path))
+        a = np.load(join(data_path, path))
         voxel_list = a.item().values()
         for i in voxel_list:
             label = i.feature_info_list[0].feature_list
@@ -34,8 +37,21 @@ if __name__ == '__main__':
     total_num = np.sum(label_cal)
     print(total_num)
     ratio = label_cal / total_num
-    probabilty = get_probabilty(ratio, num, SAMPLE_NUM)
-    ratio = np.concatenate([np.expand_dims(ratio,axis=0), np.expand_dims(label_cal,axis=0)], axis = 0)
-    np.savetxt('data_ratio.txt',ratio,fmt='%.3e',delimiter='\t')
-    np.savetxt('data_dropout_ratio.txt',probabilty,fmt='%.3e',delimiter='\t')
+    ratio = np.concatenate([np.expand_dims(ratio, axis=0), np.expand_dims(label_cal, axis=0)], axis=0)
+    np.savetxt('data_ratio.txt', ratio, fmt='%.3e', delimiter='\t')
+
+if __name__ == '__main__':
+    STATISTICS = False
+    PROBABILTY = True
+    if(STATISTICS):
+        gt_path = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data/gt_feature'
+        statistics(gt_path, CLASS_NUM)
+
+
+    if(PROBABILTY):
+        statistic = np.loadtxt('data_ratio.txt')
+        ratio = statistic[0, :]
+        num = statistic[1, :]
+        probabilty = get_probabilty(ratio, num, SAMPLE_NUM)
+        np.savetxt('data_dropout_ratio.txt',probabilty,fmt='%.3e',delimiter='\t')
 
