@@ -59,6 +59,7 @@ def data_balance(voxel_map, gt_map, label_probability):
     return voxel_res, gt_res
 
 def data_balance_new(voxel_map, gt_map, label_probability):   #add repeat data when p >1
+    #print(label_probability.shape)
     voxel_keys = list(voxel_map.keys())
     gt_keys = list(gt_map.keys())
     keys = [v for v in voxel_keys if v in gt_keys]
@@ -68,21 +69,22 @@ def data_balance_new(voxel_map, gt_map, label_probability):   #add repeat data w
 
     near_array = search_kd_tree(keys, NEAR_NUM, MAX_DISTANCE)
     for i in range(len(keys)):
-        voxel_info = list()
         key = keys[i]
         label = int(gt_map[key].feature_info_list[0].feature_list[0])
         near_keys = near_array[i, :, :]
-        probability = label_probability[label]
+        probability = float(label_probability[label]) *10
         if probability <=1:
             if np.random.binomial(1, probability) is 1:
+                voxel_info = list()
                 for j in range(near_keys.shape[0]):
                     if near_keys[j, 0] != 0 and near_keys[j,1] != 0 and near_keys[j,2]!=0:
                         voxel_info.append(voxel_map[tuple(near_keys[j,:])])
                 voxel_res[key] = voxel_info
                 gt_res[key] = gt_map[key]
         else:
-            repeat_nums = round(probability)
+            repeat_nums = int(round(probability))
             for r_num in range(repeat_nums):
+                voxel_info = list()
                 for j in range(near_keys.shape[0]):
                     if near_keys[j, 0] != 0 and near_keys[j,1] != 0 and near_keys[j,2]!=0:
                         voxel_info.append(voxel_map[tuple(near_keys[j,:])])

@@ -6,7 +6,7 @@ Test two situations:
 2. time step is not continuous
 """
 import sys
-sys.path.append("/home/zhangjian/code/project/spatial-fusion/")
+sys.path.append("/data1/zhangjian/spatial-fusion/")
 import common
 import torch
 
@@ -36,19 +36,19 @@ NEAR_NUM = common.near_num
 
 LR = 0.001                              # learning rate
 WINDOW_SIZE = 50
-
+file_num = 5
 USING_RNN_FEATURE = common.USING_RNN_FEATURE
 USING_SSNet_FEATURE = common.USING_SSNet_FEATURE
-Pretrained = True
+Pretrained = False
 
 if __name__ == '__main__':
 
-    data_path = common.data_path
-    infer_path = data_path + 'CARLA_episode_0019/test3/infer_feature/'
-    gt_path = data_path + 'CARLA_episode_0019/test3/gt_feature/'
-    test_infer_path = data_path + 'CARLA_episode_0019/test3/test_feature/infer/'
-    test_gt_path = data_path + 'CARLA_episode_0019/test3/test_feature/gt/'
-    res_save_path = str(os.getcwd()) + '/runs/average_feature_new/'
+    data_path = common.blockfile_path
+    infer_path = data_path + 'infer_feature/'
+    gt_path = data_path + 'gt_feature/'
+    test_infer_path = data_path + 'test_feature/infer/'
+    test_gt_path = data_path + 'test_feature/gt/'
+    res_save_path = str(os.getcwd()) + '/runs/average_feature_new_data/'
 
     model_path = res_save_path + '15000newnew_model.pkl'
 
@@ -75,8 +75,9 @@ if __name__ == '__main__':
     for epoch in range(EPOCH):
         scheduler.step()
         print('Epoch: ', epoch)
-        for time in range(len(infer_file)//5):
-            file_idx_list = random.sample(range(len(infer_file)), 5)
+        file_idx_list_all = random.sample(range(len(infer_file)), len(infer_file))
+        for time in range(len(infer_file)//file_num):
+            file_idx_list = file_idx_list_all[time*file_num: (time+1)*file_num]
             voxel_dict = dict()
             gt_dict = dict()
             #voxel_dict_res = dict()
@@ -87,7 +88,7 @@ if __name__ == '__main__':
                 gt_filename = gt_file[file_idx]
                 voxel_dict.update(np.load(infer_filename).item())
                 gt_dict.update(np.load(gt_filename).item())
-            voxel_dict_res, gt_dict_res = data_balance.data_balance(voxel_dict, gt_dict, label_p)
+            voxel_dict_res, gt_dict_res = data_balance.data_balance_new(voxel_dict, gt_dict, label_p)
             keys_list = get_common_keys(voxel_dict_res, gt_dict_res)
             print('finish reading file')
             random.shuffle(keys_list)
@@ -95,7 +96,7 @@ if __name__ == '__main__':
                 current_keys = keys_list[i*BATCH_SIZE:(i+1)*BATCH_SIZE]
                 input_data = data_loader_torch.featuremap_to_batch_with_balance(voxel_dict_res, current_keys, BATCH_SIZE, NEAR_NUM, TIME_STEP, INPUT_SIZE)
                 input_data = Variable(input_data, requires_grad=True).cuda()
-                gt = data_loader_torch.featuremap_to_gt_num(gt_dict, current_keys, BATCH_SIZE, common.ignore_list)
+                gt = data_loader_torch.featuremap_to_gt_num(gt_dict_res, current_keys, BATCH_SIZE, common.ignore_list)
                 gt = Variable(gt).cuda()
 
                 output = model.forward(input_data)
@@ -111,10 +112,9 @@ if __name__ == '__main__':
                     writer.add_scalar('data/feature_training_loss', loss, record_iter)
                 print(record_iter)
                 if record_iter % 1000 == 0:
-                    model_name = res_save_path + str(record_iter) + 'newnew_model.pkl'
+                    model_name = res_save_path + str(record_iter) + 'newdata_model.pkl'
                     torch.save(model, model_name)
                     #test_loss = eval_spnet_balance(test_infer_path, test_gt_path, model, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
                     #writer.add_scalar('data/feature_test_loss', test_loss, record_iter)
 
     writer.close()
-

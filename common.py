@@ -1,7 +1,7 @@
 from enum import Enum, unique
 import itertools
 import math
-import path
+import mypath
 
 voxel_length = 0.05
 class_num = 22
@@ -51,9 +51,9 @@ USING_SSNet = True
 
 
 # path definition
-project_path = path.project_path
-lidardata_path = path.lidardata_path
-blockfile_path = path.blockfile_path
+project_path = mypath.project_path
+lidardata_path = mypath.lidardata_path
+blockfile_path = mypath.blockfile_path
 
 
 # related space
