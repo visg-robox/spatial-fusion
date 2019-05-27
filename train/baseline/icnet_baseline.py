@@ -13,9 +13,8 @@ def icnet(semantic_map, batch_size, key_list):
 
 
 if __name__ == '__main__':
-    data_path = common.data_path + 'CARLA_episode_0019/test2/test1/'
-    infer_path = data_path + 'infer/'
-    gt_path = data_path + 'gt/'
+    infer_path = os.path.join(common.blockfile_path, 'test', 'infer_label')
+    gt_path = os.path.join(common.blockfile_path, 'test', 'gt')
 
     infer_path_list = get_file_list(infer_path)
     infer_path_list.sort()
@@ -38,9 +37,9 @@ if __name__ == '__main__':
         for key in keys_list:
             infer_voxel = infer_map[key]
             gt_voxel = gt_map[key]
-            gt_label = choice(gt_voxel.semantic_info_list).label_list[0]
+            gt_label = choice(gt_voxel.feature_info_list).feature_list[0]
             gt_res.append(int(gt_label))
-            infer_label = choice(infer_voxel.semantic_info_list).label_list
+            infer_label = choice(infer_voxel.feature_info_list).feature_list
             infer_res.append(infer_label.argmax())
     total_accuracy = getaccuracy(infer_res, gt_res, common.class_num)
     eval_print_save(total_accuracy, 'miou_result_icnet', '.')

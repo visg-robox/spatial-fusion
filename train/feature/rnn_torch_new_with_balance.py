@@ -27,7 +27,7 @@ import math
 EPOCH = 100                             # train the training data n times, to save time, we just train 1 epoch
 # when batch size = 1, we just want to have a test
 BATCH_SIZE = 64  # common.batch_size
-TIME_STEP = 50  # common.time_step                          # rnn time step / image height
+TIME_STEP = 20  # common.time_step                          # rnn time step / image height
 
 INPUT_SIZE = common.feature_num         # rnn input size / image width
 HIDDEN_SIZE = common.feature_num

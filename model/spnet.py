@@ -24,6 +24,7 @@ class SPNet(nn.Module):
         self._gpu = gpu
         self.lstm = SSNet(input_size, SSNET_HIDDENSIZE, SSNET_OUTPUTSIZE, gpu=self._gpu)
         self.encoder = encorder(SSNET_OUTPUTSIZE)
+        self.tanh = nn.Tanh()
         #wait correct
         # encoder 的输入维度与SPnet不协调
         # SSNET_OUTPUTSIZE
@@ -32,10 +33,12 @@ class SPNet(nn.Module):
 
     def forward(self, input):
         shape = input.shape  # [batch_size, near_num, time_step, feature_dim]
-        query = self.lstm.forward(input[:, shape[1]//2, :, :], SSNET_TIMESTEP)
+        query_input =  self.tanh(input[:, shape[1]//2, :, :])
+        query = self.lstm.forward(query_input, SSNET_TIMESTEP)
         kv = self.encoder.forward(input)
 
         output = self.attention.forward(kv, kv, query, input)
         #print(kv[0, :, 62, 0])
         #print(query[0])
         return output
+
