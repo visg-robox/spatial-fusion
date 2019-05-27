@@ -39,17 +39,23 @@ WINDOW_SIZE = 50
 
 USING_RNN_FEATURE = common.USING_RNN_FEATURE
 USING_SSNet_FEATURE = common.USING_SSNet_FEATURE
-Pretrained = True
+Pretrained = False
+
+
+def make_path(path):
+    if os.path.isdir(path) is False:
+        os.makedirs(path)
+
 
 if __name__ == '__main__':
 
-    data_path = common.data_path
-    infer_path = data_path + 'CARLA_episode_0019/test3/infer_feature/'
-    gt_path = data_path + 'CARLA_episode_0019/test3/gt_feature/'
-    test_infer_path = data_path + 'CARLA_episode_0019/test3/test_feature/infer/'
-    test_gt_path = data_path + 'CARLA_episode_0019/test3/test_feature/gt/'
+    data_path = common.blockfile_path
+    infer_path = os.path.join(data_path, 'infer_feature')
+    gt_path = os.path.join(data_path, 'gt')
+    # test_infer_path = data_path + 'CARLA_episode_0019/test3/test_feature/infer/'
+    # test_gt_path = data_path + 'CARLA_episode_0019/test3/test_feature/gt/'
     res_save_path = str(os.getcwd()) + '/runs/average_feature_new/'
-
+    make_path(res_save_path)
     model_path = res_save_path + '15000newnew_model.pkl'
 
 
@@ -87,8 +93,8 @@ if __name__ == '__main__':
                 gt_filename = gt_file[file_idx]
                 voxel_dict.update(np.load(infer_filename).item())
                 gt_dict.update(np.load(gt_filename).item())
-            voxel_dict_res, gt_dict_res = data_balance.data_balance(voxel_dict, gt_dict, label_p)
-            keys_list = get_common_keys(voxel_dict_res, gt_dict_res)
+            voxel_dict_res, gt_dict_res, keys_list = data_balance.data_balance_new(voxel_dict, gt_dict, label_p)
+            # keys_list = get_common_keys(voxel_dict_res, gt_dict_res)
             print('finish reading file')
             random.shuffle(keys_list)
             for i in range(len(keys_list)//BATCH_SIZE):

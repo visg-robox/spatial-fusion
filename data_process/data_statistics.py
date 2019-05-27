@@ -41,10 +41,10 @@ def statistics(data_path, classnum):
     np.savetxt('data_ratio.txt', ratio, fmt='%.3e', delimiter='\t')
 
 if __name__ == '__main__':
-    STATISTICS = False
+    STATISTICS = True
     PROBABILTY = True
     if(STATISTICS):
-        gt_path = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data/gt_feature'
+        gt_path = '/home/zhangjian/code/project/data/blockfile_record002/gt'
         statistics(gt_path, CLASS_NUM)
 
 
