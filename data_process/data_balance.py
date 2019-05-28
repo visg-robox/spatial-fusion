@@ -34,7 +34,7 @@ def data_balance_rnn(voxel_map, gt_map, label_probability):
                 gt_res[new_key] = gt_map[key]
     return voxel_res, gt_res
 
-
+# 没有大于1的概率
 def data_balance(voxel_map, gt_map, label_probability):
     voxel_keys = list(voxel_map.keys())
     gt_keys = list(gt_map.keys())
@@ -58,6 +58,8 @@ def data_balance(voxel_map, gt_map, label_probability):
             gt_res[key] = gt_map[key]
     return voxel_res, gt_res
 
+
+# 对某些较少的类别进行强制重复
 def data_balance_new(voxel_map, gt_map, label_probability):   #add repeat data when p >1
     voxel_keys = list(voxel_map.keys())
     gt_keys = list(gt_map.keys())

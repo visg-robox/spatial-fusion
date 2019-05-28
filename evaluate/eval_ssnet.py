@@ -8,7 +8,7 @@ Test two situations:
 
 import sys
 import time
-sys.path.append("/home/zhangjian/code/project/RnnFusion")
+sys.path.append("/home/zhangjian/code/project/spatial-fusion")
 
 from data_process import data_loader_torch
 from data_process.data_process_feature import *
@@ -114,7 +114,7 @@ def eval_spnet_balance(test_infer_path,
         test_gt_filename = test_gt_file_list[test_file_idx]
         test_infer_dict = np.load(test_infer_filename).item()
         test_gt_dict = np.load(test_gt_filename).item()
-        label_p = np.ones(13)
+        label_p = np.ones(common.class_num)
         test_infer_dict_res, test_gt_dict_res = data_balance.data_balance(test_infer_dict, test_gt_dict, label_p)
         test_keys_list = get_common_keys(test_infer_dict_res, test_gt_dict_res)
         print('test file: ', test_infer_filename)
@@ -217,16 +217,16 @@ def eval_ssnet_cell(test_infer_path,
 
 
 if __name__ == '__main__':
-    data_path = common.data_path
-    test_infer_path = os.path.join(data_path,'CARLA_episode_0019/test3/test_feature/infer')
-    test_gt_path = test_infer_path.replace('infer','gt')
+    data_path = common.blockfile_path
+    test_infer_path = os.path.join(data_path, 'test', 'infer_feature')
+    test_gt_path = test_infer_path.replace('infer_feature', 'gt')
     res_path = './model/'
     # model_path = data_path + 'train/feature/exe/window_size_50/window_size_50_iter_73000_model.pkl'
-    model_path = os.path.join(common.project_path, 'train/feature/runs/average_feature_new/15000newnew_model.pkl')
+    model_path = os.path.join(common.project_path, 'train/feature/runs/average_feature_new/55000newnew_model.pkl')
     print(model_path)
     save_path = os.path.join(common.project_path, 'train/feature/runs/average_feature_new')
     # import sys
     # sys.path.append("/media/zhangjian/U/RnnFusion")
     # eval_ssnet(test_infer_path, test_gt_path, model_path, res_path, window_size=20, time_step=20)
     # eval_ssnet_cell(test_infer_path, test_gt_path, model_path, input_window=5, time_step=20)
-    loss = eval_spnet_balance(test_infer_path, test_gt_path, model_path, time_step=50, log_dir=save_path, ignore_list = common.ignore_list)
+    loss = eval_spnet_balance(test_infer_path, test_gt_path, model_path, time_step=20, log_dir=save_path, ignore_list = common.ignore_list)

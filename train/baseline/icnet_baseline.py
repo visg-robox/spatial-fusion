@@ -38,6 +38,8 @@ if __name__ == '__main__':
             infer_voxel = infer_map[key]
             gt_voxel = gt_map[key]
             gt_label = choice(gt_voxel.feature_info_list).feature_list[0]
+            if gt_label in common.ignore_list:
+                gt_label = int(-100)
             gt_res.append(int(gt_label))
             infer_label = choice(infer_voxel.feature_info_list).feature_list
             infer_res.append(infer_label.argmax())
