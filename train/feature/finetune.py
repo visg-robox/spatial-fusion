@@ -14,7 +14,7 @@ from tensorboardX import SummaryWriter
 EPOCH = 100                             # train the training data n times, to save time, we just train 1 epoch
 BATCH_SIZE = common.batch_size
 TIME_STEP = common.time_step                          # rnn time step / image height
-INPUT_SIZE = common.feature_num         # rnn input size / image width
+INPUT_SIZE = common.feature_num_ivo         # rnn input size / image width
 LR = 0.001                              # learning rate
 
 
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     writer = SummaryWriter('runs/finetune')
 
     if USING_SSNet_FEATURE is True:
-        rnn = SSNet(INPUT_SIZE, common.feature_num, common.class_num)
+        rnn = SSNet(INPUT_SIZE, common.feature_num_ivo, common.class_num)
     if USING_RNN_FEATURE is True:
         rnn = Rnn(INPUT_SIZE, TIME_STEP, 2)
 

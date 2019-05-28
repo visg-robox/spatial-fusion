@@ -17,7 +17,7 @@ Range = np.array([common.region_x, common.region_y, common.region_z]) * common.b
 # output: write .txt file
 def visualize_pc(data_path, gt_path = None, save_path = '.', fusion_method = 0, model_path=None):
     if model_path:
-        # rnn = SSNet(common.feature_num, common.feature_num, common.class_num)
+        # rnn = SSNet(common.feature_num_ivo, common.feature_num_ivo, common.class_num)
         rnn = torch.load(model_path)
         rnn.cuda()
         rnn.eval()
@@ -69,7 +69,7 @@ def visualize_pc(data_path, gt_path = None, save_path = '.', fusion_method = 0, 
                                                                         common.batch_size,
                                                                         common.near_num,
                                                                         common.time_step,
-                                                                        common.feature_num)
+                                                                        common.feature_num_ivo)
                     input_data = Variable(input_data).cuda()
                     with torch.no_grad():
                         output = rnn(input_data)

@@ -35,7 +35,7 @@ class VoxelMap:
     # find voxel, if related voxel do not exist, create it
     def get_feature_batch(self, batch_points):
         batch_size = batch_points.shape[0]
-        hidden_feature_batch = np.zeros((batch_size, common.feature_num))
+        hidden_feature_batch = np.zeros((batch_size, common.feature_num_ivo))
         block_dict = get_related_blocks(batch_points)
         block_keys = list(block_dict.keys())
         self.load_map(block_keys)

@@ -21,10 +21,10 @@ from torch.autograd import Variable
 
 
 # Hyper Parameters
-TEST_BATCH_SIZE = 32
+TEST_BATCH_SIZE = common.test_batch_size
 TIME_STEP = common.time_step                          # rnn time step / image height
-INPUT_SIZE = common.feature_num         # rnn input size / image width
-HIDDEN_SIZE = common.feature_num
+INPUT_SIZE = common.feature_num_ivo         # rnn input size / image width
+HIDDEN_SIZE = common.feature_num_ivo
 
 
 def get_common_keys(infer_dict, gt_dict):
@@ -143,12 +143,9 @@ def eval_spnet_balance(test_infer_path,
             test_gt_y = numpy.append(test_gt_y, test_gt.cpu().numpy())
         time2 = time.time()
         print(time2 - time1)
-        #test_loss_ave = test_loss_ave/math.ceil(len(test_keys_list) / TEST_BATCH_SIZE)
-        #test_loss_all += test_loss_ave
 
-    #test_loss_all = test_loss_all/len(test_infer_file_list)
     total_accuracy_rnn = getaccuracy(test_pred_y, test_gt_y, common.class_num)
-    evaluate_name = 'window_size_current_rnn_feature'
+    evaluate_name = model_path.split('/')[-1].split('.')[0]
     eval_print_save(total_accuracy_rnn, evaluate_name, log_dir)
     return test_loss_all
 
@@ -220,11 +217,11 @@ if __name__ == '__main__':
     data_path = common.blockfile_path
     test_infer_path = os.path.join(data_path, 'test', 'infer_feature')
     test_gt_path = test_infer_path.replace('infer_feature', 'gt')
-    res_path = './model/'
+    res_path = common.res_save_path
     # model_path = data_path + 'train/feature/exe/window_size_50/window_size_50_iter_73000_model.pkl'
-    model_path = os.path.join(common.project_path, 'train/feature/runs/average_feature_new/55000newnew_model.pkl')
+    model_path = common.model_path
     print(model_path)
-    save_path = os.path.join(common.project_path, 'train/feature/runs/average_feature_new')
+    save_path = common.res_save_path
     # import sys
     # sys.path.append("/media/zhangjian/U/RnnFusion")
     # eval_ssnet(test_infer_path, test_gt_path, model_path, res_path, window_size=20, time_step=20)

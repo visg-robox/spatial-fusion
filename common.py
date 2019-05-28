@@ -1,36 +1,81 @@
 from enum import Enum, unique
-import itertools
-import math
-import path
+
+
+def load_txt_dict(txt_path):
+    with open(txt_path) as f:
+        para_dict = dict()
+        line = f.readline()
+        while line:
+            if line is not '':
+                line_list = line.split(':')
+                para_dict[line_list[0]] = line_list[-1]
+            line = f.readline()
+    return para_dict
+
+
+txt_path = ''
+para_dict = load_txt_dict(txt_path)
+
+
+# preprocess config path ####################################################
 
 voxel_length = 0.05
-class_num = 22
-ignore_list = [0, 1, 2, 3, 4, 5, 6, 7, 8]
+# region
+block_len = 5
+region_x = int(para_dict['region_x'])
+region_y = int(para_dict['region_y'])
+region_z = int(para_dict['region_z'])
 
+class_preserve_proba_path = para_dict['class_preserve_proba_path']
+lidardata_path = para_dict['lidardata_path']
+blockfile_path = para_dict['blockfile_path']
+
+# ###########################################################################
+
+
+# dataset config path #######################################################
+
+dataset_name = para_dict['dataset_name']
+class_num = int(para_dict['class_num'])
+ignore_list_str = para_dict['ignore_list'].split()
+ignore_list = [int(ignore_list_str[i]) for i in range(len(ignore_list_str))]
+
+
+# ############################################################################
+
+
+# train&test config path #####################################################
+
+near_num = int(para_dict['near_num'])
 # input feature order
 img_feature_size = 128
 vector_size = 3
 offset_size = 3
 location_size = 3
-
-
-feature_num_raw = img_feature_size
-feature_num_new = img_feature_size + vector_size
-feature_num = img_feature_size + vector_size + offset_size
+# feature size
+feature_num_i = img_feature_size
+feature_num_iv = img_feature_size + vector_size
+feature_num_ivo = img_feature_size + vector_size + offset_size
 qk_dim = 256
 
+# train parameter
+epoch = int(para_dict['epoch'])
+lr = int(para_dict['lr'])
+batch_size = int(para_dict['batch_size'])
+time_step = int(para_dict['time_step'])
+pretrained = bool(para_dict['pretrained'])
+model_path = para_dict['model_path']
 
+file_num_step = int(para_dict['file_num_step'])
 
-# region
-region_x = 10
-region_y = 20
-region_z = 2
-block_len = 5
+# test parameter
+test_batch_size = int(para_dict['test_batch_size'])
 
-#
-batch_size = 512
-time_step = 20
+# save
+model_save_step = int(para_dict['model_save_step'])
+res_save_path = '../../result'
 
+# ############################################################################
 
 
 # fusion method
@@ -50,17 +95,6 @@ USING_RNN = False
 USING_SSNet = True
 
 
-# path definition
-project_path = path.project_path
-lidardata_path = path.lidardata_path
-blockfile_path = path.blockfile_path
 
 
-# related space
 
-offset_list = []
-offset = 2
-#near_num = int(math.pow((offset*2+1), 3))
-near_num = 25
-for i in itertools.product([i-2 for i in range(2 * offset + 1)], repeat=3):
-    offset_list.append(i)

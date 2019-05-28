@@ -1,9 +1,9 @@
 import numpy as np
 import os
 from os.path import join
+import common
 
-
-CLASS_NUM = 22
+CLASS_NUM = common.class_num
 SAMPLE_NUM = 20000
 
 
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     STATISTICS = True
     PROBABILTY = True
     if(STATISTICS):
-        gt_path = '/home/zhangjian/code/project/data/blockfile_record002/gt'
+        gt_path = os.path.join(common.blockfile_path, 'gt')
         statistics(gt_path, CLASS_NUM)
 
 

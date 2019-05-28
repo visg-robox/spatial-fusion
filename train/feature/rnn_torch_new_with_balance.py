@@ -24,13 +24,16 @@ from data_process import data_balance
 import math
 
 # Hyper Parameters
+
+dict_para = load_txt()
+
 EPOCH = 100                             # train the training data n times, to save time, we just train 1 epoch
 # when batch size = 1, we just want to have a test
 BATCH_SIZE = 64  # common.batch_size
 TIME_STEP = 20  # common.time_step                          # rnn time step / image height
 
-INPUT_SIZE = common.feature_num         # rnn input size / image width
-HIDDEN_SIZE = common.feature_num
+INPUT_SIZE = common.feature_num_ivo         # rnn input size / image width
+HIDDEN_SIZE = common.feature_num_ivo
 OUTPUT_SIZE = common.class_num
 NEAR_NUM = common.near_num
 
