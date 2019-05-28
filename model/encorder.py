@@ -41,7 +41,6 @@ class encorder(nn.Module):
         self.relu0_3 = nn.LeakyReLU(0.2)
         self.relu1 = nn.LeakyReLU(0.2)
         self.relu2 = nn.Tanh()
-        self.relu3 = nn.Tanh()
 
         self.bn1 = nn.BatchNorm2d(ENBEDDING_DIM)
         self.bn2 = nn.BatchNorm2d(ENBEDDING_DIM)
@@ -59,15 +58,15 @@ class encorder(nn.Module):
 
         img_feature = self.conv_img(img_feature)
         img_feature = self.bn1(img_feature)
-        img_feature = self.relu3(img_feature)
+        img_feature = self.relu0_1(img_feature)
 
         vector = self.conv_vector(vector)
         vector = self.bn2(vector)
-        vector = self.relu0_1(vector)
+        vector = self.relu0_2(vector)
 
         offset = self.conv_offset(offset)
         offset = self.bn3(offset)
-        offset = self.relu0_2(offset)
+        offset = self.relu0_3(offset)
 
         #location = self.conv_location(location)
         #location = self.relu0_3(location)
