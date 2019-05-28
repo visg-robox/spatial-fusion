@@ -213,6 +213,17 @@ def eval_ssnet_cell(test_infer_path,
     eval_print_save(total_accuracy_rnn, evaluate_name, '.')
 
 
+def eval_spnet():
+    data_path = common.blockfile_path
+    test_infer_path = os.path.join(data_path, 'test', 'infer_feature')
+    test_gt_path = test_infer_path.replace('infer_feature', 'gt')
+    model_path = common.model_path
+    print(model_path)
+    save_path = common.res_save_path
+    loss = eval_spnet_balance(test_infer_path, test_gt_path, model_path, time_step=20, log_dir=save_path, ignore_list = common.ignore_list)
+
+
+
 if __name__ == '__main__':
     data_path = common.blockfile_path
     test_infer_path = os.path.join(data_path, 'test', 'infer_feature')
@@ -227,3 +238,5 @@ if __name__ == '__main__':
     # eval_ssnet(test_infer_path, test_gt_path, model_path, res_path, window_size=20, time_step=20)
     # eval_ssnet_cell(test_infer_path, test_gt_path, model_path, input_window=5, time_step=20)
     loss = eval_spnet_balance(test_infer_path, test_gt_path, model_path, time_step=20, log_dir=save_path, ignore_list = common.ignore_list)
+
+

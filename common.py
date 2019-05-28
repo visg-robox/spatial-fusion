@@ -13,7 +13,7 @@ def load_txt_dict(txt_path):
     return para_dict
 
 
-txt_path = ''
+txt_path = './'
 para_dict = load_txt_dict(txt_path)
 
 
