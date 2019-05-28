@@ -2,14 +2,14 @@
 import sys
 sys.path.append("../../")
 import os
-# import common
+import common
 import shelve
 import threading as thd
 import time
-# from evaluate.eval_ssnet import eval_spnet
+from evaluate.eval_ssnet import eval_spnet
 
-MODEL_DIR = '/home/zhangjian/code/project/spatial-fusion/train/feature/runs/average_feature_new'
-TIME_INTERVAL = 10
+MODEL_DIR = common.model_dir
+TIME_INTERVAL = 100
 
 
 def finder_file(pattern, path='.'):
@@ -39,10 +39,11 @@ def auto_eval(model_dir_path):
     test_state_db_name = os.path.join(model_dir_path, 'current_test_state.db')
     model_test_state = shelve.open(test_state_db_name, flag='c', writeback=True)
     model_name_list = finder_file('pkl', model_dir_path)
+    model_name_list.sort()
     for model_name in model_name_list:
         if model_name not in model_test_state:
             model_test_state[model_name] = 1
-            # eval_spnet()
+            eval_spnet(model_name)
     model_test_state.close()
 
 

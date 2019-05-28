@@ -1,4 +1,3 @@
-path.py
 
 \.idea/
 
@@ -10,4 +9,4 @@ train/feature/runs/
 
 train/feature/log\.txt
 
-runs/
+result/

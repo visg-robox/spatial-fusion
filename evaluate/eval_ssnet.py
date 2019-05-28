@@ -8,7 +8,7 @@ Test two situations:
 
 import sys
 import time
-sys.path.append("/home/zhangjian/code/project/spatial-fusion")
+sys.path.append("../")
 
 from data_process import data_loader_torch
 from data_process.data_process_feature import *
@@ -213,11 +213,11 @@ def eval_ssnet_cell(test_infer_path,
     eval_print_save(total_accuracy_rnn, evaluate_name, '.')
 
 
-def eval_spnet():
+def eval_spnet(model_path):
     data_path = common.blockfile_path
     test_infer_path = os.path.join(data_path, 'test', 'infer_feature')
     test_gt_path = test_infer_path.replace('infer_feature', 'gt')
-    model_path = common.model_path
+    # model_path = common.test_model_path
     print(model_path)
     save_path = common.res_save_path
     loss = eval_spnet_balance(test_infer_path, test_gt_path, model_path, time_step=20, log_dir=save_path, ignore_list = common.ignore_list)
@@ -230,7 +230,7 @@ if __name__ == '__main__':
     test_gt_path = test_infer_path.replace('infer_feature', 'gt')
     res_path = common.res_save_path
     # model_path = data_path + 'train/feature/exe/window_size_50/window_size_50_iter_73000_model.pkl'
-    model_path = common.model_path
+    model_path = common.test_model_path
     print(model_path)
     save_path = common.res_save_path
     # import sys

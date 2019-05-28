@@ -1,4 +1,7 @@
+import os
 from enum import Enum, unique
+import sys
+
 
 
 def load_txt_dict(txt_path):
@@ -8,12 +11,12 @@ def load_txt_dict(txt_path):
         while line:
             if line is not '':
                 line_list = line.split(':')
-                para_dict[line_list[0]] = line_list[-1]
+                para_dict[line_list[0]] = line_list[-1][:-1]
             line = f.readline()
     return para_dict
 
 
-txt_path = './'
+txt_path = 'record002.txt'
 para_dict = load_txt_dict(txt_path)
 
 
@@ -26,9 +29,10 @@ region_x = int(para_dict['region_x'])
 region_y = int(para_dict['region_y'])
 region_z = int(para_dict['region_z'])
 
-class_preserve_proba_path = para_dict['class_preserve_proba_path']
 lidardata_path = para_dict['lidardata_path']
 blockfile_path = para_dict['blockfile_path']
+class_preserve_proba_path = os.path.join(blockfile_path, para_dict['class_preserve_proba_path'])
+
 
 # ###########################################################################
 
@@ -37,7 +41,7 @@ blockfile_path = para_dict['blockfile_path']
 
 dataset_name = para_dict['dataset_name']
 class_num = int(para_dict['class_num'])
-ignore_list_str = para_dict['ignore_list'].split()
+ignore_list_str = para_dict['ignore_list_str'].split()
 ignore_list = [int(ignore_list_str[i]) for i in range(len(ignore_list_str))]
 
 
@@ -60,20 +64,22 @@ qk_dim = 256
 
 # train parameter
 epoch = int(para_dict['epoch'])
-lr = int(para_dict['lr'])
+lr = float(para_dict['lr'])
 batch_size = int(para_dict['batch_size'])
 time_step = int(para_dict['time_step'])
-pretrained = bool(para_dict['pretrained'])
+pretrained = bool(int(para_dict['pretrained']))
 model_path = para_dict['model_path']
+model_dir = para_dict['model_dir']
 
 file_num_step = int(para_dict['file_num_step'])
 
 # test parameter
 test_batch_size = int(para_dict['test_batch_size'])
+test_model_path = para_dict['test_model_path']
 
 # save
 model_save_step = int(para_dict['model_save_step'])
-res_save_path = '../../result'
+res_save_path = 'result'
 
 # ############################################################################
 
