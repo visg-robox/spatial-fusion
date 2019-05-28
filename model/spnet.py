@@ -26,9 +26,6 @@ class SPNet(nn.Module):
         self._gpu = gpu
         self.lstm = SSNet(ENBEDDING_DIM*3, SSNET_HIDDENSIZE, SSNET_OUTPUTSIZE, gpu=self._gpu)
         self.encoder = encorder(SSNET_OUTPUTSIZE)
-        self.tanh1 = nn.Tanh()
-        self.tanh2 = nn.Tanh()
-        self.tanh3 = nn.Tanh()
 
         #wait correct
         # encoder 的输入维度与SPnet不协调
@@ -40,6 +37,10 @@ class SPNet(nn.Module):
         shape = input.shape  # [batch_size, near_num, time_step, feature_dim]
         # query = self.lstm.forward(query_input, SSNET_TIMESTEP)
         kv, feature_raw = self.encoder.forward(input)
+        feature_raw = feature_raw.permute(0, 2, 3, 1)
+        feature_raw = feature_raw[:, 0, :, :]
+        flag = input[:, 0, :, 0].unsqueeze(2)
+        feature_raw = torch.cat((flag, feature_raw), dim = 2)
         query = self.lstm.forward(feature_raw, SSNET_TIMESTEP)
 
         output = self.attention.forward(kv, kv, query, input)
