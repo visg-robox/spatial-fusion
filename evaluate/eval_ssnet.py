@@ -219,7 +219,7 @@ def eval_spnet(model_path):
     test_gt_path = test_infer_path.replace('infer_feature', 'gt')
     # model_path = common.test_model_path
     print(model_path)
-    save_path = common.res_save_path
+    save_path = common.model_dir
     loss = eval_spnet_balance(test_infer_path, test_gt_path, model_path, time_step=20, log_dir=save_path, ignore_list = common.ignore_list)
 
 
