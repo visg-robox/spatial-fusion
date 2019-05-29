@@ -25,7 +25,6 @@ import math
 
 # Hyper Parameters
 
-dict_para = load_txt()
 
 EPOCH = 100                             # train the training data n times, to save time, we just train 1 epoch
 # when batch size = 1, we just want to have a test

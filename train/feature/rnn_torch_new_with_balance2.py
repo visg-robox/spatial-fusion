@@ -66,7 +66,7 @@ if __name__ == '__main__':
     gt_file = get_file_list(gt_path)
     gt_file.sort()
 
-    writer = SummaryWriter(res_save_path)
+    writer = SummaryWriter(os.path.join(res_save_path,'event'))
     if Pretrained == False:
         model = spnet.SPNet(INPUT_SIZE, INPUT_SIZE, OUTPUT_SIZE)
     else:
@@ -84,9 +84,10 @@ if __name__ == '__main__':
         scheduler.step()
         print('Epoch: ', epoch)
         file_num_step = common.file_num_step
-        random.shuffle(infer_file)
+        infer_index = np.arange(len(infer_file))
+        random.shuffle(infer_index)
         for time in range(len(infer_file)//file_num_step):
-            file_idx_list = infer_file[time*file_num_step : (time+1) * file_num_step]
+            file_idx_list = infer_index[time*file_num_step : (time+1) * file_num_step]
             voxel_dict = dict()
             gt_dict = dict()
             print('start reading file')
@@ -118,8 +119,8 @@ if __name__ == '__main__':
                 if epoch % 10 ==0:
                     writer.add_scalar('data/feature_training_loss', loss, record_iter)
                 print(record_iter)
-                if record_iter % common.save_step == 0:
-                    model_name = res_save_path + str(record_iter) + '_model.pkl'
+                if record_iter % common.model_save_step == 0:
+                    model_name = os.path.join(res_save_path, str(record_iter) + '_model.pkl')
                     torch.save(model, model_name)
                     #test_loss = eval_spnet_balance(test_infer_path, test_gt_path, model, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
                     #writer.add_scalar('data/feature_test_loss', test_loss, record_iter)
