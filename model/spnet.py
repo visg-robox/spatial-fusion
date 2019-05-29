@@ -24,12 +24,10 @@ class SPNet(nn.Module):
     def __init__(self, input_size, kv_input_size, label_num, gpu=True):
         super(SPNet, self).__init__()
         self._gpu = gpu
-        self.lstm = SSNet(ENBEDDING_DIM*3, SSNET_HIDDENSIZE, SSNET_OUTPUTSIZE, gpu=self._gpu)
+        # self.lstm = SSNet(ENBEDDING_DIM*3, SSNET_HIDDENSIZE, SSNET_OUTPUTSIZE, gpu=self._gpu)
+        self.lstm = SSNet(input_size, SSNET_HIDDENSIZE, SSNET_OUTPUTSIZE, gpu=self._gpu)
         self.encoder = encorder(SSNET_OUTPUTSIZE)
-
-        #wait correct
-        # encoder 的输入维度与SPnet不协调
-        # SSNET_OUTPUTSIZE
+        self.tanh = nn.Tanh()
 
         self.attention = attention(SSNET_OUTPUTSIZE, SSNET_OUTPUTSIZE, label_num)
 
@@ -37,11 +35,12 @@ class SPNet(nn.Module):
         shape = input.shape  # [batch_size, near_num, time_step, feature_dim]
         # query = self.lstm.forward(query_input, SSNET_TIMESTEP)
         kv, feature_raw = self.encoder.forward(input)
-        feature_raw = feature_raw.permute(0, 2, 3, 1)
-        feature_raw = feature_raw[:, 0, :, :]
-        flag = input[:, 0, :, 0].unsqueeze(2)
-        feature_raw = torch.cat((flag, feature_raw), dim = 2)
-        query = self.lstm.forward(feature_raw, SSNET_TIMESTEP)
+        # feature_raw = feature_raw.permute(0, 2, 3, 1)
+        # feature_raw = feature_raw[:, 0, :, :]
+        # flag = input[:, 0, :, 0].unsqueeze(2)
+        # feature_raw = torch.cat((flag, feature_raw), dim = 2)
+        query_input = self.tanh(input[:, 0, :, :])
+        query = self.lstm.forward(query_input, SSNET_TIMESTEP)
 
         output = self.attention.forward(kv, kv, query, input)
         #print(kv[0, :, 62, 0])
