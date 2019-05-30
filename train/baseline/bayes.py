@@ -38,10 +38,27 @@ def softmax(x):
     return x
 
 
+def make_path(path):
+    if os.path.isdir(path) is False:
+        os.makedirs(path)
+
+
+def get_common_keys(infer_dict, gt_dict):
+    infer_keys_list = list(infer_dict.keys())
+    gt_keys_list = list(gt_dict.keys())
+    common_keys_list = [v for v in infer_keys_list if v in gt_keys_list]
+    return common_keys_list
+
+dataset_name = common.dataset_name
+method_name = 'bayes'
+
+
 if __name__ == '__main__':
-    data_path = common.data_path + 'CARLA_episode_0019/test2/test1/'
-    infer_path = data_path + 'infer/'
-    gt_path = data_path + 'gt/'
+    data_path = os.path.join(common.blockfile_path, 'test')
+    infer_path = os.path.join(data_path, 'infer_label')
+    gt_path = os.path.join(data_path, 'gt')
+    res_save_path = os.path.join(common.res_save_path, dataset_name, method_name)
+    make_path(res_save_path)
 
     infer_path_list = get_file_list(infer_path)
     infer_path_list.sort()
@@ -57,14 +74,14 @@ if __name__ == '__main__':
         print(infer_name)
         infer_map = np.load(infer_name).item()
         gt_map = np.load(gt_name).item()
-        gt_keys = gt_map.keys()
-        for key in gt_keys:
+        keys = get_common_keys(infer_map, gt_map)
+        for key in keys:
             infer_voxel = infer_map[key]
             gt_voxel = gt_map[key]
-            gt_res.append(int(gt_voxel.semantic_info_list[0].label_list[0]))
+            gt_res.append(int(gt_voxel.feature_info_list[0].feature_list[0]))
             label_fusion = [1 for _ in range(common.class_num)]
             for idx in range(len(infer_voxel.semantic_info_list)):
                 label_fusion = [a * b for a, b in zip(label_fusion, infer_voxel.semantic_info_list[idx].label_list)]
             infer_res.append(int(numpy.argmax(label_fusion)))
     total_accuracy = getaccuracy(infer_res, gt_res, common.class_num)
-    eval_print_save(total_accuracy, 'miou_result_bayesian', '.')
+    eval_print_save(total_accuracy, 'bayesian', res_save_path)

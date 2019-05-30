@@ -16,7 +16,8 @@ def load_txt_dict(txt_path):
     return para_dict
 
 
-txt_path = 'record002.txt'
+#txt_path = 'record002.txt'
+txt_path = sys.argv[1]
 para_dict = load_txt_dict(txt_path)
 
 

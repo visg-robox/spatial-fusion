@@ -5,7 +5,7 @@ sys.path.append("/home/zhangjian/code/project/spatial-fusion")
 from data_process import data_loader_torch
 from model.rnn import *
 import numpy as np
-from train.baseline.icnet_baseline import *
+from train.baseline.icnet import *
 from tensorboardX import SummaryWriter
 
 
