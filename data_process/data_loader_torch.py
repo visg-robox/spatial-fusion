@@ -76,91 +76,40 @@ def labelmap_to_gt_num(voxel_map, keys_list, batch_size):
 
 #
 def featuremap_to_batch(voxel_map, keys_list, batch_size, time_step, input_size):
-    if USING_RNN_FEATURE is True:
-        res = torch.ones(batch_size, time_step, input_size) * 0.5
-    if USING_SSNet_FEATURE is True:
-        res = torch.zeros(batch_size, time_step, input_size + 1)
+    res = torch.zeros(batch_size, time_step, input_size + 1)
     for i in range(len(keys_list)):
         key = keys_list[i]
         if len(key) != 3:
             key = tuple(list(key)[:3])
-        related_feature = get_related_feature(key, voxel_map)
         feature_info = voxel_map[key].feature_info_list
         feature_len = len(feature_info)
-        if USING_RNN_FEATURE:
-            start_num = time_step - feature_len
-            if start_num < 0:
-                start_num = 0
-            for j in range(start_num, time_step):
-                feature_list = feature_info[j-start_num].feature_list
-                # feature_list = None
-                # count = 0
-                # for k in range(len(related_feature)):
-                #     if j < len(related_feature[k]):
-                #         feature_list += related_feature[k].feature_list
-                #         count += 1
-                # feature_list = feature_list/count
-                res[i][j] = torch.FloatTensor(feature_list)
-        if USING_SSNet_FEATURE:
-            start_num = 0
-            end_num = feature_len + start_num
-            if end_num > time_step:
-                end_num = time_step
-            for j in range(start_num, end_num):
-                # feature_list = numpy.append(1, feature_info[j - start_num].feature_list)
-                feature_list = numpy.zeros_like(numpy.append(1, feature_info[j - start_num].feature_list))
-                count = 0
-                for k in range(len(related_feature)):
-                    if j < len(related_feature[k]):
-                        feature_list = feature_list + numpy.append(1, related_feature[k][j].feature_list)
-                        count += 1
-                feature_list = feature_list/count
-                res[i][j] = torch.FloatTensor(feature_list)
+        start_num = 0
+        end_num = feature_len + start_num
+        if end_num > time_step:
+            end_num = time_step
+        for j in range(start_num, end_num):
+            # feature_list = numpy.append(1, feature_info[j - start_num].feature_list)
+            feature_list = numpy.zeros_like(numpy.append(1, feature_info[j - start_num].feature_list))
+            res[i][j] = torch.FloatTensor(feature_list)
     return res
 
 
-def featuremap_to_batch_new(voxel_map, keys_list, batch_size, time_step, input_size):
-    if USING_RNN_FEATURE is True:
-        res = torch.ones(batch_size, time_step, input_size) * 0.5
-    if USING_SSNet_FEATURE is True:
-        res = torch.zeros(batch_size, time_step, input_size + 1)
+def featuremap_to_batch_v(voxel_map, keys_list, batch_size, time_step, input_size):
+    res = torch.zeros(batch_size, time_step, input_size + 1)
     for i in range(len(keys_list)):
         key = keys_list[i]
-        related_feature = get_related_feature(key, voxel_map)
         feature_info = voxel_map[key].feature_info_list
         feature_len = len(feature_info)
-        if USING_RNN_FEATURE:
-            start_num = time_step - feature_len
-            if start_num < 0:
-                start_num = 0
-            for j in range(start_num, time_step):
-                feature_list = feature_info[j-start_num].feature_list
-                # feature_list = None
-                # count = 0
-                # for k in range(len(related_feature)):
-                #     if j < len(related_feature[k]):
-                #         feature_list += related_feature[k].feature_list
-                #         count += 1
-                # feature_list = feature_list/count
-                res[i][j] = torch.FloatTensor(feature_list)
-        if USING_SSNet_FEATURE:
-            start_num = 0
-            end_num = feature_len + start_num
-            if end_num > time_step:
-                end_num = time_step
-            for j in range(start_num, end_num):
-                # feature_list = numpy.append(1, feature_info[j - start_num].feature_list)
-                feature_list = numpy.zeros_like(numpy.append(1, feature_info[j - start_num].feature_list,
-                                                             feature_info[j - start_num].vector))
-                count = 0
-                for k in range(len(related_feature)):
-                    if j < len(related_feature[k]):
-                        feature_list = feature_list + numpy.append(1, related_feature[k][j].feature_list,
-                                                                   related_feature[k][j].vector)
-                        count += 1
-                feature_list = feature_list/count
-                res[i][j] = torch.FloatTensor(feature_list)
+        start_num = 0
+        end_num = feature_len + start_num
+        if end_num > time_step:
+            end_num = time_step
+        for j in range(start_num, end_num):
+            # feature_list = numpy.append(1, feature_info[j - start_num].feature_list)
+            feature_list = numpy.zeros_like(numpy.append(1, feature_info[j - start_num].feature_list, feature_info[j - start_num].vector))
+            res[i][j] = torch.FloatTensor(feature_list)
     return res
+
 
 def featuremap_to_batch_with_distance(voxel_map, keys_list, batch_size, near_num, time_step, input_size):
     res = torch.zeros(batch_size, near_num, time_step, input_size + 1)
@@ -183,6 +132,7 @@ def featuremap_to_batch_with_distance(voxel_map, keys_list, batch_size, near_num
                                    feature_info[k - start_num].vector + offset_vector  # list(feature_info[k - start_num].vector
                     res[i][j][k] = torch.FloatTensor(feature_list)
     return res
+
 
 def featuremap_to_batch_with_balance(voxel_map, keys_list, batch_size, near_num, time_step, input_size):
     res = torch.zeros(batch_size, near_num, time_step, input_size + 1)
@@ -252,48 +202,6 @@ def get_related_voxels(key, voxel_map):
         else:
             related_feature.append(None)
 
-    return related_feature
-
-def get_related_voxels_new(key, voxel_map):     #with balance  voxel_map: dict->
-    related_feature = []
-    center = key_to_center(key)
-    for item in common.offset_list:
-        related_center = [center[i] + list(item)[i]*common.voxel_length for i in range(len(key))]   # why need center_to_key?
-        related_key = center_to_key(related_center)
-        if related_key in voxel_map:
-            related_feature.append(voxel_map[related_key].feature_info_list)
-        else:
-            related_feature.append(None)
-
-    return related_feature
-
-def get_related_voxels2(key, voxel_map):
-    related_feature = []
-    center = key_to_center(key)
-    for item in common.offset_list:
-        related_center = [center[i] + list(item)[i]*common.voxel_length for i in range(len(key))]   # why need center_to_key?
-        related_key = center_to_key(related_center)
-        if related_key in voxel_map:
-            related_feature.append(voxel_map[related_key].semantic_info_list)
-        else:
-            related_feature.append(None)
-
-    return related_feature
-
-def get_related_feature(key, voxel_map):
-    center = key_to_center(key)
-    related_feature = []
-    for x in range(-1, 2):
-        for y in range(-1, 2):
-            for z in range(-1, 2):
-                current_center = np.array([center[0]+x*common.voxel_length,
-                                           center[1]+y*common.voxel_length,
-                                           center[2]+z*common.voxel_length])
-                current_key = center_to_key(current_center)
-                # current_feature = voxel_map.find(current_key).feature_info_list
-                if current_key in voxel_map.keys():
-                    current_feature = voxel_map[current_key].feature_info_list
-                    related_feature.append(current_feature)
     return related_feature
 
 

@@ -19,20 +19,16 @@ from visualization.input_data import visualize_batch
 from torch import nn
 from torch.autograd import Variable
 from tensorboardX import SummaryWriter
-from model import spnet
-import math
+
 
 # Hyper Parameters
 EPOCH = 100                             # train the training data n times, to save time, we just train 1 epoch
 # when batch size = 1, we just want to have a test
-BATCH_SIZE = 64  # common.batch_size
+BATCH_SIZE = 512  # common.batch_size
 TIME_STEP = 50  # common.time_step                          # rnn time step / image height
-
-INPUT_SIZE = common.feature_num_ivo         # rnn input size / image width
-HIDDEN_SIZE = common.feature_num_ivo
+INPUT_SIZE = common.feature_num_iv           # rnn input size / image width
+HIDDEN_SIZE = common.feature_num_iv
 OUTPUT_SIZE = common.class_num
-NEAR_NUM = common.near_num
-
 LR = 0.001                              # learning rate
 WINDOW_SIZE = 50
 
@@ -55,13 +51,13 @@ if __name__ == '__main__':
     gt_file.sort()
 
     writer = SummaryWriter('runs/average_feature')
-    model = spnet.SPNet(INPUT_SIZE, INPUT_SIZE, OUTPUT_SIZE)
-    optimizer = torch.optim.Adam(model.parameters(), lr=LR, weight_decay=1e-5)
+    rnn = SSNet(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
+    optimizer = torch.optim.Adam(rnn.parameters(), lr=LR, weight_decay=1e-5)
     loss_func = nn.CrossEntropyLoss()
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
 
     random.seed(10)
-    model.cuda()
+    rnn.cuda()
     record_iter = 0
     for epoch in range(EPOCH):
         scheduler.step()
@@ -81,28 +77,24 @@ if __name__ == '__main__':
 
             for i in range(len(keys_list)//BATCH_SIZE):
                 current_keys = random.sample(keys_list, BATCH_SIZE)
-                input_data = data_loader_torch.featuremap_to_batch_with_distance(voxel_dict, current_keys, BATCH_SIZE, NEAR_NUM, TIME_STEP, INPUT_SIZE)
+                input_data = data_loader_torch.featuremap_to_batch_v(voxel_dict, current_keys, BATCH_SIZE, TIME_STEP, INPUT_SIZE)
                 input_data = Variable(input_data, requires_grad=True).cuda()
-                gt = data_loader_torch.featuremap_to_gt_num(gt_dict, current_keys, BATCH_SIZE)
+                gt = data_loader_torch.featuremap_to_gt_num(gt_dict, current_keys, BATCH_SIZE, ignore_list=common.ignore_list)
                 gt = Variable(gt).cuda()
 
-                output = model.forward(input_data)
+                output = rnn(input_data, TIME_STEP)
                 loss = loss_func(output, gt)
-                print(loss)
                 optimizer.zero_grad()
                 loss.backward()
                 # for name, param in rnn.named_parameters():
                 #     writer.add_histogram(name, param.clone().cpu().data.numpy(), record_iter)
                 optimizer.step()
                 record_iter += 1
-                if epoch % 10 ==0:
-                    writer.add_scalar('data/feature_training_loss', loss, record_iter)
+                writer.add_scalar('data/feature_training_loss', loss, record_iter)
                 print(record_iter)
                 if record_iter % 5000 == 0:
-                    model_name = res_save_path + str(record_iter) + 'newnew_model.pkl'
-                    torch.save(model, model_name)
-                    #test_loss = eval_ssnet(test_infer_path, test_gt_path, model_name, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
-                    #writer.add_scalar('data/feature_test_loss', test_loss, record_iter)
-
+                    model_name = res_save_path + str(record_iter) + '_model.pkl'
+                    torch.save(rnn, model_name)
+                    eval_ssnet(test_infer_path, test_gt_path, model_name, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
     writer.close()
 

@@ -98,6 +98,7 @@ def data_balance_new(voxel_map, gt_map, label_probability):   #add repeat data w
 
     return voxel_res, gt_res, keys_list
 
+
 def search_kd_tree(keys, num, max_dist):
     near_array = np.zeros((len(keys), num, 3), dtype=int)
     kdtree = KDTree(keys, leaf_size=num)
