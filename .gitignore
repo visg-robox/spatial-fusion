@@ -10,3 +10,5 @@ train/feature/runs/
 train/feature/log\.txt
 
 result/
+
+*.xlsx
