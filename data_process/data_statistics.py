@@ -20,7 +20,7 @@ def get_probabilty(ratio, num, sample_num, min_num = 100):
             probabilty[i] = 0
     return probabilty
 
-def statistics(data_path, classnum):
+def statistics(data_path, classnum, save_path):
     label_cal = np.zeros([classnum], dtype=np.float64())
     path_list = os.listdir(data_path)
     num = 0
@@ -38,20 +38,23 @@ def statistics(data_path, classnum):
     print(total_num)
     ratio = label_cal / total_num
     ratio = np.concatenate([np.expand_dims(ratio, axis=0), np.expand_dims(label_cal, axis=0)], axis=0)
-    np.savetxt('data_ratio.txt', ratio, fmt='%.3e', delimiter='\t')
+    np.savetxt(save_path, ratio, fmt='%.3e', delimiter='\t')
 
 if __name__ == '__main__':
     STATISTICS = True
     PROBABILTY = True
     if(STATISTICS):
         gt_path = os.path.join(common.blockfile_path, 'gt')
-        statistics(gt_path, CLASS_NUM)
+        save_path = os.path.join(common.blockfile_path, 'data_ratio.txt')
+        statistics(gt_path, CLASS_NUM, save_path)
 
 
     if(PROBABILTY):
-        statistic = np.loadtxt('data_ratio.txt')
+        ratio_path = os.path.join(common.blockfile_path, 'data_ratio.txt')
+        statistic = np.loadtxt(ratio_path)
         ratio = statistic[0, :]
         num = statistic[1, :]
         probabilty = get_probabilty(ratio, num, SAMPLE_NUM)
-        np.savetxt('data_dropout_ratio.txt',probabilty,fmt='%.3e',delimiter='\t')
+        save_path2 = os.path.join(common.blockfile_path, 'data_dropout_ratio.txt')
+        np.savetxt(save_path2, probabilty, fmt='%.3e', delimiter='\t')
 
