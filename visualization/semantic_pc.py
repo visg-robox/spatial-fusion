@@ -6,10 +6,12 @@ from model.rnn import *
 from torch.autograd import Variable
 from data_process.data_process_label import *
 from data_process import data_loader_torch,data_balance
+import sys
+sys.path.append('/media/luo/Dataset/RnnFusion/spatial-fusion/')
 
 BATCH_SIZE = 32
 #这里用来修改可视化的中心坐标以及范围
-visionlize_center = [-12042.5, 2777.5, 42.5]
+visionlize_center = [-12142.5, 3250.5, 40]
 Range = np.array([common.region_x, common.region_y, common.region_z]) * common.block_len
 
 
@@ -17,7 +19,7 @@ Range = np.array([common.region_x, common.region_y, common.region_z]) * common.b
 # output: write .txt file
 def visualize_pc(data_path, gt_path = None, save_path = '.', fusion_method = 0, model_path=None):
     if model_path:
-        # rnn = SSNet(common.feature_num_ivo, common.feature_num_ivo, common.class_num)
+        # rnn = SSNet(common.feature_num, common.feature_num, common.class_num)
         rnn = torch.load(model_path)
         rnn.cuda()
         rnn.eval()
@@ -25,7 +27,7 @@ def visualize_pc(data_path, gt_path = None, save_path = '.', fusion_method = 0, 
     map_name = common.FsMethod(fusion_method).name + '_res'
     data_source_path = get_file_list(data_path)
     data_source_path.sort()
-    gt_source_path = get_file_list(data_path)
+    gt_source_path = get_file_list(gt_path)
     gt_source_path.sort()
 
     for num,source_filename in enumerate(data_source_path):
@@ -56,17 +58,17 @@ def visualize_pc(data_path, gt_path = None, save_path = '.', fusion_method = 0, 
             if fusion_method is common.FsMethod.STF:
                 label_p = np.ones(common.class_num)
                 infer_dict_res, gt_dict_res = data_balance.data_balance(voxel_dict, gt_dict, label_p)
-                batch_num = (len(keys_list) // common.batch_size) + 1
+                batch_num = (len(keys_list) // BATCH_SIZE) + 1
                 for i in range(batch_num):
                     start_time = time.time()
                     if i == batch_num - 1:
-                        current_keys = keys_list[i * common.batch_size:]
+                        current_keys = keys_list[i * BATCH_SIZE:]
                     else:
-                        current_keys = keys_list[i * common.batch_size:(i + 1) * common.batch_size]
+                        current_keys = keys_list[i * BATCH_SIZE:(i + 1) * BATCH_SIZE]
 
                     input_data = data_loader_torch.featuremap_to_batch_with_balance(infer_dict_res,
                                                                         current_keys,
-                                                                        common.batch_size,
+                                                                        BATCH_SIZE,
                                                                         common.near_num,
                                                                         common.time_step,
                                                                         common.feature_num_ivo)
@@ -78,17 +80,17 @@ def visualize_pc(data_path, gt_path = None, save_path = '.', fusion_method = 0, 
                         result_map.insert(key_to_center(current_keys[j]), output_cpu[j])
 
             if fusion_method is common.FsMethod.RNN_FEATURE:
-                batch_num = (len(keys_list) // common.batch_size) + 1
+                batch_num = (len(keys_list) // BATCH_SIZE) + 1
                 for i in range(batch_num):
                     start_time = time.time()
                     if i == batch_num - 1:
-                        current_keys = keys_list[i * common.batch_size:]
+                        current_keys = keys_list[i * BATCH_SIZE:]
                     else:
-                        current_keys = keys_list[i * common.batch_size:(i + 1) * common.batch_size]
+                        current_keys = keys_list[i * BATCH_SIZE:(i + 1) * BATCH_SIZE]
 
                     input_data = data_loader_torch.featuremap_to_batch(voxel_dict,
                                                                                     current_keys,
-                                                                                    common.batch_size,
+                                                                                    BATCH_SIZE,
                                                                                     common.time_step,
                                                                                     common.img_feature_size)
                     input_data = Variable(input_data).cuda()
@@ -115,7 +117,7 @@ def visualize_pc(data_path, gt_path = None, save_path = '.', fusion_method = 0, 
             if fusion_method is common.FsMethod.BASELINE:
                 for key in keys_list:
                     cur_voxel = voxel_dict[key]
-                    infer_label = choice(cur_voxel.semantic_info_list).label_list
+                    infer_label = choice(cur_voxel.feature_info_list).feature_list
                     result_map.insert(key_to_center(key), infer_label)
 
     if fusion_method is common.FsMethod.GT:
@@ -125,27 +127,29 @@ def visualize_pc(data_path, gt_path = None, save_path = '.', fusion_method = 0, 
 
 
 # True, False
-VISUALIZE_STF = False
+VISUALIZE_STF = True
 VISUALIZE_RNN_FEATURE = False
 VISUALIZE_RNN_LABEL   = False
 VISUALIZE_BAYES       = False
 VISUALIZE_BASELINE    = False
-VISUALIZE_GT = True
+VISUALIZE_GT = False
 
 if __name__ == '__main__':
     if VISUALIZE_STF:
-        root_path = common.project_path
-        model_path = root_path + 'train/feature/runs/average_feature_new/15000newnew_model.pkl'
-        save_path  = root_path + 'train/feature/runs/average_feature_new/'
-        data_path  = '/media/luo/Dataset/RnnFusion/CARLA_episode_0019/test3/infer_feature'
-        visualize_pc(data_path, save_path, common.FsMethod.STF, model_path)
+
+        model_path = '../train/feature/runs/SPNET/100000/100000newdata_model.pkl'
+        save_path = '../train/feature/runs/SPNET/100000/'
+        data_path  = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data/test_feature/infer'
+        gt_path = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data/test_feature/gt'
+        visualize_pc(data_path, gt_path, save_path, common.FsMethod.STF, model_path)
 
     if VISUALIZE_RNN_FEATURE:
         root_path = common.project_path
-        model_path = root_path + 'train/feature/runs/lstm_no_vector/50000_model.pkl'
-        save_path = root_path + 'train/feature/runs/lstm_no_vector/'
-        data_path = '/media/luo/Dataset/RnnFusion/CARLA_episode_0019/test3/infer_feature'
-        visualize_pc(data_path, save_path, common.FsMethod.RNN_FEATURE, model_path)
+        model_path = root_path + 'train/feature/runs/LSTM_imgfeature/47500_model.pkl'
+        save_path = root_path + 'train/feature/runs/LSTM_imgfeature/'
+        data_path = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data/test_feature/infer'
+        gt_path = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data/test_feature/gt'
+        visualize_pc(data_path, gt_path, save_path, common.FsMethod.RNN_FEATURE, model_path)
 
     if VISUALIZE_BAYES:
         save_path = '/home/zhangjian/code/project/RnnFusion/record/bayes/'
@@ -154,12 +158,13 @@ if __name__ == '__main__':
 
 
     if VISUALIZE_BASELINE:
-        save_path = '/home/zhangjian/code/project/RnnFusion/record/icnet/'
-        data_path = '/home/zhangjian/code/data/CARLA_episode_0019/test2/test1/infer'
-        visualize_pc(data_path, save_path, common.FsMethod.BASELINE)
+        data_path = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data/test_feature/infer_label'
+        gt_path = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data/test_feature/gt'
+        save_path = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data/test_feature/'
+        visualize_pc(data_path, gt_path, save_path, common.FsMethod.BASELINE)
 
     if VISUALIZE_GT:
         root_path = common.project_path
-        save_path  = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data'
-        data_path  = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data/gt_feature'
+        save_path  = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data/test_feature/'
+        data_path  = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data/test_feature/gt'
         visualize_pc(data_path, data_path, save_path, common.FsMethod.GT)
