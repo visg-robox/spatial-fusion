@@ -88,8 +88,7 @@ def featuremap_to_batch(voxel_map, keys_list, batch_size, time_step, input_size)
         if end_num > time_step:
             end_num = time_step
         for j in range(start_num, end_num):
-            # feature_list = numpy.append(1, feature_info[j - start_num].feature_list)
-            feature_list = numpy.zeros_like(numpy.append(1, feature_info[j - start_num].feature_list))
+            feature_list = numpy.append(1, feature_info[j - start_num].feature_list)
             res[i][j] = torch.FloatTensor(feature_list)
     return res
 
@@ -105,8 +104,7 @@ def featuremap_to_batch_v(voxel_map, keys_list, batch_size, time_step, input_siz
         if end_num > time_step:
             end_num = time_step
         for j in range(start_num, end_num):
-            # feature_list = numpy.append(1, feature_info[j - start_num].feature_list)
-            feature_list = numpy.zeros_like(numpy.append(1, feature_info[j - start_num].feature_list, feature_info[j - start_num].vector))
+            feature_list = [1] + list(feature_info[j - start_num].feature_list) + feature_info[j - start_num].vector
             res[i][j] = torch.FloatTensor(feature_list)
     return res
 

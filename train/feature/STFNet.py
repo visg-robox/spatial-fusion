@@ -53,20 +53,17 @@ if __name__ == '__main__':
     data_path = common.blockfile_path
     infer_path = os.path.join(data_path, 'infer_feature')
     gt_path = os.path.join(data_path, 'gt')
-    # test_infer_path = data_path + 'CARLA_episode_0019/test3/test_feature/infer/'
-    # test_gt_path = data_path + 'CARLA_episode_0019/test3/test_feature/gt/'
     res_save_path = os.path.join(common.res_save_path, dataset_name, method_name)
     make_path(res_save_path)
 
     pretrain_model_path = res_save_path
-
 
     infer_file = get_file_list(infer_path)
     infer_file.sort()
     gt_file = get_file_list(gt_path)
     gt_file.sort()
 
-    writer = SummaryWriter(os.path.join(res_save_path,'event'))
+    writer = SummaryWriter(os.path.join(res_save_path, 'event'))
     if Pretrained == False:
         model = spnet.SPNet(INPUT_SIZE, INPUT_SIZE, OUTPUT_SIZE)
     else:
