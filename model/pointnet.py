@@ -2,177 +2,157 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 import numpy as np
+import common
+
+###########pointnet####################################
+#   This is pointnet pytorch implementation for our SPNET,
+#   The input should be [B, C_i, N, 1]
+#   The output is the geometric feature of each voxel in a block is [B, C_o, N, 1]
 
 
-#????? wait for correct
-input_dim = 3
-
-num_point = 2000
-dim = 0
+NUM_POINT = 2000
+CAPACITY = 64
+INPUT_FEATURE_DIM = 3
 
 class Pointnet(nn.Module):
-    def __init__(self, feature_dim = 64):
+    def __init__(self, capacity = CAPACITY, class_num = common.class_num, input_dim = INPUT_FEATURE_DIM):
         super(Pointnet, self).__init__()
-        self.conv1 = nn.Conv2d(input_dim, feature_dim, (1,3))
-        self.conv2 = nn.Conv2d(feature_dim, feature_dim, 1)
+        self.input_transform = input_transform_net(capacity = capacity, k = input_dim)
+        self.conv1 = nn.Conv2d(input_dim, capacity, 1)
+        self.conv2 = nn.Conv2d(capacity, capacity, 1)
 
-        self.conv3 = nn.Conv2d(, feature_dim, 1)
-        self.conv4 = nn.Conv2d(feature_dim, feature_dim*2, 1)
-        self.conv5 = nn.Conv2d(feature_dim*2, feature_dim*16, 1)
+        self.conv3 = nn.Conv2d(capacity, capacity, 1)
+        self.conv4 = nn.Conv2d(capacity, capacity*2, 1)
+        self.conv5 = nn.Conv2d(capacity*2, capacity*16, 1)
 
-        self.conv3_1 = nn.Conv2d(dim, feature_dim * 8, 1)
-        self.conv3_2 = nn.Conv2d(feature_dim*8, feature_dim * 4, 1)
-        self.conv3_3 = nn.Conv2d(feature_dim*4, feature_dim * 2, 1)
-        self.conv3_4 = nn.Conv2d(feature_dim * 2, feature_dim * 2, 1)
-        self.conv3_5 = nn.Conv2d(feature_dim * 2, 50, 1)
+        self.conv3_1 = nn.Conv2d(capacity *9, capacity * 8, 1)
+        self.conv3_2 = nn.Conv2d(capacity*8, capacity * 4, 1)
+        self.conv3_3 = nn.Conv2d(capacity*4, capacity * 2, 1)
+        self.conv3_4 = nn.Conv2d(capacity * 2, capacity * 2, 1)
+        self.conv3_5 = nn.Conv2d(capacity * 2, class_num, 1)
 
-        self.bn1 = nn.BatchNorm2d(feature_dim)
-        self.bn2 = nn.BatchNorm2d(feature_dim)
-        self.bn3 = nn.BatchNorm2d(feature_dim)
-        self.bn4 = nn.BatchNorm2d(feature_dim * 2)
-        self.bn5 = nn.BatchNorm2d(feature_dim * 16)
+        self.bn1 = nn.BatchNorm2d(capacity)
+        self.bn2 = nn.BatchNorm2d(capacity)
+        self.bn3 = nn.BatchNorm2d(capacity)
+        self.bn4 = nn.BatchNorm2d(capacity * 2)
+        self.bn5 = nn.BatchNorm2d(capacity * 16)
 
-        self.bn3_1 = nn.BatchNorm2d(feature_dim*8)
-        self.bn3_2 = nn.BatchNorm2d(feature_dim*4)
-        self.bn3_3 = nn.BatchNorm2d(feature_dim*2)
-        self.bn3_4 = nn.BatchNorm2d(feature_dim*2)
-
-        self.max_pool = nn.MaxPool2d([num_point, 1])
+        self.bn3_1 = nn.BatchNorm2d(capacity*8)
+        self.bn3_2 = nn.BatchNorm2d(capacity*4)
+        self.bn3_3 = nn.BatchNorm2d(capacity*2)
+        self.bn3_4 = nn.BatchNorm2d(capacity*2)
 
 
     def forward(self, point_cloud):
 
         """ Classification PointNet, input is BxNx3, output BxNx50 """
-        # point_cloud [bz, num_cloud]
-        batch_size = point_cloud.shape[0]
+
+        # point_cloud [bz, num_cloud, feature_dim]
+
         num_point = point_cloud.shape[1]
-        end_points = {}
+        point_cloud = point_cloud.permute(0,2,1)
+        point_cloud = torch.unsqueeze(point_cloud, dim = 3)
 
-        transform = self.input_transform_net(point_cloud, is_training, bn_decay, K=3)
-        point_cloud_transformed = point_cloud.mul(transform)
-        input_image = point_cloud_transformed.unsqeeze(-1)
-
-        net = self.conv1(input_image)
+        net = self.input_transform(point_cloud)
+        net = self.conv1(net)
         net = self.bn1(net)
+        net = nn.functional.leaky_relu(net, 0.2)
+
         net = self.conv2(net)
-        net = self.net2(net)
+        net = self.bn2(net)
+        point_feature = nn.functional.leaky_relu(net, 0.2)
 
-        transform = self.feature_transform_net(net, is_training, bn_decay, K=64)
-        end_points['transform'] = transform
-
-        net_transformed = net.squeeze(2).mul(transform)
-        point_feat = net_transformed.unsqueeze(2)
-        print(point_feat)
-
-        net = self.conv3(point_feat)
+        net = self.conv3(point_feature)
         net = self.bn3(net)
+        net = nn.functional.leaky_relu(net, 0.2)
+
         net = self.conv4(net)
         net = self.bn4(net)
-        net = self.conv5(net)
-        net = self.bn(net)
+        net = nn.functional.leaky_relu(net, 0.2)
 
-        global_feat = self.max_pool(net)
+        net = self.conv5(net)
+        net = self.bn5(net)
+        net = nn.functional.leaky_relu(net, 0.2)
+
+        global_feat = nn.functional.max_pool2d(net, [num_point, 1])
         print(global_feat)
 
-        global_feat_expand = global_feat.expand(-1, num_point, -1, -1)
-        concat_feat = torch.cat((point_feat, global_feat_expand), 3)
+        global_feat_expand = global_feat.expand(-1, -1, num_point, -1)
+        concat_feat = torch.cat((point_feature, global_feat_expand), 1)
         print(concat_feat)
 
         net = self.conv3_1(concat_feat)
         net = self.bn3_1(net)
+        net = nn.functional.leaky_relu(net, 0.2)
         net = self.conv3_2(net)
         net = self.bn3_2(net)
+        net = nn.functional.leaky_relu(net, 0.2)
         net = self.conv3_3(net)
         net = self.bn3_3(net)
+        net = nn.functional.leaky_relu(net, 0.2)
         net = self.conv3_4(net)
         net = self.bn3_4(net)
+        net = nn.functional.leaky_relu(net, 0.2)
         net = self.conv3_5(net)
         net = net.squeeze(2)  # BxNxC
+        return net
 
-        return net, end_points
 
-    def input_transform_net(self, point_cloud, is_training, bn_decay=None, K=3):
-        """ Input (XYZ) Transform Net, input is BxNx3 gray image
-            Return:
-                Transformation matrix of size 3xK """
-        batch_size = point_cloud.get_shape()[0].value
-        num_point = point_cloud.get_shape()[1].value
 
-        input_image = tf.expand_dims(point_cloud, -1)
-        net = tf_util.conv2d(input_image, 64, [1, 3],
-                             padding='VALID', stride=[1, 1],
-                             bn=True, is_training=is_training,
-                             scope='tconv1', bn_decay=bn_decay)
-        net = tf_util.conv2d(net, 128, [1, 1],
-                             padding='VALID', stride=[1, 1],
-                             bn=True, is_training=is_training,
-                             scope='tconv2', bn_decay=bn_decay)
-        net = tf_util.conv2d(net, 1024, [1, 1],
-                             padding='VALID', stride=[1, 1],
-                             bn=True, is_training=is_training,
-                             scope='tconv3', bn_decay=bn_decay)
-        net = tf_util.max_pool2d(net, [num_point, 1],
-                                 padding='VALID', scope='tmaxpool')
 
-        net = tf.reshape(net, [batch_size, -1])
-        net = tf_util.fully_connected(net, 512, bn=True, is_training=is_training,
-                                      scope='tfc1', bn_decay=bn_decay)
-        net = tf_util.fully_connected(net, 256, bn=True, is_training=is_training,
-                                      scope='tfc2', bn_decay=bn_decay)
+class input_transform_net(nn.module):
+    def __init__(self, capacity = CAPACITY, k = 3):
+        assert (k == 3)
+        super(input_transform_net, self).__init__()
+        self.conv1 = nn.Conv2d(INPUT_FEATURE_DIM, capacity, 1)
+        self.conv2 = nn.Conv2d(capacity, capacity*2, 1)
+        self.conv3 = nn.Conv2d(capacity, capacity*16, 1)
 
-        with tf.variable_scope('transform_XYZ') as sc:
-            assert (K == 3)
-            weights = tf.get_variable('weights', [256, 3 * K],
-                                      initializer=tf.constant_initializer(0.0),
-                                      dtype=tf.float32)
-            biases = tf.get_variable('biases', [3 * K],
-                                     initializer=tf.constant_initializer(0.0),
-                                     dtype=tf.float32)
-            biases += tf.constant([1, 0, 0, 0, 1, 0, 0, 0, 1], dtype=tf.float32)
-            transform = tf.matmul(net, weights)
-            transform = tf.nn.bias_add(transform, biases)
+        self.conv4 = nn.Conv2d(capacity * 16, capacity * 8, 1)
+        self.conv5 = nn.Conv2d(capacity * 8, capacity * 4, 1)
 
-        transform = tf.reshape(transform, [batch_size, 3, K])
-        return transform
+        self.bn1 = nn.BatchNorm2d(capacity)
+        self.bn2 = nn.BatchNorm2d(capacity*2)
+        self.bn3 = nn.BatchNorm2d(capacity*16)
+        self.bn4 = nn.BatchNorm2d(capacity*8)
+        self.bn5 = nn.BatchNorm2d(capacity*4)
 
-    def feature_transform_net(self, inputs, is_training, bn_decay=None, K=64):
-        """ Feature Transform Net, input is BxNx1xK
-            Return:
-                Transformation matrix of size KxK """
-        batch_size = inputs.get_shape()[0].value
-        num_point = inputs.get_shape()[1].value
+        self.conv_k = nn.Conv2d(capacity * 4, 3 * k, 1)
+        init_weight = torch.Tensor(np.zeros([capacity * 4, 3 * k], dtype= np.float32))
+        init_weight = nn.Parameter(init_weight)
 
-        net = tf_util.conv2d(inputs, 64, [1, 1],
-                             padding='VALID', stride=[1, 1],
-                             bn=True, is_training=is_training,
-                             scope='tconv1', bn_decay=bn_decay)
-        net = tf_util.conv2d(net, 128, [1, 1],
-                             padding='VALID', stride=[1, 1],
-                             bn=True, is_training=is_training,
-                             scope='tconv2', bn_decay=bn_decay)
-        net = tf_util.conv2d(net, 1024, [1, 1],
-                             padding='VALID', stride=[1, 1],
-                             bn=True, is_training=is_training,
-                             scope='tconv3', bn_decay=bn_decay)
-        net = tf_util.max_pool2d(net, [num_point, 1],
-                                 padding='VALID', scope='tmaxpool')
+        init_biase = np.array([1,0,0,0,1,0,0,0,1], dtype = np.float32)
+        init_biase = torch.Tensor(init_biase)
+        init_biase = nn.Parameter(init_biase)
 
-        net = tf.reshape(net, [batch_size, -1])
-        net = tf_util.fully_connected(net, 512, bn=True, is_training=is_training,
-                                      scope='tfc1', bn_decay=bn_decay)
-        net = tf_util.fully_connected(net, 256, bn=True, is_training=is_training,
-                                      scope='tfc2', bn_decay=bn_decay)
+        self.conv_k.weight = init_weight
+        self.conv_k.bias = init_biase
 
-        with tf.variable_scope('transform_feat') as sc:
-            weights = tf.get_variable('weights', [256, K * K],
-                                      initializer=tf.constant_initializer(0.0),
-                                      dtype=tf.float32)
-            biases = tf.get_variable('biases', [K * K],
-                                     initializer=tf.constant_initializer(0.0),
-                                     dtype=tf.float32)
-            biases += tf.constant(np.eye(K).flatten(), dtype=tf.float32)
-            transform = tf.matmul(net, weights)
-            transform = tf.nn.bias_add(transform, biases)
 
-        transform = tf.reshape(transform, [batch_size, K, K])
-        return transform
+    def forward(self, pointcloud_xyz):
+        num_point = pointcloud_xyz.shape(2)
+        batch_size = pointcloud_xyz.shape(0)
+        k_dim = pointcloud_xyz.shape(1)
+        net = self.conv1(pointcloud_xyz)
+        net = self.bn1(net)
+        net = self.conv2(net)
+        net = self.bn2(net)
+        net = self.conv3(net)
+        net = self.bn3(net)
+        net = self.conv4(net)
+        net = self.bn4(net)
+        net = self.conv5(net)
+        net = self.bn5(net)
+        transform_mat = self.conv_k(net)
+        transform_mat = torch.reshape(transform_mat, (batch_size, num_point, k_dim, 3))#shape(B, num, k, 3)
+
+        pointcloud_xyz = pointcloud_xyz.purmute(0,2,3,1) #shape(B, num, 1, k)
+        out_xyz = torch.matmul(pointcloud_xyz, transform_mat)#shape(B, num, 1, 3)
+        out_xyz = out_xyz.purmute(0, 3, 1, 2)
+        return out_xyz
+
+
+
+
+
+
