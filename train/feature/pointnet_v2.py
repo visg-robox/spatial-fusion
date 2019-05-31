@@ -25,14 +25,14 @@ import math
 import time
 # Hyper Parameters
 
-EPOCH = 50
-SAVE_STEP = 50 # train the training data n times, to save time, we just train 1 epoch
+EPOCH = 100
+SAVE_STEP = 100 # train the training data n times, to save time, we just train 1 epoch
 # when batch size = 1, we just want to have a test
 BATCH_SIZE = 16  # common.batch_size
 Pretrained = common.pretrained
 dataset_name = common.dataset_name
 LR = 1e-2
-method_name = 'pointnet_feature_tranform_batch_size32'
+method_name = 'pointnet_feature_tranform_batch_size16'
 Sample_num = 10000
 
 
@@ -68,7 +68,7 @@ if __name__ == '__main__':
         model = torch.load(pretrain_model_path)
     optimizer = torch.optim.Adam(model.parameters(), lr=LR, weight_decay=1e-5)
 
-    loss_func = nn.CrossEntropyLoss(weight = torch.Tensor(weight))
+    loss_func = nn.CrossEntropyLoss(weight = torch.Tensor(weight).cuda())
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
 
     random.seed(10)
