@@ -4,7 +4,7 @@ region_z:2
 
 
 lidardata_path:/data1/3d_map/data/record001
-blockfile_path:/data1/3d_map/data/record001
+blockfile_path:/data1/3d_map/data/apollo/record001/block_file
 class_preserve_proba_path:data_dropout_ratio.txt
 dataset_name:apollo_record001
 class_num:22
@@ -18,7 +18,7 @@ batch_size:64
 time_step:20
 pretrained:0
 model_path:None
-test_model_path:/data1/3d_map/spatial-fusion/result/apollo_record_001/SPNet/14_model.pkl
+test_model_path:None
 model_dir:/data1/3d_map/spatial-fusion/result/apollo_record001/SPNet
 
 file_num_step:5
