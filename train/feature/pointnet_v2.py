@@ -19,7 +19,7 @@ from visualization.input_data import visualize_batch
 from torch import nn
 from torch.autograd import Variable
 from tensorboardX import SummaryWriter
-from model import pointnet
+from model.pointnet_v2 import PointNetDenseCls
 from data_process import data_balance, data_loader_torch
 import math
 import time
@@ -30,9 +30,9 @@ EPOCH = common.epoch                           # train the training data n times
 BATCH_SIZE = 16  # common.batch_size
 Pretrained = common.pretrained
 dataset_name = common.dataset_name
-LR = 1e-2
+LR = 1e-3
 method_name = 'pointnet'
-Sample_num = 5000
+Sample_num = 10000
 
 
 def make_path(path):
@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
     writer = SummaryWriter(os.path.join(res_save_path,'event'))
     if Pretrained == False:
-        model =pointnet.Pointnet(capacity = 64, input_dim = 3)
+        model =PointNetDenseCls(k = common.class_num)
     else:
         model = torch.load(pretrain_model_path)
     optimizer = torch.optim.Adam(model.parameters(), lr=LR, weight_decay=1e-5)
@@ -97,7 +97,8 @@ if __name__ == '__main__':
             print('finish reading')
             time2 = time.time()
             print(time2 - time1)
-            output = model.forward(input_data)
+            input_data = input_data.permute(0,2,1)
+            output,_,_ = model.forward(input_data)
             loss = loss_func(output, gt)
             print(loss)
             optimizer.zero_grad()

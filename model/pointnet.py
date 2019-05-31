@@ -54,8 +54,8 @@ class Pointnet(nn.Module):
         point_cloud = point_cloud.permute(0,2,1)
         point_cloud = torch.unsqueeze(point_cloud, dim = 3)
 
-        net = self.input_transform(point_cloud)
-        net = self.conv1(net)
+        #net = self.input_transform(point_cloud)
+        net = self.conv1(point_cloud)
         net = self.bn1(net)
         net = nn.functional.leaky_relu(net, 0.2)
 

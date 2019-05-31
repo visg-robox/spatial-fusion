@@ -231,7 +231,8 @@ def pointnet_block_process_xyzlocal(gt_file_name, sample_num = None):
     center_xyz = np.array(center_idx, dtype = np.float) / 100
     keys_list = list(gt_dict.keys())
 
-
+    print('point_num:')
+    print(len(keys_list))
     if sample_num:
         keys_list = sample_data(np.array(keys_list), sample_num)
         keys_list = keys_list.tolist()
