@@ -6,7 +6,7 @@ Test two situations:
 2. time step is not continuous
 """
 import sys
-sys.path.append("/home/zhangjian/code/project/spatial-fusion/")
+sys.path.append("../../")
 import common
 import torch
 
@@ -22,35 +22,37 @@ from tensorboardX import SummaryWriter
 
 
 # Hyper Parameters
-EPOCH = 100                             # train the training data n times, to save time, we just train 1 epoch
+EPOCH = common.epoch                          # train the training data n times, to save time, we just train 1 epoch
 # when batch size = 1, we just want to have a test
-BATCH_SIZE = 512  # common.batch_size
-TIME_STEP = 50  # common.time_step                          # rnn time step / image height
-INPUT_SIZE = common.feature_num_i           # rnn input size / image width
-HIDDEN_SIZE = common.feature_num_i
+BATCH_SIZE = common.batch_size  # common.batch_size
+TIME_STEP = common.time_step  # common.time_step                          # rnn time step / image height
+INPUT_SIZE = common.feature_num_iv           # rnn input size / image width
+HIDDEN_SIZE = common.feature_num_iv
 OUTPUT_SIZE = common.class_num
-LR = 0.001                              # learning rate
-WINDOW_SIZE = 50
+LR = common.lr                              # learning rate
+FILE_NUM_STEP = common.file_num_step
 
 USING_RNN_FEATURE = common.USING_RNN_FEATURE
 USING_SSNet_FEATURE = common.USING_SSNet_FEATURE
 
 
+dataset_name = common.dataset_name
+method_name = 'lstm_iv_balance'
+
 if __name__ == '__main__':
 
-    data_path = common.data_path
-    infer_path = data_path + 'CARLA_episode_0019/test3/infer_feature/'
-    gt_path = data_path + 'CARLA_episode_0019/test3/gt_feature/'
-    test_infer_path = data_path + 'CARLA_episode_0019/test3/test_feature/infer/'
-    test_gt_path = data_path + 'CARLA_episode_0019/test3/test_feature/gt/'
-    res_save_path = str(os.getcwd()) + '/runs/average_feature/'
+    data_path = common.blockfile_path
+    infer_path = os.path.join(data_path, 'infer_feature')
+    gt_path = os.path.join(data_path, 'gt')
+    res_save_path = os.path.join(common.res_save_path, dataset_name, method_name)
+    common.make_path(res_save_path)
 
     infer_file = get_file_list(infer_path)
     infer_file.sort()
     gt_file = get_file_list(gt_path)
     gt_file.sort()
 
-    writer = SummaryWriter('runs/average_feature')
+    writer = SummaryWriter(os.path.join(res_save_path, 'event'))
     rnn = SSNet(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
     optimizer = torch.optim.Adam(rnn.parameters(), lr=LR, weight_decay=1e-5)
     loss_func = nn.CrossEntropyLoss()
@@ -59,7 +61,7 @@ if __name__ == '__main__':
     random.seed(10)
     rnn.cuda()
     record_iter = 0
-    label_p = np.loadtxt('../../data_process/data_dropout_ratio.txt')
+    label_p = np.loadtxt(common.class_preserve_proba_path)
     for epoch in range(EPOCH):
         scheduler.step()
         print('Epoch: ', epoch)
@@ -79,7 +81,7 @@ if __name__ == '__main__':
             random.shuffle(keys_list)
             for i in range(len(keys_list)//BATCH_SIZE):
                 current_keys = keys_list[i * BATCH_SIZE:(i + 1) * BATCH_SIZE]
-                input_data = data_loader_torch.featuremap_to_batch(voxel_dict, current_keys, BATCH_SIZE, TIME_STEP, INPUT_SIZE)
+                input_data = data_loader_torch.featuremap_to_batch_v(voxel_dict, current_keys, BATCH_SIZE, TIME_STEP, INPUT_SIZE)
                 input_data = Variable(input_data, requires_grad=True).cuda()
                 gt = data_loader_torch.featuremap_to_gt_num(gt_dict, current_keys, BATCH_SIZE, ignore_list=common.ignore_list)
                 gt = Variable(gt).cuda()
@@ -95,7 +97,7 @@ if __name__ == '__main__':
                 record_iter += 1
                 writer.add_scalar('data/feature_training_loss', loss, record_iter)
                 print(record_iter)
-                if record_iter % 1000 == 0:
+                if record_iter % common.model_save_step == 0:
                     model_name = res_save_path + str(record_iter) + '_model.pkl'
                     torch.save(rnn, model_name)
                 #    eval_ssnet(test_infer_path, test_gt_path, model_name, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
