@@ -4,6 +4,7 @@ import math
 from scipy import stats
 from data_process.data_process_label import *
 from common import USING_RNN_FEATURE, USING_SSNet_FEATURE, USING_RNN, USING_SSNet
+from data_structure.voxel_map import key_to_center
 
 
 # input:
@@ -201,6 +202,57 @@ def get_related_voxels(key, voxel_map):
             related_feature.append(None)
 
     return related_feature
+
+
+
+def sample_data(data, num_sample):
+    """ data is in N x ...
+        we want to keep num_samplexC of them.
+        if N > num_sample, we will randomly keep num_sample of them.
+        if N < num_sample, we will randomly duplicate samples.
+    """
+    N = data.shape[0]
+    if (N == num_sample):
+        return data
+    elif (N > num_sample):
+        sample = np.random.choice(N, num_sample)
+        return data[sample, ...]
+    else:
+        sample = np.random.choice(N, num_sample-N)
+        dup_data = data[sample, ...]
+        return np.concatenate([data, dup_data], 0)
+
+
+
+def pointnet_block_process_xyzlocal(gt_file_name, sample_num = None):
+
+    gt_dict = np.load(gt_file_name).item()
+    center_idx = gt_file_name.split('/')[-1].split('.')[0].split('_')
+    center_xyz = np.array(center_idx, dtype = np.float) / 100
+    keys_list = list(gt_dict.keys())
+
+
+    if sample_num:
+        keys_list = sample_data(np.array(keys_list), sample_num)
+        keys_list = keys_list.tolist()
+        keys_list = list(map(lambda i: tuple(i), keys_list))
+
+    gt = featuremap_to_gt_num(gt_dict, keys_list, len(keys_list), common.ignore_list)
+    point_cloud = key_to_center(keys_list) - center_xyz
+    point_cloud = np.expand_dims(point_cloud, axis = 0)
+
+
+    return point_cloud, gt
+
+
+
+
+
+
+
+
+
+
 
 
 if __name__ == '__main__':
