@@ -6,7 +6,7 @@ Test two situations:
 2. time step is not continuous
 """
 import sys
-sys.path.append("/home/zhangjian/code/project/spatial-fusion/")
+sys.path.append("../../")
 import common
 import torch
 
@@ -33,10 +33,6 @@ LR = common.lr                            # learning rate
 FILE_NUM_STEP = common.file_num_step
 
 
-def make_path(path):
-    if os.path.isdir(path) is False:
-        os.makedirs(path)
-
 
 dataset_name = common.dataset_name
 method_name = 'lstm_iv'
@@ -48,7 +44,7 @@ if __name__ == '__main__':
     infer_path = os.path.join(data_path, 'infer_feature')
     gt_path = os.path.join(data_path, 'gt')
     res_save_path = os.path.join(common.res_save_path, dataset_name, method_name)
-    make_path(res_save_path)
+    common.make_path(res_save_path)
 
     infer_file = get_file_list(infer_path)
     infer_file.sort()
@@ -89,6 +85,7 @@ if __name__ == '__main__':
 
                 output = rnn(input_data, TIME_STEP)
                 loss = loss_func(output, gt)
+                print(loss)
                 optimizer.zero_grad()
                 loss.backward()
                 # for name, param in rnn.named_parameters():

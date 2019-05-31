@@ -3,8 +3,8 @@ region_y:20
 region_z:2
 
 
-lidardata_path:/home/zhangjian/code/project/data/record002
-blockfile_path:/home/zhangjian/code/project/data/blockfile_record002
+lidardata_path:/data1/3d_map/data/record002
+blockfile_path:/data1/3d_map/data/record002
 class_preserve_proba_path:data_dropout_ratio.txt
 dataset_name:apollo_record002
 class_num:22
@@ -18,8 +18,8 @@ batch_size:64
 time_step:20
 pretrained:0
 model_path:None
-test_model_path:/home/zhangjian/code/project/spatial-fusion/result/apollo_record002/SPNet/14_model.pkl
-model_dir:/home/zhangjian/code/project/spatial-fusion/result/apollo_record002/SPNet
+test_model_path:/data1/3d_map/spatial-fusion/result/apollo_record_002/SPNet/14_model.pkl
+model_dir:/data1/3d_map/spatial-fusion/result/apollo_record002/SPNet
 
 file_num_step:5
 test_batch_size:64

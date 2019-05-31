@@ -3,6 +3,10 @@ from enum import Enum, unique
 import sys
 
 
+def make_path(path):
+    if os.path.isdir(path) is False:
+        os.makedirs(path)
+
 
 def load_txt_dict(txt_path):
     with open(txt_path) as f:

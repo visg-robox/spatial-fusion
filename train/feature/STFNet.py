@@ -43,10 +43,6 @@ dataset_name = common.dataset_name
 method_name = 'SPNet'
 
 
-def make_path(path):
-    if os.path.isdir(path) is False:
-        os.makedirs(path)
-
 
 if __name__ == '__main__':
 
@@ -54,7 +50,7 @@ if __name__ == '__main__':
     infer_path = os.path.join(data_path, 'infer_feature')
     gt_path = os.path.join(data_path, 'gt')
     res_save_path = os.path.join(common.res_save_path, dataset_name, method_name)
-    make_path(res_save_path)
+    common.make_path(res_save_path)
 
     pretrain_model_path = res_save_path
 

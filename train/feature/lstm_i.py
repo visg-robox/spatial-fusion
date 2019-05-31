@@ -35,10 +35,6 @@ dataset_name = common.dataset_name
 method_name = 'lstm_i'
 
 
-def make_path(path):
-    if os.path.isdir(path) is False:
-        os.makedirs(path)
-
 
 if __name__ == '__main__':
 
@@ -46,7 +42,7 @@ if __name__ == '__main__':
     infer_path = os.path.join(data_path, 'infer_feature')
     gt_path = os.path.join(data_path, 'gt')
     res_save_path = os.path.join(common.res_save_path, dataset_name, method_name)
-    make_path(res_save_path)
+    common.make_path(res_save_path)
 
     infer_file = get_file_list(infer_path)
     infer_file.sort()
