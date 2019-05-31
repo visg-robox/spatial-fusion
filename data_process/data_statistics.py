@@ -4,15 +4,16 @@ from os.path import join
 import common
 
 CLASS_NUM = common.class_num
-SAMPLE_NUM = 20000
+SAMPLE_ratio = 0.2
 
 
 
 
 
-def get_probabilty(ratio, num, sample_num, min_num = 100):
+def get_probabilty(ratio, num, sample_ratio, min_num = 100):
     max_ratio = np.max(ratio)
     max_num = np.max(num)
+
     sample_ratio = sample_num / max_num
     probabilty = sample_ratio * (max_ratio / ratio)
     for i in range(len(list(num))):

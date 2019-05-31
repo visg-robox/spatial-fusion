@@ -25,13 +25,14 @@ import math
 import time
 # Hyper Parameters
 
-EPOCH = common.epoch                           # train the training data n times, to save time, we just train 1 epoch
+EPOCH = 50
+SAVE_STEP = 50 # train the training data n times, to save time, we just train 1 epoch
 # when batch size = 1, we just want to have a test
 BATCH_SIZE = 16  # common.batch_size
 Pretrained = common.pretrained
 dataset_name = common.dataset_name
-LR = 1e-3
-method_name = 'pointnet'
+LR = 1e-2
+method_name = 'pointnet_feature_tranform_batch_size32'
 Sample_num = 10000
 
 
@@ -52,7 +53,9 @@ if __name__ == '__main__':
 
     pretrain_model_path = res_save_path
 
-
+    label_p = np.loadtxt(common.class_preserve_proba_path)
+    weight = label_p / np.sum(label_p)
+    print(weight)
     infer_file = get_file_list(infer_path)
     infer_file.sort()
     gt_file = get_file_list(gt_path)
@@ -60,12 +63,12 @@ if __name__ == '__main__':
 
     writer = SummaryWriter(os.path.join(res_save_path,'event'))
     if Pretrained == False:
-        model =PointNetDenseCls(k = common.class_num)
+        model =PointNetDenseCls(k = common.class_num, feature_transform= True)
     else:
         model = torch.load(pretrain_model_path)
     optimizer = torch.optim.Adam(model.parameters(), lr=LR, weight_decay=1e-5)
 
-    loss_func = nn.CrossEntropyLoss()
+    loss_func = nn.CrossEntropyLoss(weight = torch.Tensor(weight))
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
 
     random.seed(10)
@@ -110,7 +113,7 @@ if __name__ == '__main__':
             if epoch % 10 ==0:
                 writer.add_scalar('data/loss', loss, record_iter)
             print(record_iter)
-            if record_iter % common.model_save_step == 0:
+            if record_iter % SAVE_STEP == 0:
                 model_name = os.path.join(res_save_path, str(record_iter) + '_model.pkl')
                 torch.save(model, model_name)
                 #test_loss = eval_spnet_balance(test_infer_path, test_gt_path, model, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
