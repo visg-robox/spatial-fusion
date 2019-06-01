@@ -36,6 +36,7 @@ def run_with_time():
 
 
 def auto_eval(model_dir_path):
+    common.make_path(model_dir_path)
     test_state_db_name = os.path.join(model_dir_path, 'current_test_state.db')
     model_test_state = shelve.open(test_state_db_name, flag='c', writeback=True)
     model_name_list = finder_file('pkl', model_dir_path)
