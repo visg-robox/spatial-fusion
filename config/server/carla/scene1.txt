@@ -6,7 +6,8 @@ region_z:2
 lidardata_path:/data1/3d_map/data/carla/scence1/raw_file
 blockfile_path:/data1/3d_map/data/carla/scence1/block_file
 class_preserve_proba_path:data_dropout_ratio.txt
-dataset_name:apollo_record002
+dataset_name:carla_scence1
+res_save_path:/data1/3d_map/spatial-fusion/result
 class_num:13
 ignore_list_str:0 4 12
 
