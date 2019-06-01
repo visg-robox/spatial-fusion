@@ -32,7 +32,7 @@ BATCH_SIZE = 16  # common.batch_size
 Pretrained = common.pretrained
 dataset_name = common.dataset_name
 LR = 1e-2
-method_name = 'pointnet_feature_tranform_batch_size16'
+method_name = 'pointnet_feature_tranform_batch_size16_newbalance'
 Sample_num = 10000
 
 
@@ -54,7 +54,12 @@ if __name__ == '__main__':
     pretrain_model_path = res_save_path
 
     label_p = np.loadtxt(common.class_preserve_proba_path)
-    weight = label_p / np.sum(label_p)
+    weight = np.zeros_like(label_p)
+    for i in range(label_p.size):
+        if label_p[i] > 0:
+            weight[i] = label_p[i] / (np.sum(label_p) /np.sum(np.greater(label_p, 0))) * 10
+
+
     print(weight)
     infer_file = get_file_list(infer_path)
     infer_file.sort()
