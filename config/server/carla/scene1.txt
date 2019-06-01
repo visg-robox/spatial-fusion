@@ -20,7 +20,6 @@ time_step:50
 pretrained:0
 model_path:None
 test_model_path:/data1/3d_map/spatial-fusion/result/carla_scene1/SPNet/14_model.pkl
-model_dir:/data1/3d_map/spatial-fusion/result/carla_scene1/SPNet
 
 file_num_step:5
 test_batch_size:64

@@ -74,7 +74,6 @@ batch_size = int(para_dict['batch_size'])
 time_step = int(para_dict['time_step'])
 pretrained = bool(int(para_dict['pretrained']))
 model_path = para_dict['model_path']
-model_dir = para_dict['model_dir']
 
 file_num_step = int(para_dict['file_num_step'])
 
