@@ -25,14 +25,14 @@ import math
 import time
 # Hyper Parameters
 
-EPOCH = 100
-SAVE_STEP = 100 # train the training data n times, to save time, we just train 1 epoch
+EPOCH = 200
+SAVE_STEP = 500 # train the training data n times, to save time, we just train 1 epoch
 # when batch size = 1, we just want to have a test
 BATCH_SIZE = 16  # common.batch_size
-Pretrained = common.pretrained
+Pretrained = False
 dataset_name = common.dataset_name
 LR = 1e-2
-method_name = 'pointnet_feature_tranform_batch_size16_newbalance'
+method_name = 'pointnet_feature_tranform_batch_size16_newbalance_xyz_xyzlocal'
 Sample_num = 10000
 
 
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     res_save_path = os.path.join(common.res_save_path, dataset_name, method_name)
     make_path(res_save_path)
 
-    pretrain_model_path = res_save_path
+    pretrain_model_path = '/media/luo/Dataset/RnnFusion/spatial-fusion/train/feature/result/apollo_record001/pointnet_feature_tranform_batch_size16_newbalance_xyz_xyzlocal/6600_model.pkl'
 
     label_p = np.loadtxt(common.class_preserve_proba_path)
     weight = np.zeros_like(label_p)
@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
     writer = SummaryWriter(os.path.join(res_save_path,'event'))
     if Pretrained == False:
-        model =PointNetDenseCls(k = common.class_num, feature_transform= True)
+        model =PointNetDenseCls(input_dim = 6, class_num = common.class_num, feature_transform= True)
     else:
         model = torch.load(pretrain_model_path)
     optimizer = torch.optim.Adam(model.parameters(), lr=LR, weight_decay=1e-5)
@@ -95,7 +95,7 @@ if __name__ == '__main__':
             time1 = time.time()
             for file_idx in file_idx_list:
                 gt_filename = gt_file[file_idx]
-                block_res, gt_res = data_loader_torch.pointnet_block_process_xyzlocal(gt_filename, Sample_num)
+                block_res, gt_res = data_loader_torch.pointnet_block_process_xyzlocal_xyz(gt_filename, Sample_num)
                 batch_block.append(block_res)
                 gt_block.append(gt_res)
             batch_block = np.concatenate(batch_block, axis = 0)

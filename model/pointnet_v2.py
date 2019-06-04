@@ -85,10 +85,14 @@ class STNkd(nn.Module):
         return x
 
 class PointNetfeat(nn.Module):
-    def __init__(self, global_feat = True, feature_transform = False):
+    def __init__(self, input_dim = 3, global_feat = True, feature_transform = False):
         super(PointNetfeat, self).__init__()
-        self.stn = STN3d()
-        self.conv1 = torch.nn.Conv1d(3, 64, 1)
+        if input_dim == 3:
+            self.stn = STN3d()
+        else:
+            self.stn = STNkd(k = input_dim)
+
+        self.conv1 = torch.nn.Conv1d(input_dim, 64, 1)
         self.conv2 = torch.nn.Conv1d(64, 128, 1)
         self.conv3 = torch.nn.Conv1d(128, 1024, 1)
         self.bn1 = nn.BatchNorm1d(64)
@@ -148,11 +152,11 @@ class PointNetCls(nn.Module):
 
 
 class PointNetDenseCls(nn.Module):
-    def __init__(self, k = 2, feature_transform=False):
+    def __init__(self, input_dim = 3, class_num = 2, feature_transform=False):
         super(PointNetDenseCls, self).__init__()
-        self.k = k
+        self.k = class_num
         self.feature_transform=feature_transform
-        self.feat = PointNetfeat(global_feat=False, feature_transform=feature_transform)
+        self.feat = PointNetfeat(global_feat=False, input_dim = input_dim, feature_transform=feature_transform)
         self.conv1 = torch.nn.Conv1d(1088, 512, 1)
         self.conv2 = torch.nn.Conv1d(512, 256, 1)
         self.conv3 = torch.nn.Conv1d(256, 128, 1)
@@ -173,6 +177,10 @@ class PointNetDenseCls(nn.Module):
         x = x.view(-1,self.k)
         x = x.view(batchsize * n_pts, self.k)
         return x, trans, trans_feat
+
+
+
+
 
 def feature_transform_regularizer(trans):
     d = trans.size()[1]

@@ -28,10 +28,10 @@ def eval_pointnet(
 
     test_pred_y = np.zeros(1, dtype=int)
     test_gt_y = np.array([-255], dtype=int)
-    for test_file_idx in range(50):
+    for test_file_idx in range(len(test_gt_file_list)):
 
         test_gt_filename = test_gt_file_list[test_file_idx]
-        block_res, gt_res = data_loader_torch.pointnet_block_process_xyzlocal(test_gt_filename)
+        block_res, gt_res = data_loader_torch.pointnet_block_process_xyzlocal_xyz(test_gt_filename)
         input_data = Variable(torch.FloatTensor(block_res), requires_grad=False).cuda()
         input_data = input_data.permute(0, 2, 1)
         test_gt = Variable(torch.LongTensor(gt_res)).cuda()
@@ -50,6 +50,6 @@ if __name__ == '__main__':
     data_path = common.blockfile_path
     test_infer_path = os.path.join(data_path, 'test', 'infer_feature')
     test_gt_path = test_infer_path.replace('infer_feature', 'gt')
-    model_path = '/media/luo/Dataset/RnnFusion/spatial-fusion/train/feature/result/apollo_record001/pointnet_feature_tranform_batch_size16/1200_model.pkl'
-    save_dir = '/media/luo/Dataset/RnnFusion/spatial-fusion/train/feature/result/apollo_record001/pointnet_feature_tranform_batch_size16'
+    model_path = '/media/luo/Dataset/RnnFusion/spatial-fusion/train/feature/result/apollo_record001/pointnet_feature_tranform_batch_size16_newbalance_xyz_xyzlocal/7000_model.pkl'
+    save_dir = os.path.dirname(model_path)
     eval_pointnet(test_gt_path, model_path, log_dir = save_dir)
