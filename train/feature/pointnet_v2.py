@@ -1,9 +1,6 @@
 """
 Written by Zhang Jian
 
-Test two situations:
-1. window size = 1-50
-2. time step is not continuous
 """
 import sys
 sys.path.append("../../")
@@ -19,7 +16,7 @@ from visualization.input_data import visualize_batch
 from torch import nn
 from torch.autograd import Variable
 from tensorboardX import SummaryWriter
-from model.pointnet_v2 import PointNetDenseCls
+from model.pointnet_v2 import PointNetDenseCls, feature_transform_regularizer
 from data_process import data_balance, data_loader_torch
 import math
 import time
@@ -105,14 +102,12 @@ if __name__ == '__main__':
             print('finish reading')
             time2 = time.time()
             print(time2 - time1)
-            input_data = input_data.permute(0,2,1)
-            output,_,_ = model.forward(input_data)
+            input_data = input_data.permute(0, 2, 1)
+            output, _, trans_feat = model.forward(input_data)
             loss = loss_func(output, gt)
             print(loss)
             optimizer.zero_grad()
             loss.backward()
-            # for name, param in rnn.named_parameters():
-            #     writer.add_histogram(name, param.clone().cpu().data.numpy(), record_iter)
             optimizer.step()
             record_iter += 1
             if epoch % 10 ==0:
@@ -121,8 +116,5 @@ if __name__ == '__main__':
             if record_iter % SAVE_STEP == 0:
                 model_name = os.path.join(res_save_path, str(record_iter) + '_model.pkl')
                 torch.save(model, model_name)
-                #test_loss = eval_spnet_balance(test_infer_path, test_gt_path, model, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
-                #writer.add_scalar('data/feature_test_loss', test_loss, record_iter)
-
     writer.close()
 

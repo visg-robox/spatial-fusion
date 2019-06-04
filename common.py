@@ -25,9 +25,8 @@ txt_path = sys.argv[1]
 para_dict = load_txt_dict(txt_path)
 
 
-
-
 # preprocess config path ####################################################
+
 voxel_length = 0.05
 # region
 block_len = 5
@@ -75,7 +74,6 @@ batch_size = int(para_dict['batch_size'])
 time_step = int(para_dict['time_step'])
 pretrained = bool(int(para_dict['pretrained']))
 model_path = para_dict['model_path']
-model_dir = para_dict['model_dir']
 
 file_num_step = int(para_dict['file_num_step'])
 
@@ -85,8 +83,8 @@ test_model_path = para_dict['test_model_path']
 
 # save
 model_save_step = int(para_dict['model_save_step'])
-res_save_path = 'result'
-
+res_save_path = para_dict['res_save_path']
+make_path(res_save_path)
 # ############################################################################
 
 
