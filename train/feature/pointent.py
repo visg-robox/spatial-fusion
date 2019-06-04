@@ -30,7 +30,7 @@ EPOCH = common.epoch                           # train the training data n times
 BATCH_SIZE = 16  # common.batch_size
 Pretrained = common.pretrained
 dataset_name = common.dataset_name
-LR = 1e-2
+LR = common.lr
 method_name = 'pointnet'
 Sample_num = 2000
 

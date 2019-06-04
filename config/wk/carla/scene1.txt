@@ -6,21 +6,21 @@ region_z:2
 lidardata_path:/home/wangkai/project2/data/carla
 blockfile_path:/home/wangkai/project2/scene1/block_file/
 class_preserve_proba_path:data_dropout_ratio.txt
-dataset_name:carla
+dataset_name:carla_scene1
 class_num:13
-ignore_list_str:0
+ignore_list_str:0 4 12
 
 near_num:25
 
 epoch:10
 lr:0.001
 batch_size:64
-time_step:20
-pretrained:0
-model_path:None
-test_model_path:/home/zhangjian/code/project/spatial-fusion/result/apollo_record002/SPNet/14_model.pkl
-model_dir:/home/wangkai/spatial-fusion/result/carla/
+time_step:50
+pretrained:1
+model_path:/home/wangkai/spatial-fusion/result/carla_scene1/SPNet_res/14000_model.pkl
+test_model_path:/home/wangkai/spatial-fusion/result/carla_scene1/SPNet_res_cat/22000_model.pkl
+model_dir:/home/wangkai/spatial-fusion/result/carla_scene1/SPNet_res/
 
 file_num_step:5
 test_batch_size:64
-model_save_step:5000
+model_save_step:2000

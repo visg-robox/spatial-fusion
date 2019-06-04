@@ -31,10 +31,10 @@ def to_distance(name, initial_pose):
 
 if __name__ == "__main__":
     initial_pose = preprocess_feature()
-
+    initial_pose = np.array([-120, -120, 40])
     lidardata_path = common.blockfile_path
     infer_feature_path = os.path.join(lidardata_path, 'infer_feature')
-    infer_label_path = os.path.join(lidardata_path, 'infer')
+    infer_label_path = os.path.join(lidardata_path, 'infer_label')
     gt_path = os.path.join(lidardata_path, 'gt')
 
     test_infer_save_path = os.path.join(common.blockfile_path, 'test', 'infer_feature')
@@ -59,9 +59,9 @@ if __name__ == "__main__":
     infer_label_file_move = []
     gt_file_move = []
     for i in range(SCENCE_NUM):
-        infer_feature_file_move = infer_feature_file_move + infer_feature_file[scence*i:scence*i+scence_len]
-        infer_label_file_move = infer_label_file_move + infer_label_file[scence*i:scence*i+scence_len]
-        gt_file_move = gt_file_move + gt_file[scence*i:scence*i+scence_len]
+        infer_feature_file_move = infer_feature_file_move + infer_feature_file[scence*(i+1)-scence_len:scence*(i+1)]
+        infer_label_file_move = infer_label_file_move + infer_label_file[scence*(i+1)-scence_len:scence*(i+1)]
+        gt_file_move = gt_file_move + gt_file[scence*(i+1)-scence_len:scence*(i+1)]
 
     for item in infer_feature_file_move:
         cur_infer_feature_file = item
