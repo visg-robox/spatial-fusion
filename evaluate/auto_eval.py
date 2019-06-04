@@ -1,6 +1,6 @@
 
 import sys
-sys.path.append("../../")
+sys.path.append("../")
 import os
 import common
 import shelve
@@ -8,7 +8,8 @@ import threading as thd
 import time
 from evaluate.eval_ssnet import eval_spnet
 
-MODEL_DIR = common.model_dir
+MODEL_DIR = common.res_save_path
+
 TIME_INTERVAL = 100
 
 
@@ -36,6 +37,7 @@ def run_with_time():
 
 
 def auto_eval(model_dir_path):
+    common.make_path(model_dir_path)
     test_state_db_name = os.path.join(model_dir_path, 'current_test_state.db')
     model_test_state = shelve.open(test_state_db_name, flag='c', writeback=True)
     model_name_list = finder_file('pkl', model_dir_path)

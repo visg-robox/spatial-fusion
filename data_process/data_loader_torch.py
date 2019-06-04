@@ -6,6 +6,7 @@ from data_process.data_process_label import *
 from common import USING_RNN_FEATURE, USING_SSNet_FEATURE, USING_RNN, USING_SSNet
 from data_structure.voxel_map import key_to_center
 
+import time
 
 # input:
 #   voxel_map: data source
@@ -220,33 +221,182 @@ def sample_data(data, num_sample):
     else:
         sample = np.random.choice(N, num_sample-N)
         dup_data = data[sample, ...]
+        dup_data[:, -1] = -100
         return np.concatenate([data, dup_data], 0)
 
 
 
 def pointnet_block_process_xyzlocal(gt_file_name, sample_num = None):
 
+
     gt_dict = np.load(gt_file_name).item()
     center_idx = gt_file_name.split('/')[-1].split('.')[0].split('_')
     center_xyz = np.array(center_idx, dtype = np.float) / 100
-    keys_list = list(gt_dict.keys())
+    center_xyz = (center_xyz // common.block_len) * common.block_len
 
 
+    keys_list = np.array(list(gt_dict.keys()))
+    gt = list(gt_dict.values())
+    def get_gt(voxel):
+        semantic_info = voxel.feature_info_list
+        # no effect?
+        # gt_list = list()
+        # for j in range(len(semantic_info)):
+        #     gt_list.append(int(semantic_info[j].feature_list[0]))
+        return semantic_info[0].feature_list[0]
+
+    gt = list(map(get_gt, gt))
+    data = np.concatenate([keys_list, np.expand_dims(gt, axis = 1)], axis= 1)
+    print('point_num:')
+    print(data.shape[0])
     if sample_num:
-        keys_list = sample_data(np.array(keys_list), sample_num)
-        keys_list = keys_list.tolist()
-        keys_list = list(map(lambda i: tuple(i), keys_list))
+        data = sample_data(data, sample_num)
+    point_key = data[:, :-1]
+    gt = data[:, -1]
+    point_cloud = key_to_center(point_key)
 
-    gt = featuremap_to_gt_num(gt_dict, keys_list, len(keys_list), common.ignore_list)
-    point_cloud = key_to_center(keys_list) - center_xyz
+    point_cloud = point_cloud - center_xyz
+
     point_cloud = np.expand_dims(point_cloud, axis = 0)
+
+    gt = np.squeeze(gt)
+
 
 
     return point_cloud, gt
 
 
 
+def pointnet_block_process_xyzlocal_z(gt_file_name, sample_num = None):
+    gt_dict = np.load(gt_file_name).item()
+    center_idx = gt_file_name.split('/')[-1].split('.')[0].split('_')
+    center_xyz = np.array(center_idx, dtype = np.float) / 100
+    center_xyz = (center_xyz // common.block_len) * common.block_len
 
+    keys_list = np.array(list(gt_dict.keys()))
+    gt = list(gt_dict.values())
+    def get_gt(voxel):
+        semantic_info = voxel.feature_info_list
+        # no effect?
+        # gt_list = list()
+        # for j in range(len(semantic_info)):
+        #     gt_list.append(int(semantic_info[j].feature_list[0]))
+        return semantic_info[0].feature_list[0]
+
+    gt = list(map(get_gt, gt))
+    data = np.concatenate([keys_list, np.expand_dims(gt, axis = 1)], axis= 1)
+    print('point_num:')
+    print(data.shape[0])
+    if sample_num:
+        data = sample_data(data, sample_num)
+    point_key = data[:, :-1]
+    gt = data[:, -1]
+    point_cloud = key_to_center(point_key)
+
+    xyz_local = point_cloud - center_xyz
+
+    # color = np.zeros_like(xyz_local)
+    # ID_COLOR = [(70, 130, 180),
+    #             (0, 0, 142),
+    #             (0, 0, 230),
+    #             (119, 11, 32),
+    #             (0, 128, 192),
+    #             (128, 64, 128),
+    #             (128, 0, 192),
+    #             (192, 0, 64),
+    #             (128, 128, 192),
+    #             (192, 128, 192),
+    #             (192, 128, 64),
+    #             (0, 0, 64),
+    #             (0, 0, 192),
+    #             (64, 64, 128),
+    #             (192, 64, 128),
+    #             (192, 128, 128),
+    #             (0, 64, 64),
+    #             (192, 192, 128),
+    #             (64, 0, 192),
+    #             (192, 0, 192),
+    #             (192, 0, 128),
+    #             (128, 128, 64)]
+    # for i in range(xyz_local.shape[0]):
+    #     if gt[i] > 0:
+    #         color[i] = ID_COLOR[int(gt[i])]
+    # np.savetxt('/home/luo/test3.txt', np.concatenate([xyz_local, color], axis = 1))
+
+
+    point_cloud = np.concatenate([xyz_local, point_cloud[:,2:3]], axis = 1)
+    point_cloud = np.expand_dims(point_cloud, axis = 0)
+    gt = np.squeeze(gt)
+
+
+
+    return point_cloud, gt
+
+
+def pointnet_block_process_xyzlocal_xyz(gt_file_name, sample_num = None):
+    gt_dict = np.load(gt_file_name).item()
+    center_idx = gt_file_name.split('/')[-1].split('.')[0].split('_')
+    center_xyz = np.array(center_idx, dtype = np.float) / 100
+    center_xyz = (center_xyz // common.block_len) * common.block_len
+
+    keys_list = np.array(list(gt_dict.keys()))
+    gt = list(gt_dict.values())
+    def get_gt(voxel):
+        semantic_info = voxel.feature_info_list
+        # no effect?
+        # gt_list = list()
+        # for j in range(len(semantic_info)):
+        #     gt_list.append(int(semantic_info[j].feature_list[0]))
+        return semantic_info[0].feature_list[0]
+
+    gt = list(map(get_gt, gt))
+    data = np.concatenate([keys_list, np.expand_dims(gt, axis = 1)], axis= 1)
+    print('point_num:')
+    print(data.shape[0])
+    if sample_num:
+        data = sample_data(data, sample_num)
+    point_key = data[:, :-1]
+    gt = data[:, -1]
+    point_cloud = key_to_center(point_key)
+
+    xyz_local = point_cloud - center_xyz
+
+    # color = np.zeros_like(xyz_local)
+    # ID_COLOR = [(70, 130, 180),
+    #             (0, 0, 142),
+    #             (0, 0, 230),
+    #             (119, 11, 32),
+    #             (0, 128, 192),
+    #             (128, 64, 128),
+    #             (128, 0, 192),
+    #             (192, 0, 64),
+    #             (128, 128, 192),
+    #             (192, 128, 192),
+    #             (192, 128, 64),
+    #             (0, 0, 64),
+    #             (0, 0, 192),
+    #             (64, 64, 128),
+    #             (192, 64, 128),
+    #             (192, 128, 128),
+    #             (0, 64, 64),
+    #             (192, 192, 128),
+    #             (64, 0, 192),
+    #             (192, 0, 192),
+    #             (192, 0, 128),
+    #             (128, 128, 64)]
+    # for i in range(xyz_local.shape[0]):
+    #     if gt[i] > 0:
+    #         color[i] = ID_COLOR[int(gt[i])]
+    # np.savetxt('/home/luo/test3.txt', np.concatenate([xyz_local, color], axis = 1))
+
+
+    point_cloud = np.concatenate([xyz_local, point_cloud - np.array([12160, 3330, 40])], axis = 1)
+    point_cloud = np.expand_dims(point_cloud, axis = 0)
+    gt = np.squeeze(gt)
+
+
+
+    return point_cloud, gt
 
 
 

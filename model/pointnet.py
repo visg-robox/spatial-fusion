@@ -94,7 +94,7 @@ class Pointnet(nn.Module):
         net = self.bn3_4(net)
         net = nn.functional.leaky_relu(net, 0.2)
         net = self.conv3_5(net)
-        net = net.view([-1, self.class_num])  # BxNxC
+        net = net.view([-1, self.class_num])  # BxN xC
         return net
 
 

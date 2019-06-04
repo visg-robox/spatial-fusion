@@ -116,8 +116,7 @@ class VoxelMap:
     # arbitrary location in block
     def unload_block(self, location, path):
         block_idx = center_to_idx(self.get_block_center(location))
-        block_center = block_regular(location)
-        block_name = path + '/' + (''.join((str(int(e*100)) + '_') for e in block_center.tolist()))[:-1] + '.npy'
+        block_name = path + '/' + (''.join((str(int(e*100)) + '_') for e in location.tolist()))[:-1] + '.npy'
         # if len(self.map[block_idx]) < common.batch_size:
         #     self.map[block_idx].clear()
         if len(self.map[block_idx]) > common.batch_size:
@@ -209,7 +208,7 @@ def center_to_key(location):
 
 # output: location in real word
 def key_to_center(voxel_key):
-    voxel_center = np.array(voxel_key)/2 * common.voxel_length
+    voxel_center = np.array(voxel_key)/ 2 * common.voxel_length
     return voxel_center
 
 

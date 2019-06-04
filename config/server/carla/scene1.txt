@@ -6,7 +6,8 @@ region_z:2
 lidardata_path:/data1/3d_map/data/carla/scence1/raw_file
 blockfile_path:/data1/3d_map/data/carla/scence1/block_file
 class_preserve_proba_path:data_dropout_ratio.txt
-dataset_name:apollo_record002
+dataset_name:carla_scence1
+res_save_path:/data1/3d_map/spatial-fusion/result
 class_num:13
 ignore_list_str:0 4 12
 
@@ -18,8 +19,8 @@ batch_size:64
 time_step:50
 pretrained:0
 model_path:None
-test_model_path:/data1/3d_map/spatial-fusion/result/carla_scene1/SPNet_res/14000_model.pkl
-model_dir:/data1/3d_map/spatial-fusion/result/carla_scene1/SPNet_res/
+test_model_path:/data1/3d_map/spatial-fusion/result/carla_scene1/SPNet/14_model.pkl
+model_dir:/data1/3d_map/spatial-fusion/result/carla_scene1/SPNet
 
 file_num_step:5
 test_batch_size:64
