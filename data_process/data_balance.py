@@ -14,25 +14,19 @@ def data_balance_rnn(voxel_map, gt_map, label_probability):
     voxel_keys = list(voxel_map.keys())
     gt_keys = list(gt_map.keys())
     keys = [v for v in voxel_keys if v in gt_keys]
-
-    voxel_res = dict()
-    gt_res = dict()
-
+    keys_list = []
     for i in range(len(keys)):
         key = keys[i]
         label = int(gt_map[key].feature_info_list[0].feature_list[0])
         probability = label_probability[label]
         if probability <=1:
             if np.random.binomial(1, probability) is 1:
-                voxel_res[key] = voxel_map[key]
-                gt_res[key] = gt_map[key]
+                keys_list.append(key)
         else:
             repeat_nums = round(probability)
-            for r_num in range(repeat_nums):
-                new_key = tuple(list(key) + [r_num])
-                voxel_res[new_key] = gt_map[key]
-                gt_res[new_key] = gt_map[key]
-    return voxel_res, gt_res
+            for r_num in range(int(repeat_nums)):
+                keys_list.append(key)
+    return keys_list
 
 # 没有大于1的概率
 def data_balance(voxel_map, gt_map, label_probability):

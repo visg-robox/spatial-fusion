@@ -7,7 +7,7 @@ lidardata_path:/home/zhangjian/code/project/data/record002
 blockfile_path:/home/zhangjian/code/project/data/blockfile
 class_preserve_proba_path:data_dropout_ratio.txt
 dataset_name:apollo_record002
-res_save_path:/data1/3d_map/spatial-fusion/result
+res_save_path:/home/zhangjian/code/project/spatial-fusion/result
 class_num:22
 ignore_list_str:0 1 2 3 4 5 6 7 8
 

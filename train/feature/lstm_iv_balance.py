@@ -26,7 +26,7 @@ EPOCH = common.epoch                          # train the training data n times,
 # when batch size = 1, we just want to have a test
 BATCH_SIZE = common.batch_size  # common.batch_size
 TIME_STEP = common.time_step  # common.time_step                          # rnn time step / image height
-INPUT_SIZE = common.feature_num_iv           # rnn input size / image width
+INPUT_SIZE = common.feature_num_iv          # rnn input size / image width
 HIDDEN_SIZE = common.feature_num_iv
 OUTPUT_SIZE = common.class_num
 LR = common.lr                              # learning rate
@@ -73,10 +73,9 @@ if __name__ == '__main__':
             for file_idx in file_idx_list:
                 infer_filename = infer_file[file_idx]
                 gt_filename = gt_file[file_idx]
-                voxel_dict.update(np.load(infer_filename).item())
-                gt_dict.update(np.load(gt_filename).item())
-            voxel_dict_res, gt_dict_res = data_balance.data_balance_rnn(voxel_dict, gt_dict, label_p)
-            keys_list = get_common_keys(voxel_dict_res, gt_dict_res)
+                voxel_dict.update(np.load(infer_filename, allow_pickle=True).item())
+                gt_dict.update(np.load(gt_filename, allow_pickle=True).item())
+            keys_list = data_balance.data_balance_rnn(voxel_dict, gt_dict, label_p)
             print('finish reading file')
             random.shuffle(keys_list)
             for i in range(len(keys_list)//BATCH_SIZE):
@@ -98,7 +97,7 @@ if __name__ == '__main__':
                 writer.add_scalar('data/feature_training_loss', loss, record_iter)
                 print(record_iter)
                 if record_iter % common.model_save_step == 0:
-                    model_name = res_save_path + str(record_iter) + '_model.pkl'
+                    model_name = os.path.join(res_save_path, str(record_iter) + '_model.pkl')
                     torch.save(rnn, model_name)
                 #    eval_ssnet(test_infer_path, test_gt_path, model_name, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
     writer.close()

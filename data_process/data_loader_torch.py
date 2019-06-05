@@ -344,8 +344,7 @@ def pointnet_block_process_xyzlocal_z(gt_file_name, sample_num = None):
 
 
 def pointnet_block_process_xyzlocal_xyz(gt_file_name, sample_num = None):
-    
-    gt_dict = np.load(gt_file_name).item()
+    gt_dict = np.load(gt_file_name, allow_pickle=True).item()
     center_idx = gt_file_name.split('/')[-1].split('.')[0].split('_')
     center_xyz = np.array(center_idx, dtype = np.float) / 100
     center_xyz = (center_xyz // common.block_len) * common.block_len
