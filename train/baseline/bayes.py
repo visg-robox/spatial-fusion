@@ -82,10 +82,10 @@ if __name__ == '__main__':
             gt_voxel = gt_map[key]
             gt_res.append(int(gt_voxel.feature_info_list[0].feature_list[0]))
             label_fusion = [1 for _ in range(common.class_num)]
-            # for idx in range(len(infer_voxel.semantic_info_list)):
-            for idx in range(len(infer_voxel.feature_info_list)):
-                # label_fusion = [a * b for a, b in zip(label_fusion, infer_voxel.semantic_info_list[idx].label_list)]
-                label_fusion = [a * b for a, b in zip(label_fusion, infer_voxel.feature_info_list[idx].feature_list)]
+            for idx in range(len(infer_voxel.semantic_info_list)):
+            # for idx in range(len(infer_voxel.feature_info_list)):
+                label_fusion = [a * b for a, b in zip(label_fusion, infer_voxel.semantic_info_list[idx].label_list)]
+                # label_fusion = [a * b for a, b in zip(label_fusion, infer_voxel.feature_info_list[idx].feature_list)]
             infer_res.append(int(numpy.argmax(label_fusion)))
     total_accuracy = getaccuracy(infer_res, gt_res, common.class_num)
     eval_print_save(total_accuracy, 'bayesian', res_save_path)
