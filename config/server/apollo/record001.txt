@@ -19,7 +19,6 @@ batch_size:64
 time_step:20
 pretrained:0
 model_path:None
-test_model_path:None
 
 file_num_step:5
 test_batch_size:64
