@@ -53,15 +53,15 @@ if __name__ == "__main__":
     gt_file = get_file_list(gt_path)
     gt_file.sort(key=lambda x:(to_distance(x.split('/')[-1].split('.')[0], initial_pose)))
 
-    scence = len(infer_feature_file)//SCENCE_NUM
-    scence_len = len(infer_feature_file)//(SCENCE_NUM * 5)
+    scene = len(infer_feature_file)//SCENCE_NUM
+    scene_len = len(infer_feature_file)//(SCENCE_NUM * 5)
     infer_feature_file_move = []
     infer_label_file_move = []
     gt_file_move = []
     for i in range(SCENCE_NUM):
-        infer_feature_file_move = infer_feature_file_move + infer_feature_file[scence*(i+1)-scence_len:scence*(i+1)]
-        infer_label_file_move = infer_label_file_move + infer_label_file[scence*(i+1)-scence_len:scence*(i+1)]
-        gt_file_move = gt_file_move + gt_file[scence*(i+1)-scence_len:scence*(i+1)]
+        infer_feature_file_move = infer_feature_file_move + infer_feature_file[scene*(i+1)-scene_len:scene*(i+1)]
+        infer_label_file_move = infer_label_file_move + infer_label_file[scene*(i+1)-scene_len:scene*(i+1)]
+        gt_file_move = gt_file_move + gt_file[scene*(i+1)-scene_len:scene*(i+1)]
 
     for item in infer_feature_file_move:
         cur_infer_feature_file = item
