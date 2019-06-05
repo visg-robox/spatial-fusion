@@ -3,8 +3,8 @@ region_y:10
 region_z:2
 
 
-lidardata_path:/data1/3d_map/data/carla/scence1/raw_file
-blockfile_path:/data1/3d_map/data/carla/scence1/block_file
+lidardata_path:/data1/3d_map/data/carla/scene1/raw_file
+blockfile_path:/data1/3d_map/data/carla/scene1/block_file
 class_preserve_proba_path:data_dropout_ratio.txt
 dataset_name:carla_scence1
 res_save_path:/data1/3d_map/spatial-fusion/result
