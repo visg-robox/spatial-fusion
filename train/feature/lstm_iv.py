@@ -95,7 +95,7 @@ if __name__ == '__main__':
                 writer.add_scalar('data/feature_training_loss', loss, record_iter)
                 print(record_iter)
                 if record_iter % common.model_save_step == 0:
-                    model_name = res_save_path + str(record_iter) + '_model.pkl'
+                    model_name = os.path.join(res_save_path, str(record_iter) + '_model.pkl')
                     torch.save(rnn, model_name)
     writer.close()
 
