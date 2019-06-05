@@ -16,7 +16,7 @@ from visualization.input_data import visualize_batch
 from torch import nn
 from torch.autograd import Variable
 from tensorboardX import SummaryWriter
-from model.pointnet_v2 import PointNetDenseCls, feature_transform_regularizer
+from model.pointnet import PointNetDenseCls, feature_transform_regularizer
 from data_process import data_balance, data_loader_torch
 import math
 import time

@@ -1,3 +1,5 @@
+import sys
+sys.path.append("../../")
 from data_process.data_loader_torch import *
 from evaluate.eval_API import *
 from data_structure.voxel_map import *
@@ -72,16 +74,18 @@ if __name__ == '__main__':
         infer_name = infer_path_list[i]
         gt_name = gt_path_list[i]
         print(infer_name)
-        infer_map = np.load(infer_name).item()
-        gt_map = np.load(gt_name).item()
+        infer_map = np.load(infer_name, allow_pickle=True).item()
+        gt_map = np.load(gt_name, allow_pickle=True).item()
         keys = get_common_keys(infer_map, gt_map)
         for key in keys:
             infer_voxel = infer_map[key]
             gt_voxel = gt_map[key]
             gt_res.append(int(gt_voxel.feature_info_list[0].feature_list[0]))
             label_fusion = [1 for _ in range(common.class_num)]
-            for idx in range(len(infer_voxel.semantic_info_list)):
-                label_fusion = [a * b for a, b in zip(label_fusion, infer_voxel.semantic_info_list[idx].label_list)]
+            # for idx in range(len(infer_voxel.semantic_info_list)):
+            for idx in range(len(infer_voxel.feature_info_list)):
+                # label_fusion = [a * b for a, b in zip(label_fusion, infer_voxel.semantic_info_list[idx].label_list)]
+                label_fusion = [a * b for a, b in zip(label_fusion, infer_voxel.feature_info_list[idx].feature_list)]
             infer_res.append(int(numpy.argmax(label_fusion)))
     total_accuracy = getaccuracy(infer_res, gt_res, common.class_num)
     eval_print_save(total_accuracy, 'bayesian', res_save_path)

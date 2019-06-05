@@ -1,9 +1,6 @@
 """
 Written by Zhang Jian
 
-Test two situations:
-1. window size = 1-50
-2. time step is not continuous
 """
 import sys
 sys.path.append("../../")
@@ -19,20 +16,21 @@ from visualization.input_data import visualize_batch
 from torch import nn
 from torch.autograd import Variable
 from tensorboardX import SummaryWriter
-from model import pointnet
+from model.pointnet import PointNetDenseCls, feature_transform_regularizer
 from data_process import data_balance, data_loader_torch
 import math
 import time
 # Hyper Parameters
 
-EPOCH = common.epoch                           # train the training data n times, to save time, we just train 1 epoch
+EPOCH = 200
+SAVE_STEP = 500 # train the training data n times, to save time, we just train 1 epoch
 # when batch size = 1, we just want to have a test
 BATCH_SIZE = 16  # common.batch_size
-Pretrained = common.pretrained
+Pretrained = False
 dataset_name = common.dataset_name
-LR = common.lr
-method_name = 'pointnet'
-Sample_num = 5000
+LR = 1e-2
+method_name = 'pointnet_feature_tranform_batch_size16_newbalance_xyz_xyzlocal'
+Sample_num = 10000
 
 
 def make_path(path):
@@ -50,9 +48,16 @@ if __name__ == '__main__':
     res_save_path = os.path.join(common.res_save_path, dataset_name, method_name)
     make_path(res_save_path)
 
-    pretrain_model_path = res_save_path
+    pretrain_model_path = '/media/luo/Dataset/RnnFusion/spatial-fusion/train/feature/result/apollo_record001/pointnet_feature_tranform_batch_size16_newbalance_xyz_xyzlocal/6600_model.pkl'
+
+    label_p = np.loadtxt(common.class_preserve_proba_path)
+    weight = np.zeros_like(label_p)
+    for i in range(label_p.size):
+        if label_p[i] > 0:
+            weight[i] = label_p[i] / (np.sum(label_p) /np.sum(np.greater(label_p, 0))) * 10
 
 
+    print(weight)
     infer_file = get_file_list(infer_path)
     infer_file.sort()
     gt_file = get_file_list(gt_path)
@@ -60,12 +65,12 @@ if __name__ == '__main__':
 
     writer = SummaryWriter(os.path.join(res_save_path,'event'))
     if Pretrained == False:
-        model =pointnet.Pointnet(capacity = 64, input_dim = 3)
+        model =PointNetDenseCls(input_dim = 6, class_num = common.class_num, feature_transform= True)
     else:
         model = torch.load(pretrain_model_path)
     optimizer = torch.optim.Adam(model.parameters(), lr=LR, weight_decay=1e-5)
 
-    loss_func = nn.CrossEntropyLoss()
+    loss_func = nn.CrossEntropyLoss(weight = torch.Tensor(weight).cuda())
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
 
     random.seed(10)
@@ -87,7 +92,7 @@ if __name__ == '__main__':
             time1 = time.time()
             for file_idx in file_idx_list:
                 gt_filename = gt_file[file_idx]
-                block_res, gt_res = data_loader_torch.pointnet_block_process_xyzlocal(gt_filename, Sample_num)
+                block_res, gt_res = data_loader_torch.pointnet_block_process_xyzlocal_xyz(gt_filename, Sample_num)
                 batch_block.append(block_res)
                 gt_block.append(gt_res)
             batch_block = np.concatenate(batch_block, axis = 0)
@@ -97,23 +102,19 @@ if __name__ == '__main__':
             print('finish reading')
             time2 = time.time()
             print(time2 - time1)
-            output = model.forward(input_data)
+            input_data = input_data.permute(0, 2, 1)
+            output, _, trans_feat = model.forward(input_data)
             loss = loss_func(output, gt)
             print(loss)
             optimizer.zero_grad()
             loss.backward()
-            # for name, param in rnn.named_parameters():
-            #     writer.add_histogram(name, param.clone().cpu().data.numpy(), record_iter)
             optimizer.step()
             record_iter += 1
             if epoch % 10 ==0:
                 writer.add_scalar('data/loss', loss, record_iter)
             print(record_iter)
-            if record_iter % common.model_save_step == 0:
+            if record_iter % SAVE_STEP == 0:
                 model_name = os.path.join(res_save_path, str(record_iter) + '_model.pkl')
                 torch.save(model, model_name)
-                #test_loss = eval_spnet_balance(test_infer_path, test_gt_path, model, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
-                #writer.add_scalar('data/feature_test_loss', test_loss, record_iter)
-
     writer.close()
 
