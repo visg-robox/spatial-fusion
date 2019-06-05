@@ -295,7 +295,7 @@ def pointnet_block_process_xyzlocal_z(gt_file_name, sample_num = None):
 
     xyz_local = point_cloud - center_xyz
 
-    # color = np.zeros_like(xyz_local)
+    # color = np.zeros_like(xyz_local, dtype= np.int32)
     # ID_COLOR = [(70, 130, 180),
     #             (0, 0, 142),
     #             (0, 0, 230),
@@ -321,19 +321,30 @@ def pointnet_block_process_xyzlocal_z(gt_file_name, sample_num = None):
     # for i in range(xyz_local.shape[0]):
     #     if gt[i] > 0:
     #         color[i] = ID_COLOR[int(gt[i])]
-    # np.savetxt('/home/luo/test3.txt', np.concatenate([xyz_local, color], axis = 1))
+    # with open('/home/luo/test3.txt' , 'w') as f:
+    #      for i in range(xyz_local.shape[0]):
+    #          point = xyz_local[i]
+    #          color_0 = color[i]
+    #          line = str(point[0]) + ' ' + str(point[1]) + ' ' + str(point[2]) + ' ' + \
+    #                str(color_0[0]) + ' ' + str(color_0[1]) + ' ' + str(color_0[2]) + '\n'
+    #          f.write(line)
+        
+         
+    
+    
 
 
-    point_cloud = np.concatenate([xyz_local, point_cloud[:,2:3]], axis = 1)
-    point_cloud = np.expand_dims(point_cloud, axis = 0)
+    out_feature= np.concatenate([xyz_local, point_cloud[:,2:3]], axis = 1)
+    out_feature = np.expand_dims(out_feature, axis = 0)
     gt = np.squeeze(gt)
 
 
 
-    return point_cloud, gt
+    return out_feature, gt, point_cloud - np.array([12160, 3330, 40])
 
 
 def pointnet_block_process_xyzlocal_xyz(gt_file_name, sample_num = None):
+    
     gt_dict = np.load(gt_file_name).item()
     center_idx = gt_file_name.split('/')[-1].split('.')[0].split('_')
     center_xyz = np.array(center_idx, dtype = np.float) / 100
@@ -341,6 +352,8 @@ def pointnet_block_process_xyzlocal_xyz(gt_file_name, sample_num = None):
 
     keys_list = np.array(list(gt_dict.keys()))
     gt = list(gt_dict.values())
+   
+    
     def get_gt(voxel):
         semantic_info = voxel.feature_info_list
         # no effect?
@@ -361,33 +374,6 @@ def pointnet_block_process_xyzlocal_xyz(gt_file_name, sample_num = None):
 
     xyz_local = point_cloud - center_xyz
 
-    # color = np.zeros_like(xyz_local)
-    # ID_COLOR = [(70, 130, 180),
-    #             (0, 0, 142),
-    #             (0, 0, 230),
-    #             (119, 11, 32),
-    #             (0, 128, 192),
-    #             (128, 64, 128),
-    #             (128, 0, 192),
-    #             (192, 0, 64),
-    #             (128, 128, 192),
-    #             (192, 128, 192),
-    #             (192, 128, 64),
-    #             (0, 0, 64),
-    #             (0, 0, 192),
-    #             (64, 64, 128),
-    #             (192, 64, 128),
-    #             (192, 128, 128),
-    #             (0, 64, 64),
-    #             (192, 192, 128),
-    #             (64, 0, 192),
-    #             (192, 0, 192),
-    #             (192, 0, 128),
-    #             (128, 128, 64)]
-    # for i in range(xyz_local.shape[0]):
-    #     if gt[i] > 0:
-    #         color[i] = ID_COLOR[int(gt[i])]
-    # np.savetxt('/home/luo/test3.txt', np.concatenate([xyz_local, color], axis = 1))
 
 
     point_cloud = np.concatenate([xyz_local, point_cloud - np.array([12160, 3330, 40])], axis = 1)
@@ -398,7 +384,51 @@ def pointnet_block_process_xyzlocal_xyz(gt_file_name, sample_num = None):
 
     return point_cloud, gt
 
+def pointnet_block_process_xyzlocal_xyz_probability(gt_file_name, sample_num = None):
+    infer_dict = np.load(gt_file_name.replace('gt', 'infer_label')).item()
+    gt_dict = np.load(gt_file_name).item()
+    center_idx = gt_file_name.split('/')[-1].split('.')[0].split('_')
+    center_xyz = np.array(center_idx, dtype = np.float) / 100
+    center_xyz = (center_xyz // common.block_len) * common.block_len
 
+    keys_list = np.array(list(gt_dict.keys()))
+    gt = list(gt_dict.values())
+    infer = list(infer_dict.values())
+    
+    def get_prob(voxel):
+        return voxel.feature_info_list[0].feature_list
+    
+    def get_gt(voxel):
+        semantic_info = voxel.feature_info_list
+        # no effect?
+        # gt_list = list()
+        # for j in range(len(semantic_info)):
+        #     gt_list.append(int(semantic_info[j].feature_list[0]))
+        return semantic_info[0].feature_list[0]
+
+    gt = list(map(get_gt, gt))
+    infer = list(map(get_prob, infer))
+    data = np.concatenate([keys_list, infer, np.expand_dims(gt, axis = 1)], axis= 1)
+    print('point_num:')
+    print(data.shape[0])
+    if sample_num:
+        data = sample_data(data, sample_num)
+    point_key = data[:, :3]
+    infer_pro = data[:, 3:-1]
+    gt = data[:, -1]
+    point_cloud = key_to_center(point_key)
+
+    xyz_local = point_cloud - center_xyz
+
+
+
+    point_cloud = np.concatenate([xyz_local, point_cloud - np.array([12160, 3330, 40]), infer_pro], axis = 1)
+    point_cloud = np.expand_dims(point_cloud, axis = 0)
+    gt = np.squeeze(gt)
+
+
+
+    return point_cloud, gt
 
 
 
