@@ -6,9 +6,10 @@ generate label/feature
 import os, shutil
 import common
 import numpy as np
-from data_process.data_process_feature import preprocess_feature
+from data_process.data_process_feature import preprocess_feature, preprocess_record_feature
 
 SCENCE_NUM = 4
+
 
 def get_file_list(data_dir):
     path_list = list()
@@ -28,8 +29,7 @@ def to_distance(name, initial_pose):
         tmp[i] = int(name.split('_')[i])
     return np.linalg.norm(tmp - initial_pose)
 
-
-if __name__ == "__main__":
+def devide_with_pose():
     initial_pose = preprocess_feature()
     initial_pose = np.array([-120, -120, 40])
     lidardata_path = common.blockfile_path
@@ -77,3 +77,10 @@ if __name__ == "__main__":
         cur_gt_file = item
         fpath, fname = os.path.split(cur_gt_file)
         shutil.move(cur_gt_file, os.path.join(test_gt_save_path, fname))
+
+def devide_multi_sequence():
+    lidardata_path = common.lidardata_path
+    blockfile_path = common.blockfile_path
+    preprocess_record_feature()
+
+if __name__ == "__main__":

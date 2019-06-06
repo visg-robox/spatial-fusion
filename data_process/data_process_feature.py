@@ -89,7 +89,21 @@ def preprocess_feature():
     feature_save_path = os.path.join(save_path, 'infer_feature')
     p_save_path = os.path.join(save_path, 'infer')
     gt_save_path = os.path.join(save_path, 'gt')
-    # pre_process(gt_path, gt_save_path, pose_path)
-    # pre_process(feature_path, feature_save_path, pose_path)
-    # pre_process(p_path, p_save_path, pose_path)
+    pre_process(gt_path, gt_save_path, pose_path)
+    pre_process(feature_path, feature_save_path, pose_path)
+    pre_process(p_path, p_save_path, pose_path)
     return pose_initial.T
+
+
+def preprocess_record_feature(record_path, save_path):
+    feature_path = os.path.join(record_path, 'infer_feature')
+    p_path = os.path.join(record_path, 'infer')
+    gt_path = os.path.join(record_path, 'gt')
+    pose_path = os.path.join(record_path, 'pose')
+
+    feature_save_path = os.path.join(save_path, 'infer_feature')
+    p_save_path = os.path.join(save_path, 'infer')
+    gt_save_path = os.path.join(save_path, 'gt')
+    pre_process(gt_path, gt_save_path, pose_path)
+    pre_process(feature_path, feature_save_path, pose_path)
+    pre_process(p_path, p_save_path, pose_path)

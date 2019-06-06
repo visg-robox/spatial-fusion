@@ -82,11 +82,7 @@ def featuremap_to_batch_i(voxel_map, keys_list, batch_size, time_step, input_siz
     res = torch.zeros(batch_size, time_step, input_size + 1)
     for i in range(len(keys_list)):
         key = keys_list[i]
-        try:
-            feature_info = voxel_map[key].feature_info_list
-        finally:
-            pass
-
+        feature_info = voxel_map[key].feature_info_list
         feature_len = len(feature_info)
         start_num = 0
         end_num = feature_len + start_num

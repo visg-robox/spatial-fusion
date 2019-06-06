@@ -10,7 +10,7 @@ from evaluate.eval_ssnet import eval_spnet
 
 MODEL_DIR = common.test_model_path
 
-TIME_INTERVAL = 2
+TIME_INTERVAL = 200
 
 
 def finder_file(pattern, path='.'):
