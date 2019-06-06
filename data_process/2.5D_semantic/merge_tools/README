@@ -1,0 +1,22 @@
+这里面有后面kitti数据集融合需要用到的代码，有的为了适应carla的格式，需要一些修改，有些是一些脚本，不能全部复用，自己提取一些内容看吧
+
+重要必然用到：
+save_pcl_index   
+根据雷达点世界坐标和图像内外参　保存投影得到的有效雷达点和图像的index　　　　　float类型用于插值
+类似的得到有效雷达点和GT
+
+
+
+参考：
+RGB_pcl   	　保存彩色点云
+pointprocess    用于将雷达点投影到图像上的可视化
+Get_pointFeature  restore 模型并且得到点云feature, 最好使用新的inference模型来改写它
+RGB_pcl   	　保存彩色点云
+
+
+一些辅助：
+eval_sem	两个评测代码，当时写的为了适应carla的数据格式，需要根据需要修改一下，主要用来对批图片进行评测
+eval_API
+convert_semantic 　将trainid图像可视化的脚本，或将彩色图像转为trainid
+
+

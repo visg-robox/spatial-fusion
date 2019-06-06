@@ -1,0 +1,16 @@
+
+model_train:  训练语义分割的代码的地方
+
+apollo_scipt:　用于存放该数据集的一些文档以及脚本
+
+merge_tools:　useful tools for merge
+
+data_and_checkpoint : place for big data
+
+
+
+to_do:
+model_lib
+ICNET poosize bug
+carla code
+

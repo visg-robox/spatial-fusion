@@ -120,7 +120,7 @@ def eval_spnet_balance(test_infer_path,
 
 def eval_spnet(model_path):
     data_path = common.blockfile_path
-    test_infer_path = os.path.join(data_path, 'test', 'infer_feature')
+    test_infer_path = os.path.join(data_path, 'test', 'infer_feature')19
     test_gt_path = test_infer_path.replace('infer_feature', 'gt')
     print(model_path)
     save_path = os.path.dirname(model_path)
@@ -128,6 +128,7 @@ def eval_spnet(model_path):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
     data_path = common.blockfile_path
     test_infer_path = os.path.join(data_path, 'test', 'infer_feature')
     test_gt_path = test_infer_path.replace('infer_feature', 'gt')
