@@ -30,7 +30,6 @@ time_step:20
 res_save_path:result
 pretrained:0
 model_path:None
-test_model_path:/home/zhangjian/code/project/spatial-fusion/result/apollo_record002/SPNet/14_model.pkl
 
 file_num_step:5
 test_batch_size:64
