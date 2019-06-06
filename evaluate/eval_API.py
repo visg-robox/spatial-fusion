@@ -8,9 +8,9 @@ import os
 import sys
 import xlwt
 import time
+import common
 
-
-CLASSNAME=[' sky ' ,
+APOLLO_CLASSNAME=[' sky ' ,
            ' car ' ,
            ' motorbicycle ' ,
            ' bicycle ' ,
@@ -32,6 +32,32 @@ CLASSNAME=[' sky ' ,
            ' billboard ' ,
            ' building ' ,
            ' vegatation ']
+
+APOLLO_ID_COLOR = [( 70, 130, 180),
+                (  0,   0, 142),
+                (  0,   0, 230),
+                (119,  11,  32),
+                (  0, 128, 192),
+                (128,  64, 128),
+                (128,   0, 192),
+                (192,  0,  64),
+                (128, 128, 192),
+                (192, 128, 192),
+                (192, 128,  64),
+                (  0,   0,  64),
+                (  0,   0, 192),
+                ( 64,  64, 128),
+                (192,  64, 128),
+                (192, 128, 128),
+                (  0,  64,  64),
+                (192, 192, 128),
+                ( 64,   0, 192),
+                (192,   0, 192),
+                (192,   0, 128),
+                (128, 128,  64)]
+
+
+
 
 VALIDCLASS=len(CLASSNAME)
 
