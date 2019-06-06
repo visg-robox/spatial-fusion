@@ -33,9 +33,18 @@ region_x = int(para_dict['region_x'])
 region_y = int(para_dict['region_y'])
 region_z = int(para_dict['region_z'])
 
+
 lidardata_path = para_dict['lidardata_path']
 blockfile_path = para_dict['blockfile_path']
 class_preserve_proba_path = os.path.join(blockfile_path, para_dict['class_preserve_proba_path'])
+
+
+if int(para_dict['multi_sequence']):
+    raw_data_path = para_dict['raw_data_path']
+    train_sequence_list = para_dict['train_sequence_list'].split(' ')
+    eval_sequence_list = para_dict['eval_sequence_list'].split(' ')
+    point_num_per_frame = int(para_dict['point_num_per_frame'])
+    frame_num_pre_sequence = int(para_dict['frame_num_pre_sequence'])
 
 
 # ###########################################################################

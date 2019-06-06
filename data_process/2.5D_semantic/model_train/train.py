@@ -53,7 +53,7 @@ _FREEZE_BN = False
 _BATCH_NORM_DECAY = 0.997
 
 
-MODEL_DIR  = 'ver1'
+MODEL_DIR  = 'ICNET_60000'
 MODEL_DIR = os.path.join('../data_and_checkpoint', dataset_util.DATASET_SHOT, 'model_checkpoint', MODEL_DIR)
 
 print(MODEL_DIR)

@@ -2,7 +2,7 @@ region_x:10
 region_y:20
 region_z:2
 
-
+multi_sequence:0
 lidardata_path:/home/zhangjian/code/project/data/record002
 blockfile_path:/home/zhangjian/code/project/data/blockfile
 class_preserve_proba_path:data_dropout_ratio.txt

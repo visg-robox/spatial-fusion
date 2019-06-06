@@ -2,6 +2,7 @@ region_x:10
 region_y:20
 region_z:2
 
+multi_sequence:0
 
 lidardata_path:/data1/3d_map/data/record001
 blockfile_path:/data1/3d_map/data/apollo/record001/block_file

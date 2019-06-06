@@ -12,3 +12,5 @@ train/feature/log\.txt
 result/
 
 *.xlsx
+
+data_process/2.5D_semantic/data_and_checkpoint

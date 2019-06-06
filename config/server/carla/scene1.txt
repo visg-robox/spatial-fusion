@@ -2,6 +2,7 @@ region_x:10
 region_y:10
 region_z:2
 
+multi_sequence:0
 
 lidardata_path:/data1/3d_map/data/carla/scene1/raw_file
 blockfile_path:/data1/3d_map/data/carla/scene1/block_file

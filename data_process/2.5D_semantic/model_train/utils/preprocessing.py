@@ -250,7 +250,9 @@ def eval_input_fn(image_filenames, label_filenames=None, batch_size=1):
         image = tf.image.decode_image(image_string)
         image = tf.to_float(tf.image.convert_image_dtype(image, dtype=tf.uint8))
         image.set_shape([None, None, 3])
+        
         image = mean_image_subtraction(image)
+        
 
         if not is_label:
             return image
