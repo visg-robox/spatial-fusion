@@ -10,7 +10,7 @@ from evaluate.eval_ssnet import eval_spnet
 
 MODEL_DIR = common.test_model_path
 
-TIME_INTERVAL = 200
+TIME_INTERVAL = 2
 
 
 def finder_file(pattern, path='.'):
@@ -44,8 +44,8 @@ def auto_eval(model_dir_path):
     model_name_list.sort()
     for model_name in model_name_list:
         if model_name not in model_test_state:
-            model_test_state[model_name] = 1
             eval_spnet(model_name)
+            model_test_state[model_name] = 1
     model_test_state.close()
 
 
