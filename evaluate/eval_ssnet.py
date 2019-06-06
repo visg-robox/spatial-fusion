@@ -23,8 +23,15 @@ from torch.autograd import Variable
 # Hyper Parameters
 TEST_BATCH_SIZE = common.test_batch_size
 TIME_STEP = common.time_step                          # rnn time step / image height
-INPUT_SIZE = common.feature_num_ivo         # rnn input size / image width
-HIDDEN_SIZE = common.feature_num_ivo
+if "lstm_iv" in common.method_name:
+    INPUT_SIZE = common.feature_num_iv         # rnn input size / image width
+    HIDDEN_SIZE = common.feature_num_iv
+elif "lstm_i" in common.method_name:
+    INPUT_SIZE = common.feature_num_i         # rnn input size / image width
+    HIDDEN_SIZE = common.feature_num_i
+else:
+    INPUT_SIZE = common.feature_num_ivo         # rnn input size / image width
+    HIDDEN_SIZE = common.feature_num_ivo
 
 
 def get_common_keys(infer_dict, gt_dict):
@@ -51,29 +58,44 @@ def eval_spnet_balance(test_infer_path,
     rnn.eval()
     test_pred_y = np.zeros(1, dtype=int)
     test_gt_y = np.array([255], dtype = int)
-    #不能使用1,必须使用255使初始是一个无效的voxel
+    # 不能使用1,必须使用255使初始是一个无效的voxel
 
     test_loss_all = 0
-    #for test_file_idx in range(5):
+    # for test_file_idx in range(5):
     for test_file_idx in range(len(test_infer_file_list)):
         test_infer_filename = test_infer_file_list[test_file_idx]
         test_gt_filename = test_gt_file_list[test_file_idx]
         test_infer_dict = np.load(test_infer_filename).item()
         test_gt_dict = np.load(test_gt_filename).item()
         label_p = np.ones(common.class_num)
-        test_infer_dict_res, test_gt_dict_res = data_balance.data_balance(test_infer_dict, test_gt_dict, label_p)
-        test_keys_list = get_common_keys(test_infer_dict_res, test_gt_dict_res)
+        if "lstm" in common.method_name:
+            test_infer_dict, test_gt_dict = data_balance.data_balance(test_infer_dict, test_gt_dict, label_p)
+        test_keys_list = get_common_keys(test_infer_dict, test_gt_dict)
         print('test file: ', test_infer_filename)
         test_loss_ave = 0
         time1 = time.time()
         for j in range(len(test_keys_list) // TEST_BATCH_SIZE):
             test_current_keys = test_keys_list[j * TEST_BATCH_SIZE:(j + 1) * TEST_BATCH_SIZE]
-            test_input = data_loader_torch.featuremap_to_batch_with_balance(test_infer_dict_res,
-                                                                    test_current_keys,
-                                                                    TEST_BATCH_SIZE,
-                                                                    common.near_num,
-                                                                    time_step,
-                                                                    INPUT_SIZE)
+            if "lstm_iv" in common.method_name:
+                test_input = data_loader_torch.featuremap_to_batch_iv(test_infer_dict,
+                                                                        test_current_keys,
+                                                                        TEST_BATCH_SIZE,
+                                                                        time_step,
+                                                                        INPUT_SIZE)
+            elif "lstm_i" in common.method_name:
+                test_input = data_loader_torch.featuremap_to_batch_i(test_infer_dict,
+                                                                        test_current_keys,
+                                                                        TEST_BATCH_SIZE,
+                                                                        time_step,
+                                                                        INPUT_SIZE)
+
+            else:
+                test_input = data_loader_torch.featuremap_to_batch_ivo_with_neighbour(test_infer_dict,
+                                                                        test_current_keys,
+                                                                        TEST_BATCH_SIZE,
+                                                                        common.near_num,
+                                                                        time_step,
+                                                                        INPUT_SIZE)
             test_input = Variable(test_input).cuda()
             with torch.no_grad():
                 test_input = test_input

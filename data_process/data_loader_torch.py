@@ -8,6 +8,7 @@ from data_structure.voxel_map import key_to_center
 
 import time
 
+
 # input:
 #   voxel_map: data source
 # output:
@@ -77,12 +78,10 @@ def labelmap_to_gt_num(voxel_map, keys_list, batch_size):
 # ########################## feature map ##########################
 
 #
-def featuremap_to_batch(voxel_map, keys_list, batch_size, time_step, input_size):
+def featuremap_to_batch_i(voxel_map, keys_list, batch_size, time_step, input_size):
     res = torch.zeros(batch_size, time_step, input_size + 1)
     for i in range(len(keys_list)):
         key = keys_list[i]
-        if len(key) != 3:
-            key = tuple(list(key)[:3])
         feature_info = voxel_map[key].feature_info_list
         feature_len = len(feature_info)
         start_num = 0
@@ -95,7 +94,7 @@ def featuremap_to_batch(voxel_map, keys_list, batch_size, time_step, input_size)
     return res
 
 
-def featuremap_to_batch_v(voxel_map, keys_list, batch_size, time_step, input_size):
+def featuremap_to_batch_iv(voxel_map, keys_list, batch_size, time_step, input_size):
     res = torch.zeros(batch_size, time_step, input_size + 1)
     for i in range(len(keys_list)):
         key = keys_list[i]
@@ -111,30 +110,7 @@ def featuremap_to_batch_v(voxel_map, keys_list, batch_size, time_step, input_siz
     return res
 
 
-def featuremap_to_batch_with_distance(voxel_map, keys_list, batch_size, near_num, time_step, input_size):
-    res = torch.zeros(batch_size, near_num, time_step, input_size + 1)
-    for i in range(len(keys_list)):                                                  # batch dim
-        key = keys_list[i]
-        #related_keys
-        related_feature = get_related_voxels(key, voxel_map)
-        for j in range(len(related_feature)):# near_num dim
-            offset_vector = index_to_offset(j, offset)
-            feature_info = related_feature[j]
-            if(feature_info != None):
-                feature_len = len(feature_info)
-                start_num = 0
-                end_num = feature_len + start_num
-                if end_num > time_step:
-                    end_num = time_step
-
-                for k in range(start_num, end_num):                                  # time_step dim
-                    feature_list = [1] + list(feature_info[k - start_num].feature_list) + \
-                                   feature_info[k - start_num].vector + offset_vector  # list(feature_info[k - start_num].vector
-                    res[i][j][k] = torch.FloatTensor(feature_list)
-    return res
-
-
-def featuremap_to_batch_with_balance(voxel_map, keys_list, batch_size, near_num, time_step, input_size):
+def featuremap_to_batch_ivo_with_neighbour(voxel_map, keys_list, batch_size, near_num, time_step, input_size):
     res = torch.zeros(batch_size, near_num, time_step, input_size + 1)
     for i in range(len(keys_list)):                                                  # batch dim
         # len(keys_list == batch_size)
@@ -145,9 +121,9 @@ def featuremap_to_batch_with_balance(voxel_map, keys_list, batch_size, near_num,
         related_feature = voxel_map[key]
         for j in range(len(related_feature)):                                        # near_num dim
             related_key = center_to_key(related_feature[j].center)
-            offset_vector = [key[m] - related_key[m] for m in range(3)]
+            offset = [(key[m] - related_key[m])/100 for m in range(3)]
             feature_info = related_feature[j].feature_info_list
-            if(feature_info != None):
+            if feature_info is not None:
                 feature_len = len(feature_info)
                 start_num = 0
                 end_num = feature_len + start_num
@@ -156,7 +132,7 @@ def featuremap_to_batch_with_balance(voxel_map, keys_list, batch_size, near_num,
 
                 for k in range(start_num, end_num):                                  # time_step dim
                     feature_list = [1] + list(feature_info[k - start_num].feature_list) + \
-                                   feature_info[k - start_num].vector + offset_vector  # list(feature_info[k - start_num].vector
+                                   feature_info[k - start_num].vector + offset
                     res[i][j][k] = torch.FloatTensor(feature_list)
     return res
 
@@ -205,7 +181,6 @@ def get_related_voxels(key, voxel_map):
     return related_feature
 
 
-
 def sample_data(data, num_sample):
     """ data is in N x ...
         we want to keep num_samplexC of them.
@@ -225,9 +200,7 @@ def sample_data(data, num_sample):
         return np.concatenate([data, dup_data], 0)
 
 
-
 def pointnet_block_process_xyzlocal(gt_file_name, sample_num = None):
-
 
     gt_dict = np.load(gt_file_name).item()
     center_idx = gt_file_name.split('/')[-1].split('.')[0].split('_')
@@ -264,7 +237,6 @@ def pointnet_block_process_xyzlocal(gt_file_name, sample_num = None):
 
 
     return point_cloud, gt
-
 
 
 def pointnet_block_process_xyzlocal_z(gt_file_name, sample_num = None):
@@ -323,12 +295,9 @@ def pointnet_block_process_xyzlocal_z(gt_file_name, sample_num = None):
     #         color[i] = ID_COLOR[int(gt[i])]
     # np.savetxt('/home/luo/test3.txt', np.concatenate([xyz_local, color], axis = 1))
 
-
     point_cloud = np.concatenate([xyz_local, point_cloud[:,2:3]], axis = 1)
     point_cloud = np.expand_dims(point_cloud, axis = 0)
     gt = np.squeeze(gt)
-
-
 
     return point_cloud, gt
 
@@ -394,15 +363,7 @@ def pointnet_block_process_xyzlocal_xyz(gt_file_name, sample_num = None):
     point_cloud = np.expand_dims(point_cloud, axis = 0)
     gt = np.squeeze(gt)
 
-
-
     return point_cloud, gt
-
-
-
-
-
-
 
 
 if __name__ == '__main__':

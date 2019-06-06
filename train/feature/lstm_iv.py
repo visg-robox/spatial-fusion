@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
             for i in range(len(keys_list)//BATCH_SIZE):
                 current_keys = random.sample(keys_list, BATCH_SIZE)
-                input_data = data_loader_torch.featuremap_to_batch_v(voxel_dict, current_keys, BATCH_SIZE, TIME_STEP, INPUT_SIZE)
+                input_data = data_loader_torch.featuremap_to_batch_iv(voxel_dict, current_keys, BATCH_SIZE, TIME_STEP, INPUT_SIZE)
                 input_data = Variable(input_data, requires_grad=True).cuda()
                 gt = data_loader_torch.featuremap_to_gt_num(gt_dict, current_keys, BATCH_SIZE, ignore_list=common.ignore_list)
                 gt = Variable(gt).cuda()
