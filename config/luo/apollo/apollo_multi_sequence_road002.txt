@@ -2,14 +2,16 @@ region_x:20
 region_y:20
 region_z:4
 
+multi_sequence:1
 
+dataset_name:apollo_multi_sequence002
 raw_data_path:/media/luo/Dataset/apollo/Origin_data/road02_ins
 lidardata_path:/media/luo/Dataset/RnnFusion/apollo_data/lidar_data
 blockfile_path:/media/luo/Dataset/RnnFusion/apollo_data/block_data
 class_preserve_proba_path:data_dropout_ratio.txt
 
 dataset_class_config:apollo
-dataset_name:apollo_multi_frame001
+
 train_sequence_list:Record002 Record003 Record004 Record005 Record020
 eval_sequence_list:Record021 Record006
 point_num_per_frame:60000

@@ -3,6 +3,7 @@ region_y:20
 region_z:2
 
 
+multi_sequence:0
 lidardata_path:/home/wangkai/project2/data/carla
 blockfile_path:/home/wangkai/project2/scene1/block_file/
 class_preserve_proba_path:data_dropout_ratio.txt

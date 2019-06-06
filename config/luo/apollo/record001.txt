@@ -3,6 +3,7 @@ region_y:20
 region_z:2
 
 
+multi_sequence:0
 lidardata_path:/media/luo/Dataset/RnnFusion/apollo_data/Record067/Camera 6
 blockfile_path:/media/luo/Dataset/RnnFusion/apollo_data/processed_data
 class_preserve_proba_path:data_dropout_ratio.txt
