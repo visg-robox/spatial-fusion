@@ -6,6 +6,8 @@ region_z:2
 lidardata_path:/data1/3d_map/data/record002
 blockfile_path:/data1/3d_map/data/apollo/record002/block_file
 class_preserve_proba_path:data_dropout_ratio.txt
+
+dataset_class_config:apollo
 dataset_name:apollo_record002
 res_save_path:/data1/3d_map/spatial-fusion/result
 class_num:22

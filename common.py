@@ -43,6 +43,7 @@ class_preserve_proba_path = os.path.join(blockfile_path, para_dict['class_preser
 
 # dataset config path #######################################################
 
+dataset_class_config = para_dict['dataset_class_config']
 dataset_name = para_dict['dataset_name']
 class_num = int(para_dict['class_num'])
 ignore_list_str = para_dict['ignore_list_str'].split()

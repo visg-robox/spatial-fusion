@@ -54,8 +54,8 @@ def eval_spnet_balance(test_infer_path,
     #不能使用1,必须使用255使初始是一个无效的voxel
 
     test_loss_all = 0
-    #for test_file_idx in range(5):
-    for test_file_idx in range(len(test_infer_file_list)):
+    for test_file_idx in range(5):
+    #for test_file_idx in range(len(test_infer_file_list)):
         test_infer_filename = test_infer_file_list[test_file_idx]
         test_gt_filename = test_gt_file_list[test_file_idx]
         test_infer_dict = np.load(test_infer_filename).item()
@@ -110,10 +110,10 @@ if __name__ == '__main__':
     test_infer_path = os.path.join(data_path, 'test', 'infer_feature')
     test_gt_path = test_infer_path.replace('infer_feature', 'gt')
     res_path = common.res_save_path
-    # model_path = data_path + 'train/feature/exe/window_size_50/window_size_50_iter_73000_model.pkl'
-    model_path = common.test_method_path
+    
+    model_path = '/media/luo/Dataset/RnnFusion/spatial-fusion/train/feature/runs/SPNET/100000/100000newdata_model.pkl'
     print(model_path)
-    save_path = common.res_save_path
+    save_path = os.path.dirname(model_path)
     # import sys
     # sys.path.append("/media/zhangjian/U/RnnFusion")
     # eval_ssnet(test_infer_path, test_gt_path, model_path, res_path, window_size=20, time_step=20)

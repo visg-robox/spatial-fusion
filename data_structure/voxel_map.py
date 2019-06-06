@@ -1,7 +1,7 @@
 import os
 import common
 import numpy as np
-from evaluate.eval_semantic_apollo import ID_COLOR
+from evaluate.eval_API import ID_COLOR
 
 
 class VoxelMap:

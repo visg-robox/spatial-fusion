@@ -8,7 +8,8 @@ import os
 import sys
 import xlwt
 import time
-import common
+from common import dataset_class_config
+
 
 APOLLO_CLASSNAME=[' sky ' ,
            ' car ' ,
@@ -32,7 +33,6 @@ APOLLO_CLASSNAME=[' sky ' ,
            ' billboard ' ,
            ' building ' ,
            ' vegatation ']
-
 APOLLO_ID_COLOR = [( 70, 130, 180),
                 (  0,   0, 142),
                 (  0,   0, 230),
@@ -56,12 +56,51 @@ APOLLO_ID_COLOR = [( 70, 130, 180),
                 (192,   0, 128),
                 (128, 128,  64)]
 
+CARLA_CLASSNAME = [
+' road ' ,
+' siderwalk ' ,
+' traffic_cone ' ,
+' road_pile ' ,
+' fence ' ,
+' traffic_light ' ,
+' pole ' ,
+' traffic_sign ' ,
+' wall ' ,
+' dustbin ' ,
+' billboard ' ,
+' building ' ,
+' vegatation ']
+CARLA_ID_COLOR =  {
+    0: [192 ,128, 192],  # None
+    1: [192 ,128,  64],  # Buildings
+    2: [  0 ,  0, 64],  # Fences
+    3: [  0 ,  0, 192],  # Other
+    4: [ 64 ,64 ,128],  # Pedestrians
+    5: [192 ,64 ,128],  # Poles
+    6: [192 ,128, 128],  # RoadLines
+    7: [  0 , 64,  64],  # Roads
+    8: [192 ,192, 128],  # Sidewalks
+    9: [ 64 ,  0 ,192],  # Vegetation
+    10:[192 ,  0, 192],  # Vehicles
+    11:[192 ,  0 ,128],  # Walls
+    12:[128 ,128, 64],
+    255:[0  ,0  , 0] # TrafficSigns
+}
 
+S3DIS_CLASSNAME = []
+S3DIS_ID_COLOR = []
 
+if dataset_class_config == 'carla':
+    CLASSNAME = CARLA_CLASSNAME
+    ID_COLOR = CARLA_ID_COLOR
+elif dataset_class_config == 'apollo':
+    CLASSNAME = APOLLO_CLASSNAME
+    ID_COLOR = APOLLO_ID_COLOR
+elif dataset_class_config == 'S3DIS':
+    CLASSNAME = S3DIS_CLASSNAME
+    ID_COLOR = S3DIS_ID_COLOR
 
 VALIDCLASS=len(CLASSNAME)
-
-
 
 def log_string(logfile,out_str):
     logfile.write(out_str+'\n')

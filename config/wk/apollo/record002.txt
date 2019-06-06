@@ -6,6 +6,8 @@ region_z:2
 lidardata_path:/home/zhangjian/code/project/data/record002
 blockfile_path:/home/zhangjian/code/project/data/blockfile_record002
 class_preserve_proba_path:data_dropout_ratio.txt
+
+dataset_class_config:apollo
 dataset_name:apollo_record002
 class_num:22
 ignore_list_str:0 1 2 3 4 5 6 7 8
