@@ -2,7 +2,8 @@
 generate label/feature
 
 """
-
+import sys
+sys.path.append("../")
 import os, shutil
 import common
 import numpy as np
