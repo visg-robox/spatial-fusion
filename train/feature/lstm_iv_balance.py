@@ -32,9 +32,6 @@ OUTPUT_SIZE = common.class_num
 LR = common.lr                              # learning rate
 FILE_NUM_STEP = common.file_num_step
 
-USING_RNN_FEATURE = common.USING_RNN_FEATURE
-USING_SSNet_FEATURE = common.USING_SSNet_FEATURE
-
 
 dataset_name = common.dataset_name
 method_name = 'lstm_iv_balance'

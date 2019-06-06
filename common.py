@@ -1,6 +1,7 @@
 import os
 from enum import Enum, unique
 import sys
+import glob
 
 
 def make_path(path):
@@ -19,8 +20,6 @@ def load_txt_dict(txt_path):
             line = f.readline()
     return para_dict
 
-
-#txt_path = 'record002.txt'
 txt_path = sys.argv[1]
 para_dict = load_txt_dict(txt_path)
 
@@ -73,13 +72,11 @@ lr = float(para_dict['lr'])
 batch_size = int(para_dict['batch_size'])
 time_step = int(para_dict['time_step'])
 pretrained = bool(int(para_dict['pretrained']))
-model_path = para_dict['model_path']
 
 file_num_step = int(para_dict['file_num_step'])
 
 # test parameter
 test_batch_size = int(para_dict['test_batch_size'])
-test_model_path = para_dict['test_model_path']
 
 # save
 model_save_step = int(para_dict['model_save_step'])
@@ -87,6 +84,12 @@ res_save_path = para_dict['res_save_path']
 make_path(res_save_path)
 # ############################################################################
 
+method_name = sys.argv[2]  # pretrain & eval
+pre_train_model_dir = os.path.join(res_save_path, dataset_name, method_name)
+if pretrained:
+    pre_train_step = sys.argv[3]
+    pre_train_model_path = os.path.join(pre_train_model_dir, pre_train_step + '_model.pkl')
+test_model_path = pre_train_model_dir
 
 # fusion method
 @unique

@@ -8,9 +8,9 @@ import threading as thd
 import time
 from evaluate.eval_ssnet import eval_spnet
 
-MODEL_DIR = common.res_save_path
+MODEL_DIR = common.test_model_path
 
-TIME_INTERVAL = 100
+TIME_INTERVAL = 200
 
 
 def finder_file(pattern, path='.'):

@@ -17,9 +17,6 @@ lr:0.001
 batch_size:64
 time_step:50
 pretrained:1
-model_path:/home/wangkai/spatial-fusion/result/carla_scene1/SPNet_res/14000_model.pkl
-test_model_path:/home/wangkai/spatial-fusion/result/carla_scene1/SPNet_res_cat/22000_model.pkl
-model_dir:/home/wangkai/spatial-fusion/result/carla_scene1/SPNet_res/
 
 file_num_step:5
 test_batch_size:64
