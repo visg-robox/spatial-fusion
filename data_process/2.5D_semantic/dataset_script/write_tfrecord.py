@@ -51,7 +51,6 @@ def decode_gt_S3DIS(label_path):
     :return: a decoded label map, should be ID matrix Uint8
     """
     label_map =  np.array(Image.open(label_path), dtype=np.uint8)
-    print(label_map[0,0,:])
     return label_map
 #here to change
 
