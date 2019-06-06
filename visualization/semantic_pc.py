@@ -66,7 +66,7 @@ def visualize_pc(data_path, gt_path = None, save_path = '.', fusion_method = 0, 
                     else:
                         current_keys = keys_list[i * BATCH_SIZE:(i + 1) * BATCH_SIZE]
 
-                    input_data = data_loader_torch.featuremap_to_batch_with_balance(infer_dict_res,
+                    input_data = data_loader_torch.featuremap_to_batch_ivo_with_neighbour(infer_dict_res,
                                                                         current_keys,
                                                                         BATCH_SIZE,
                                                                         common.near_num,
@@ -88,7 +88,7 @@ def visualize_pc(data_path, gt_path = None, save_path = '.', fusion_method = 0, 
                     else:
                         current_keys = keys_list[i * BATCH_SIZE:(i + 1) * BATCH_SIZE]
 
-                    input_data = data_loader_torch.featuremap_to_batch(voxel_dict,
+                    input_data = data_loader_torch.featuremap_to_batch_i(voxel_dict,
                                                                                     current_keys,
                                                                                     BATCH_SIZE,
                                                                                     common.time_step,

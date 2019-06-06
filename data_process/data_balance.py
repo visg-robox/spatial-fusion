@@ -28,6 +28,7 @@ def data_balance_rnn(voxel_map, gt_map, label_probability):
                 keys_list.append(key)
     return keys_list
 
+
 # 没有大于1的概率
 def data_balance(voxel_map, gt_map, label_probability):
     voxel_keys = list(voxel_map.keys())

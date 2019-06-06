@@ -96,7 +96,7 @@ if __name__ == '__main__':
             random.shuffle(keys_list)
             for i in range(len(keys_list)//BATCH_SIZE):
                 current_keys = keys_list[i*BATCH_SIZE:(i+1)*BATCH_SIZE]
-                input_data = data_loader_torch.featuremap_to_batch_with_balance(voxel_dict_res, current_keys, BATCH_SIZE, NEAR_NUM, TIME_STEP, INPUT_SIZE)
+                input_data = data_loader_torch.featuremap_to_batch_ivo_with_neighbour(voxel_dict_res, current_keys, BATCH_SIZE, NEAR_NUM, TIME_STEP, INPUT_SIZE)
                 input_data = Variable(input_data, requires_grad=True).cuda()
                 gt = data_loader_torch.featuremap_to_gt_num(gt_dict, current_keys, BATCH_SIZE, common.ignore_list)
                 gt = Variable(gt).cuda()
