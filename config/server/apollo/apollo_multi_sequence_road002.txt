@@ -15,7 +15,7 @@ class_preserve_proba_path:data_dropout_ratio.txt
 dataset_class_config:apollo
 train_sequence_list:Record002 Record003 Record004 Record005 Record020
 eval_sequence_list:Record021 Record006
-point_num_per_frame:60000
+point_num_per_frame:40000
 frame_num_pre_sequence:200
 
 class_num:22
