@@ -7,8 +7,8 @@ dataset_name:apollo_multi_sequence_road002
 
 multi_sequence:1
 raw_data_path:/data1/3d_map/data/apollo_raw/road02_ins
-lidardata_path:/data1/3d_map/data/apollo/apollo_multi_sequence_road002/lidar_data
-blockfile_path:/data1/3d_map/data/apollo/apollo_multi_sequence_road002/block_data
+lidardata_path:/data1/3d_map/data/apollo/apollo_multi_sequence_road002/deeplab/lidar_data
+blockfile_path:/data1/3d_map/data/apollo/apollo_multi_sequence_road002/deeplab/block_data
 class_preserve_proba_path:data_dropout_ratio.txt
 
 

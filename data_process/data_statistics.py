@@ -33,7 +33,7 @@ def statistics(path_list, classnum, save_path):
         a = np.load(path)
         voxel_list = a.item().values()
         for i in voxel_list:
-            semantic_info = i.feature_info_list[0].feature_list
+            semantic_info = i.feature_info_list
             gt_list = list()
             for j in range(len(semantic_info)):
                 gt_list.append(int(semantic_info[j].feature_list[0]))

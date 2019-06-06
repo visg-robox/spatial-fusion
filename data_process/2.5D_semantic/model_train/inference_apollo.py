@@ -11,23 +11,25 @@ import shutil
 from os.path import join
 from os import listdir
 import cv2
-
+from PIL import Image
+import numpy as np
 import tensorflow as tf
 from scipy import misc
 import train,config,dataset_util
 from utils import preprocessing
-from PIL import Image
 import matplotlib.pyplot as plt
 import sys
-from tensorflow.python import debug as tf_debug
+
 
 sys.path.append('../../../')
 import common
-import numpy as np
+from data_process.generate_dataset import divide_multi_sequence
+
+
 
 #需要修改的变量
 _DATA_DIR = common.raw_data_path
-_EPISODE_LIST = common.eval_sequence_list + common.train_sequence_list
+_EPISODE_LIST = common.train_sequence_list + common.eval_sequence_list
 _CAMERA = 'Camera 6'
 _SAVE_DIR = common.lidardata_path
 _SAMPLE_NUM = common.point_num_per_frame
@@ -311,8 +313,11 @@ def main(unused_argv):
             # points_color.save_to_disk(join(Save_path, 'Point_Cloud/pc_color', path.split('.')[0]))
             # # point_sem_p.save_to_disk(join(Save_path, 'Point_Cloud/pc_sem', path.split('.')[0]))
         f.close()
-
+        
+    divide_multi_sequence()
 if __name__ == '__main__':
     tf.logging.set_verbosity(tf.logging.INFO)
     FLAGS, unparsed = parser.parse_known_args()
     tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+    
+    

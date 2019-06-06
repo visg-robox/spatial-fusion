@@ -6,7 +6,7 @@ import common
 import shelve
 import threading as thd
 import time
-from evaluate.eval_ssnet import eval_spnet
+from model_evaluate.eval_ssnet import eval_spnet
 
 MODEL_DIR = common.test_model_path
 

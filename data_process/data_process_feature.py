@@ -77,7 +77,7 @@ def pre_process(data_path,save_path, pose_path):
 def preprocess_feature():
     data_path = common.lidardata_path
     feature_path = os.path.join(data_path, 'infer_feature')
-    p_path = os.path.join(data_path, 'infer')
+    p_path = os.path.join(data_path, 'infer_label')
     gt_path = os.path.join(data_path, 'gt')
     pose_path = os.path.join(data_path, 'pose')
 
@@ -87,7 +87,7 @@ def preprocess_feature():
 
     save_path = common.blockfile_path
     feature_save_path = os.path.join(save_path, 'infer_feature')
-    p_save_path = os.path.join(save_path, 'infer')
+    p_save_path = os.path.join(save_path, 'infer_label')
     gt_save_path = os.path.join(save_path, 'gt')
     pre_process(gt_path, gt_save_path, pose_path)
     pre_process(feature_path, feature_save_path, pose_path)
@@ -97,12 +97,12 @@ def preprocess_feature():
 
 def preprocess_record_feature(record_path, save_path):
     feature_path = os.path.join(record_path, 'infer_feature')
-    p_path = os.path.join(record_path, 'infer')
+    p_path = os.path.join(record_path, 'infer_label')
     gt_path = os.path.join(record_path, 'gt')
     pose_path = os.path.join(record_path, 'pose')
 
     feature_save_path = os.path.join(save_path, 'infer_feature')
-    p_save_path = os.path.join(save_path, 'infer')
+    p_save_path = os.path.join(save_path, 'infer_label')
     gt_save_path = os.path.join(save_path, 'gt')
     pre_process(gt_path, gt_save_path, pose_path)
     pre_process(feature_path, feature_save_path, pose_path)

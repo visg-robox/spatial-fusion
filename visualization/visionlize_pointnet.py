@@ -4,7 +4,7 @@ from torch.autograd import Variable
 from data_process.data_process_label import *
 from data_process import data_loader_torch,data_balance
 import sys
-from evaluate.eval_semantic_apollo import ID_COLOR
+from model_evaluate.eval_semantic_apollo import ID_COLOR
 sys.path.append('/media/luo/Dataset/RnnFusion/spatial-fusion/')
 
 

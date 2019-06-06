@@ -82,7 +82,7 @@ def devide_with_pose():
         shutil.move(cur_gt_file, os.path.join(test_gt_save_path, fname))
 
 
-def devide_multi_sequence():
+def divide_multi_sequence():
     lidardata_path = common.lidardata_path
     blockfile_path = common.blockfile_path
     train_list = common.train_sequence_list
@@ -101,6 +101,6 @@ def devide_multi_sequence():
 
 
 if __name__ == "__main__":
-    devide_multi_sequence()
+    divide_multi_sequence()
 
 

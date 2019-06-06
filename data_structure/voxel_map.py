@@ -1,7 +1,7 @@
 import os
 import common
 import numpy as np
-from evaluate.eval_API import ID_COLOR
+from model_evaluate.eval_API import ID_COLOR
 
 
 class VoxelMap:

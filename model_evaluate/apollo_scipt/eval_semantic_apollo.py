@@ -1,4 +1,4 @@
-from evaluate import eval_API
+from model_evaluate import eval_API
 import numpy as np
 from PIL import Image
 import os

@@ -13,7 +13,7 @@ import torch
 import random
 from model.rnn import *
 import os
-from evaluate.eval_ssnet import *
+from model_evaluate.eval_ssnet import *
 from visualization.input_data import visualize_batch
 
 from torch import nn

@@ -18,7 +18,7 @@ import random
 import shelve
 import numpy as np
 from data_structure.voxel_feature import *
-# from evaluate.eval_semantic_apollo import ID_COLOR
+# from model_evaluate.eval_semantic_apollo import ID_COLOR
 
 
 class VoxelMap:
