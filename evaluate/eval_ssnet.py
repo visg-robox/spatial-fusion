@@ -65,10 +65,10 @@ def eval_spnet_balance(test_infer_path,
     for test_file_idx in range(len(test_infer_file_list)):
         test_infer_filename = test_infer_file_list[test_file_idx]
         test_gt_filename = test_gt_file_list[test_file_idx]
-        test_infer_dict = np.load(test_infer_filename).item()
-        test_gt_dict = np.load(test_gt_filename).item()
+        test_infer_dict = np.load(test_infer_filename, allow_pickle=True).item()
+        test_gt_dict = np.load(test_gt_filename, allow_pickle=True).item()
         label_p = np.ones(common.class_num)
-        if "lstm" in common.method_name:
+        if "lstm" not in common.method_name:
             test_infer_dict, test_gt_dict = data_balance.data_balance(test_infer_dict, test_gt_dict, label_p)
         test_keys_list = get_common_keys(test_infer_dict, test_gt_dict)
         print('test file: ', test_infer_filename)
@@ -82,12 +82,17 @@ def eval_spnet_balance(test_infer_path,
                                                                         TEST_BATCH_SIZE,
                                                                         time_step,
                                                                         INPUT_SIZE)
+                test_input = Variable(test_input).cuda()
+                test_output = rnn(test_input, time_step)
+
             elif "lstm_i" in common.method_name:
                 test_input = data_loader_torch.featuremap_to_batch_i(test_infer_dict,
                                                                         test_current_keys,
                                                                         TEST_BATCH_SIZE,
                                                                         time_step,
                                                                         INPUT_SIZE)
+                test_input = Variable(test_input).cuda()
+                test_output = rnn(test_input, time_step)
 
             else:
                 test_input = data_loader_torch.featuremap_to_batch_ivo_with_neighbour(test_infer_dict,
@@ -96,7 +101,8 @@ def eval_spnet_balance(test_infer_path,
                                                                         common.near_num,
                                                                         time_step,
                                                                         INPUT_SIZE)
-            test_input = Variable(test_input).cuda()
+                test_input = Variable(test_input).cuda()
+                test_output = rnn(test_input)
             with torch.no_grad():
                 test_input = test_input
             test_gt = data_loader_torch.featuremap_to_gt_num(test_gt_dict,
@@ -104,7 +110,6 @@ def eval_spnet_balance(test_infer_path,
                                                              TEST_BATCH_SIZE,
                                                              ignore_list = ignore_list)
 
-            test_output = rnn(test_input)
             # test_loss = loss_func(test_output, test_gt.cuda())
             # test_loss_ave += test_loss
             test_pred_y = numpy.append(test_pred_y, torch.max(test_output.cpu(), 1)[1].data.numpy().squeeze())
@@ -124,7 +129,7 @@ def eval_spnet(model_path):
     test_gt_path = test_infer_path.replace('infer_feature', 'gt')
     print(model_path)
     save_path = os.path.dirname(model_path)
-    loss = eval_spnet_balance(test_infer_path, test_gt_path, model_path, time_step=20, log_dir=save_path, ignore_list = common.ignore_list)
+    loss = eval_spnet_balance(test_infer_path, test_gt_path, model_path, time_step=common.time_step, log_dir=save_path, ignore_list = common.ignore_list)
 
 
 if __name__ == '__main__':
