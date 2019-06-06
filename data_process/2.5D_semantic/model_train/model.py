@@ -24,7 +24,7 @@ import os
 
 global _LOAD_PRETRAINED
 _LOAD_PRETRAINED = False
-_IMG_PRETRAIN = '../data_and_checkpoint/pretrain_model/ICNET_cityscape_pretrain'
+_IMG_PRETRAIN = '../data_and_checkpoint/pretrain_model/cityscape_pretrain'
 
 #special parameter
 
@@ -45,7 +45,7 @@ def model_generator(num_classes, batch_norm_decay):
 
         with tf.name_scope('load_pretrain'):
             global _LOAD_PRETRAINED
-            if not _LOAD_PRETRAINED:
+            if not _LOAD_PRETRAINED and is_training:
                 _LOAD_PRETRAINED = True
                 if _IMG_PRETRAIN:
                     exclude = []
