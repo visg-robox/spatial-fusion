@@ -7,10 +7,8 @@ merge_tools:　useful tools for merge
 
 data_and_checkpoint : place for big data
 
-
-
-to_do:
-model_lib
-ICNET poosize bug
-carla code
-
+关于如何为新数据集进行训练准备:
+1. 首先dataset_scipt下面有一个write_tfrecord文件, 文件里面有两个地方需要修改, 一个是decode label 函数, 输出需要是uint8的class ID 如1,2,3, void 应该是255
+2. 第二个需要修改的地方是model_train文件夹下的 dataset_utils, 里面有所有切换新数据集需要修改的地方, 具体看变量很简单.
+3. 正常情况下, 只需要修改train.py 和model.py, train所有需要修改的地方都在文件上部由大小变量给出, 正常需要修改crop_width, height(这个是训练时候的图片的大小, 大分辨率数据集需要切割) 和save的model_path 以及一些训练超参
+4. 模型保存在data_and_checkpoint文件夹下面, 继续训练只需要从文件夹中的pyfile 拷贝文件覆盖原目录
