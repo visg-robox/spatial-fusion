@@ -45,7 +45,7 @@ def model_fn(features, labels, mode, params):
         image_splits = tf.split(next_img, gpu_num, axis=0)
 
         if mode == tf.estimator.ModeKeys.TRAIN:
-            batch_size = params['batch_size']
+            batch_size = int(params['batch_size']/params['gpu_num'])
         else:
             batch_size = 1
 
@@ -96,7 +96,7 @@ def model_fn(features, labels, mode, params):
 
         labels = tf.squeeze(labels, axis=3)
         label_splits = tf.split(labels, gpu_num, axis=0)
-        # reduce the channel dimension.
+
         gt_decoded_labels = tf.py_func(preprocessing.decode_labels,
                                        [tf.expand_dims(label_splits[0], axis=3), batch_size, params['num_classes']],
                                        tf.uint8)
@@ -226,7 +226,7 @@ def model_fn(features, labels, mode, params):
         images = tf.cast(
             tf.map_fn(preprocessing.mean_image_addition, images),
             tf.uint8)
-        visiolize= tf.concat(values=[images ,gt_decoded_labels,pred_decoded_labels], axis=1)
+        visiolize= tf.concat(values=[images ,gt_decoded_labels, pred_decoded_labels], axis=1)
         temp_shape= images.get_shape().as_list()
         print(temp_shape)
         visionlize = tf.slice(visiolize, [0, 0, 0, 0], [1, temp_shape[1]*3, temp_shape[2], temp_shape[3]])

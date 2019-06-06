@@ -233,7 +233,7 @@ def main(unused_argv):
             params={
                 'output_stride': FLAGS.output_stride,
                 'batch_size': 1,  # Batch size must be 1 because the images' size may differ
-                'batch_norm_decay': None,
+                'batch_norm_decay': 0.997,
                 'num_classes': _NUM_CLASSES,
                 'gpu_num' : 1,
                 'freeze_batch_norm' : False
@@ -262,11 +262,15 @@ def main(unused_argv):
             pred_ID= pred_dict['classes']
             pred_feature = pred_dict['feature_out']
             feature_shape = pred_feature.shape[0:2]
+            p_shape = pred_P.shape[0:2]
     
             #因为全分辨率的feature实在是太占显存了，所以feature返回不是全分辨率，要使用双线性插值来获得
             origin_shape = RGB.shape[0:2]
-            ratio = (np.array(feature_shape, dtype= np.float32) - 1) / (np.array(origin_shape, dtype = np.float32) - 1)
-            ratio = np.array([ratio[1], ratio[0]])
+            ratio_f = (np.array(feature_shape, dtype= np.float32) - 1) / (np.array(origin_shape, dtype = np.float32) - 1)
+            ratio_f = np.array([ratio_f[1], ratio_f[0]])
+
+            ratio_p = (np.array(p_shape, dtype=np.float32) - 1) / (np.array(origin_shape, dtype=np.float32) - 1)
+            ratio_p = np.array([ratio_p[1], ratio_p[0]])
     
             #保存预测的图片
             pred_ID = np.repeat(pred_ID,  3, axis=2)
@@ -281,11 +285,11 @@ def main(unused_argv):
             Depth = np.array(cv2.imread(Depth_path, -1),dtype=np.uint16)
             pcl, gt_map, index_xy, index = Image_map2pcl_global(Depth, Sem, extrincs, FLAGS.sample_point)
             index_xy = np.array(index_xy, dtype= np.float32)
-            index_xy = index_xy * ratio
+    
     
             #下面提供了feature和概率的获得方式，第一维都是点的数量
-            point_feature = bilinear_interp_PointWithIndex(pred_feature, index_xy)
-            point_probabilities = bilinear_interp_PointWithIndex(pred_P, index_xy)
+            point_feature = bilinear_interp_PointWithIndex(pred_feature, index_xy * ratio_f)
+            point_probabilities = bilinear_interp_PointWithIndex(pred_P, index_xy * ratio_p)
             debug_point_feature = np.argmax(point_probabilities, axis = 1)
             total_num = np.sum(np.where(gt_map != 255))
             correct_num = np.sum(np.where(gt_map == debug_point_feature))

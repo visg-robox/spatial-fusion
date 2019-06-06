@@ -1,8 +1,12 @@
-"""DeepLab v3 models based on slim library."""
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+
+"""DeepLab v3 models based on slim library."""
+
+"""DeepLab v3 models based on slim library."""
+
 
 import tensorflow as tf
 from tensorflow.contrib import layers as layers_lib
@@ -24,62 +28,130 @@ import os
 
 global _LOAD_PRETRAINED
 _LOAD_PRETRAINED = False
-_IMG_PRETRAIN = '../data_and_checkpoint/pretrain_model/cityscape_pretrain'
+_IMG_PRETRAIN = '../data_and_checkpoint/pretrain_model/deeplabv3+_apollo'
 
-#special parameter
+
+base_model = resnet_v2.resnet_v2_101
+base_architecture ='resnet_v2_101'
+
 
 def model_generator(num_classes, batch_norm_decay):
-    def VGG_model(input, is_training):
-        image = input
-        #convert to bgr to restore weight
-        bgr = tf.split(image, num_or_size_splits=3, axis=-1)
-        image = tf.concat([bgr[2], bgr[1], bgr[0]], axis=-1)
-        inputs_size = tf.shape(image)[1:3]
+  def model(inputs, is_training):
+    if is_training:
+      output_stride = 16
+    else:
+      output_stride = 8
 
-        with tf.contrib.slim.arg_scope(resnet_v2.resnet_arg_scope(batch_norm_decay=batch_norm_decay)):
+    with tf.contrib.slim.arg_scope(resnet_v2.resnet_arg_scope(batch_norm_decay=batch_norm_decay)):
+      logits, end_points = base_model(inputs,
+                                      num_classes=None,
+                                      is_training=is_training,
+                                      global_pool=False,
+                                      output_stride=output_stride,
+                                      reuse = tf.AUTO_REUSE)
 
-            net = ICNet_BN({'data': image}, is_training=is_training, num_classes=num_classes,
-                           filter_scale=1)
-            features = net.layers['sub12_sum_interp']
-            logits = net.layers['conv6_cls']
+    inputs_size = tf.shape(inputs)[1:3]
+    net = end_points[base_architecture + '/block4']
+    encoder_output = atrous_spatial_pyramid_pooling(net, output_stride, batch_norm_decay, is_training)
 
-        with tf.name_scope('load_pretrain'):
-            global _LOAD_PRETRAINED
-            if not _LOAD_PRETRAINED and is_training:
-                _LOAD_PRETRAINED = True
-                if _IMG_PRETRAIN:
-                    exclude = []
-                    exclude_name = ['global_step' ,'conv6_cls']
-                    for name in exclude_name:
-                        exclude_var_name = [v.name for v in tf.global_variables() if name in v.name]
-                        exclude += exclude_var_name
-                    variables_to_restore = tf.contrib.slim.get_variables_to_restore(exclude=exclude)
-                    tf.train.init_from_checkpoint(_IMG_PRETRAIN,
-                                                {v.name.split(':')[0]: v for v in variables_to_restore})
+    with tf.variable_scope("decoder",reuse = tf.AUTO_REUSE):
+      with tf.contrib.slim.arg_scope(resnet_v2.resnet_arg_scope(batch_norm_decay=batch_norm_decay)):
+        with arg_scope([layers.batch_norm], is_training=is_training):
+          with tf.variable_scope("low_level_features"):
+            low_level_features = end_points[base_architecture + '/block1/unit_3/bottleneck_v2/conv1']
+            low_level_features = layers_lib.conv2d(low_level_features, 48,
+                                                   [1, 1], stride=1, scope='conv_1x1')
+            low_level_features_size = tf.shape(low_level_features)[1:3]
 
-        with tf.name_scope('train_var'):
-            train_exclude_name = []
-            train_exclude_var = []
-            for name in train_exclude_name:
-                exclude_var= [v for v in tf.trainable_variables() if name in v.name]
-                train_exclude_var += exclude_var
-            train_var = [v for v in tf.trainable_variables() if v not in train_exclude_var]
-            print(train_var)
+          with tf.variable_scope("upsampling_logits"):
+            net = tf.image.resize_bilinear(encoder_output, low_level_features_size, name='upsample_1')
+            net = tf.concat([net, low_level_features], axis=3, name='concat')
+            net = layers_lib.conv2d(net, 256, [3, 3], stride=1, scope='conv_3x3_1')
+            net = layers_lib.conv2d(net, 256, [3, 3], stride=1, scope='conv_3x3_2')
+            net = layers_lib.conv2d(net, num_classes, [1, 1], activation_fn=None, normalizer_fn=None, scope='conv_1x1')
+            logits = tf.image.resize_bilinear(net, inputs_size, name='upsample_2')
+
+    with tf.name_scope('load_pretrain'):
+      global _LOAD_PRETRAINED
+      if not _LOAD_PRETRAINED and is_training:
+        _LOAD_PRETRAINED = True
+        if _IMG_PRETRAIN:
+          exclude = []
+          exclude_name = ['global_step']
+          for name in exclude_name:
+            exclude_var_name = [v.name for v in tf.global_variables() if name in v.name]
+            exclude += exclude_var_name
+          variables_to_restore = tf.contrib.slim.get_variables_to_restore(exclude=exclude)
+          tf.train.init_from_checkpoint(_IMG_PRETRAIN,
+                                        {v.name.split(':')[0]: v for v in variables_to_restore})
+
+    with tf.name_scope('train_var'):
+      train_exclude_name = []
+      train_exclude_var = []
+      for name in train_exclude_name:
+        exclude_var = [v for v in tf.trainable_variables() if name in v.name]
+        train_exclude_var += exclude_var
+      train_var = [v for v in tf.trainable_variables() if v not in train_exclude_var]
+      print(train_var)
+
+    out = {}
+    out['logits'] = logits
+    out['train_var'] = train_var
+    out['features'] = net
+
+    return out
+
+  return model
 
 
-        out = {}
-        out['logits'] = logits
-        out['train_var'] = train_var
-        out['features'] = features
-
-        return out
-
-    return VGG_model
 
 
+def atrous_spatial_pyramid_pooling(inputs, output_stride, batch_norm_decay, is_training, depth=256):
+  """Atrous Spatial Pyramid Pooling.
 
+  Args:
+    inputs: A tensor of size [batch, height, width, channels].
+    output_stride: The ResNet unit's stride. Determines the rates for atrous convolution.
+      the rates are (6, 12, 18) when the stride is 16, and doubled when 8.
+    batch_norm_decay: The moving average decay when estimating layer activation
+      statistics in batch normalization.
+    is_training: A boolean denoting whether the input is for training.
+    depth: The depth of the ResNet unit output.
 
+  Returns:
+    The atrous spatial pyramid pooling output.
+  """
+  with tf.variable_scope("aspp",reuse = tf.AUTO_REUSE):
+    if output_stride not in [8, 16]:
+      raise ValueError('output_stride must be either 8 or 16.')
 
+    atrous_rates = [6, 12, 18]
+    if output_stride == 8:
+      atrous_rates = [2*rate for rate in atrous_rates]
+
+    with tf.contrib.slim.arg_scope(resnet_v2.resnet_arg_scope(batch_norm_decay=batch_norm_decay)):
+      with arg_scope([layers.batch_norm], is_training=is_training):
+        inputs_size = tf.shape(inputs)[1:3]
+        # (a) one 1x1 convolution and three 3x3 convolutions with rates = (6, 12, 18) when output stride = 16.
+        # the rates are doubled when output stride = 8.
+        conv_1x1 = layers_lib.conv2d(inputs, depth, [1, 1], stride=1, scope="conv_1x1")
+        conv_3x3_1 = layers_lib.conv2d(inputs, depth, [3, 3], stride=1, rate=atrous_rates[0], scope='conv_3x3_1')
+        conv_3x3_2 = layers_lib.conv2d(inputs, depth, [3, 3], stride=1, rate=atrous_rates[1], scope='conv_3x3_2')
+        conv_3x3_3 = layers_lib.conv2d(inputs, depth, [3, 3], stride=1, rate=atrous_rates[2], scope='conv_3x3_3')
+
+        # (b) the image-level features
+        with tf.variable_scope("image_level_features"):
+          # global average pooling
+          image_level_features = tf.reduce_mean(inputs, [1, 2], name='global_average_pooling', keep_dims=True)
+          # 1x1 convolution with 256 filters( and batch normalization)
+          image_level_features = layers_lib.conv2d(image_level_features, depth, [1, 1], stride=1, scope='conv_1x1')
+          # bilinearly upsample features
+          image_level_features = tf.image.resize_bilinear(image_level_features, inputs_size, name='upsample')
+
+        net = tf.concat([conv_1x1, conv_3x3_1, conv_3x3_2, conv_3x3_3, image_level_features], axis=3, name='concat')
+        net = layers_lib.conv2d(net, depth, [1, 1], stride=1, scope='conv_1x1_concat')
+
+        return net
 
 
 
