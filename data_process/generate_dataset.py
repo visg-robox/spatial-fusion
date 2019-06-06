@@ -29,6 +29,7 @@ def to_distance(name, initial_pose):
         tmp[i] = int(name.split('_')[i])
     return np.linalg.norm(tmp - initial_pose)
 
+
 def devide_with_pose():
     initial_pose = preprocess_feature()
     initial_pose = np.array([-120, -120, 40])
@@ -78,9 +79,25 @@ def devide_with_pose():
         fpath, fname = os.path.split(cur_gt_file)
         shutil.move(cur_gt_file, os.path.join(test_gt_save_path, fname))
 
+
 def devide_multi_sequence():
     lidardata_path = common.lidardata_path
     blockfile_path = common.blockfile_path
-    preprocess_record_feature()
+    train_list = common.train_sequence_list
+    test_list = common.eval_sequence_list
+    for item in train_list:
+        cur_lidardata_path = os.path.join(lidardata_path, item)
+        cur_save_path = os.path.join(blockfile_path, item)
+        common.make_path(cur_save_path)
+        preprocess_record_feature(cur_lidardata_path, cur_save_path)
+    for item in test_list:
+        cur_lidardata_path = os.path.join(lidardata_path, item)
+        cur_save_path = os.path.join(blockfile_path, item)
+        common.make_path(cur_save_path)
+        preprocess_record_feature(cur_lidardata_path, cur_save_path)
+
 
 if __name__ == "__main__":
+    devide_multi_sequence()
+
+
