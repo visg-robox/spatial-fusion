@@ -6,6 +6,7 @@ generate label/feature
 import os, shutil
 import common
 import numpy as np
+from data_process.data_statistics import save_preserve_ratio
 from data_process.data_process_feature import preprocess_feature, preprocess_record_feature
 
 SCENCE_NUM = 4
@@ -95,6 +96,7 @@ def devide_multi_sequence():
         cur_save_path = os.path.join(blockfile_path, item)
         common.make_path(cur_save_path)
         preprocess_record_feature(cur_lidardata_path, cur_save_path)
+    save_preserve_ratio()
 
 
 if __name__ == "__main__":
