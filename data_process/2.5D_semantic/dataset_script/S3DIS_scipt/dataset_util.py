@@ -13,8 +13,8 @@ NUM_IMAGES = {
 CLASSNAME=['road','sidewalk','building','wall','fence','pole','traffic light','traffic sign','vegetation','terrain','sky','person','rider','car','truck','bus','train','motocycle','bicycle']
 NUM_CLASSES=len(CLASSNAME)
 
-HEIGHT = 375
-WIDTH = 1242
+HEIGHT = 1080
+WIDTH = 1080
 IGNORE_LABEL = 255
 
 

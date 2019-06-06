@@ -8,8 +8,7 @@ import time
 from PIL import Image
 from os import  walk
 from os.path import join
-import cv2
-from labels_apollo import labels
+
 import os
 import glob
 
@@ -23,6 +22,7 @@ NUM_TOTAL=900
 box=(0,0,3328,2688)
 Resize_Height=1344
 Resize_Width=1664
+
 
 
 
@@ -50,6 +50,8 @@ def decode_gt_S3DIS(label_path):
     :param label_path: path of a single label file
     :return: a decoded label map, should be ID matrix Uint8
     """
+    label_map =  np.array(Image.open(label_path), dtype=np.uint8)
+    print(label_map[0,0,:])
     return label_map
 #here to change
 
@@ -65,6 +67,8 @@ def write_tfrecord(img_path_list, label_path_list, savepath):
             print('precess ',num,'/',len(img_path_list))
         img_path=img_path_list[i]
         label_path=label_path_list[i]
+
+        assert img_path.split('/')[-1].split('_')[:-1] == label_path.split('/')[-1].split('_')[:-2]
 
         img = decode_img_S3DIS(img_path)
         img = np.array(img,dtype=np.uint8)
@@ -87,11 +91,16 @@ def write_tfrecord(img_path_list, label_path_list, savepath):
 
 if __name__ == '__main__':
     #here to change
-    train_img_list = ['img.png']
-    train_label_list = ['label.png']
-    val_img_list = ['img.png']
-    val_label_list = ['label.png']
-    save_path = './'
+    train_data_path = '/data1/3d_map/data/S3DIS/train/'
+    valid_data_path = '/data1/3d_map/data/S3DIS/test/'
+
+    train_img_list = sorted(glob.glob(train_data_path + 'area*/data/rgb/*.png'))
+    train_label_list = sorted(glob.glob(train_data_path + 'area*/data/semantic_pretty/*.png'))
+
+    val_img_list = sorted(glob.glob(valid_data_path + 'area*/data/rgb/*.png'))
+    val_label_list = sorted(glob.glob(valid_data_path + 'area*/data/semantic_pretty/*.png'))
+    save_path = '/data1/3d_map/data/S3DIS/'
+
     #here to change
     
     
