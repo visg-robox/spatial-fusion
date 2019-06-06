@@ -95,7 +95,7 @@ def eval_spnet_balance(test_infer_path,
                 test_output = rnn(test_input, time_step)
 
             else:
-                test_input = data_loader_torch.featuremap_to_batch_ivo_with_neighbour(test_infer_dict,
+                nv = data_loader_torch.featuremap_to_batch_ivo_with_neighbour(test_infer_dict,
                                                                         test_current_keys,
                                                                         TEST_BATCH_SIZE,
                                                                         common.near_num,
@@ -125,7 +125,7 @@ def eval_spnet_balance(test_infer_path,
 
 def eval_spnet(model_path):
     data_path = common.blockfile_path
-    test_infer_path = os.path.join(data_path, 'test', 'infer_feature')19
+    test_infer_path = os.path.join(data_path, 'test', 'infer_feature')
     test_gt_path = test_infer_path.replace('infer_feature', 'gt')
     print(model_path)
     save_path = os.path.dirname(model_path)
