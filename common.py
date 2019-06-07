@@ -20,6 +20,66 @@ def load_txt_dict(txt_path):
             line = f.readline()
     return para_dict
 
+
+def get_common_keys(infer_dict, gt_dict):
+    infer_keys_list = list(infer_dict.keys())
+    gt_keys_list = list(gt_dict.keys())
+    # common_keys_list = [v for v in infer_keys_list if v in gt_keys_list]
+    return infer_keys_list
+
+
+def get_file_list(data_dir):
+    path_list = list()
+    for i in os.listdir(data_dir):
+        path_list.append(os.path.join(data_dir, i))
+    return path_list
+
+
+def find_file_with_pattern(pattern, path='.'):
+    matches = []
+    dirs = []
+    res = []
+    for x in os.listdir(path):
+        nd = os.path.join(path, x)
+        if os.path.isdir(nd):
+            dirs.append(nd)
+        elif os.path.isfile(nd) and pattern in x:
+            matches.append(nd)
+    for match in matches:
+        res.append(match)
+    for dir in dirs:
+        res = res + find_file_with_pattern(pattern, path=dir)
+    return res
+
+
+def find_dir_with_pattern(pattern, path='.'):
+    matches = []
+    dirs = []
+    res = []
+    for x in os.listdir(path):
+        nd = os.path.join(path, x)
+        if os.path.isdir(nd) and pattern in x:
+            matches.append(nd)
+        elif os.path.isdir(nd):
+            dirs.append(nd)
+    for match in matches:
+        res.append(match)
+    for dir in dirs:
+        res = res + find_dir_with_pattern(pattern, path=dir)
+    return res
+
+
+def get_file_list_with_pattern(pattern, dir, sorted=True):
+    dir_list = find_dir_with_pattern(pattern, dir)
+    file_list = []
+    for dir in dir_list:
+        file_list = file_list + get_file_list(dir)
+    if sorted:
+        file_list.sort()
+    return file_list
+
+
+
 txt_path = sys.argv[1]
 para_dict = load_txt_dict(txt_path)
 
@@ -93,13 +153,15 @@ model_save_step = int(para_dict['model_save_step'])
 res_save_path = para_dict['res_save_path']
 make_path(res_save_path)
 # ############################################################################
-
-method_name = sys.argv[2]  # pretrain & eval
-pre_train_model_dir = os.path.join(res_save_path, dataset_name, method_name)
-if pretrained:
-    pre_train_step = sys.argv[3]
-    pre_train_model_path = os.path.join(pre_train_model_dir, pre_train_step + '_model.pkl')
-test_model_path = pre_train_model_dir
+if sys.argv[2] == 'train':
+    method_name = (sys.argv[0]).split('.')[0]  # pretrain
+    pre_train_model_dir = os.path.join(res_save_path, dataset_name, method_name)
+    if pretrained:
+        pre_train_step = sys.argv[3]
+        pre_train_model_path = os.path.join(pre_train_model_dir, pre_train_step + '_model.pkl')
+if sys.argv[2] == 'test':
+    method_name = sys.argv[3]  # pretrain & eval
+    test_model_path = os.path.join(res_save_path, dataset_name, method_name)
 
 # fusion method
 @unique
@@ -110,6 +172,7 @@ class FsMethod(Enum):
     BASELINE = 3
     GT = 4
     STF = 5
+
 
 # tag
 USING_RNN_FEATURE = False

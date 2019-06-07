@@ -10,11 +10,7 @@ from data_structure.voxel_map import *
 
 
 # output: full file path list
-def get_file_list(data_dir):
-    path_list = list()
-    for i in os.listdir(data_dir):
-        path_list.append(os.path.join(data_dir, i))
-    return path_list
+
 
 
 def read_pose(file_name):
