@@ -120,8 +120,7 @@ if __name__ == '__main__':
     write_tfrecord(val_img_list, val_label_list, os.path.join(save_path, 'val.tfrecords'))
     dict_path = os.path.join(save_path, 'class_dict.txt')
     with open(dict_path,'w+') as f:
-        for i in S3DIS_dict.keys():
-            f.write(i + ':' + str(S3DIS_dict) + '\n')
+        f.write(S3DIS_dict)
     
     
 
