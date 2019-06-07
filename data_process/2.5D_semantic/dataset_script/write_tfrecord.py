@@ -114,7 +114,7 @@ if __name__ == '__main__':
     train_img_list = sorted(glob.glob(train_data_path + 'area*/data/rgb/*.png'))
     train_label_list = sorted(glob.glob(train_data_path + 'area*/data/semantic/*.png'))
     index = np.arange(len(train_img_list))
-    index = np.random.random(index)
+    index = np.random.shuffle(index)
     index = index[0: len(train_img_list) // sample_ratio]
     train_img_list = train_img_list[index]
     train_label_list = train_label_list[index]
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     val_img_list = sorted(glob.glob(valid_data_path + 'area*/data/rgb/*.png'))
     val_label_list = sorted(glob.glob(valid_data_path + 'area*/data/semantic/*.png'))
     index = np.arange(len(val_img_list))
-    index = np.random.random(index)
+    index = np.random.shuffle(index)
     index = index[0: len(val_img_list) // sample_ratio]
     val_img_list = val_img_list[index]
     val_img_list = val_img_list[index]
