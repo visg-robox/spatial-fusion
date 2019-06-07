@@ -13,17 +13,13 @@ import os
 import glob
 
 
+from S3DIS_scipt.assets.utils import *
 
 
 
-
-def _int64_feature(value):
-    return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
-
-def _bytes_feature(value):
-    return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
-
-
+S3DIS_dict = {}
+S3DIS_dict['<UNK>'] = 255
+json_label = load_labels('S3DIS_scipt/assets/semantic_labels.json')
 
 #here to change
 def decode_img_S3DIS(img_path):
@@ -39,24 +35,34 @@ def decode_gt_S3DIS(label_path):
     :param label_path: path of a single label file
     :return: a decoded label map, should be ID matrix Uint8
     """
-    label_map =  np.array(Image.open(label_path), dtype=np.uint8)
-
-    def get_index(color):
-        ''' Parse a color as a base-256 number and returns the index
-        Args:
-            color: A 3-tuple in RGB-order where each element \in [0, 255]
-        Returns:
-            index: an int containing the indec specified in 'color'
-        '''
-        return color[0] * 256 * 256 + color[1] * 256 + color[2]
     
-    label_ID_map = label_map[:,:,0] * 256 * 256 + label_map[:,:,0] * 256 + label_map[:,:,0]
-    print(label_ID_map)
+    label_map =  np.array(Image.open(label_path), dtype=np.uint32)
+    ret_map = np.zeros_like(label_map, dtype=np.uint8)
     
-    return label_map
+    Index_map = label_map[:,:,0] * 256 * 256 + label_map[:,:,0] * 256 + label_map[:,:,0]
+    
+    
+    for i in Index_map.shape[0]:
+        for j in Index_map.shape[1]:
+            index = Index_map[i][j]
+            label_name = parse_label(json_label[int(index)]['instance_class'])
+            if label_map not in S3DIS_dict.keys():
+                S3DIS_dict[label_name] = len(S3DIS_dict) - 1
+            label_ID = S3DIS_dict[label_name]
+            print(label_ID)
+            ret_map[i][j] = label_ID
+    return ret_map
 #here to change
 
 
+
+
+
+def _int64_feature(value):
+    return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
+
+def _bytes_feature(value):
+    return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
 
 def write_tfrecord(img_path_list, label_path_list, savepath):
@@ -92,6 +98,8 @@ def write_tfrecord(img_path_list, label_path_list, savepath):
 
 if __name__ == '__main__':
     #here to change
+
+
     train_data_path = '/data1/3d_map/data/S3DIS/train/'
     valid_data_path = '/data1/3d_map/data/S3DIS/test/'
 
@@ -107,6 +115,11 @@ if __name__ == '__main__':
     
     write_tfrecord(train_img_list, train_label_list, os.path.join(save_path, 'train.tfrecords'))
     write_tfrecord(val_img_list, val_label_list, os.path.join(save_path, 'val.tfrecords'))
+    dict_path = os.path.join(save_path, 'class_dict.txt')
+    with open(dict_path,'w+') as f:
+        for i in S3DIS_dict.keys():
+            f.write(i + ':' + str(S3DIS_dict) + '\n')
+    
     
 
 
