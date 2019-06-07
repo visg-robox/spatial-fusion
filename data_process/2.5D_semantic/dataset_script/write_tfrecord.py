@@ -114,7 +114,7 @@ if __name__ == '__main__':
     train_img_list = sorted(glob.glob(train_data_path + 'area*/data/rgb/*.png'))
     train_label_list = sorted(glob.glob(train_data_path + 'area*/data/semantic/*.png'))
     index = np.arange(len(train_img_list))
-    index = np.random.shuffle(index)
+    np.random.shuffle(index)
     index = index[0: len(train_img_list) // sample_ratio]
     train_img_list = train_img_list[index]
     train_label_list = train_label_list[index]
@@ -122,10 +122,10 @@ if __name__ == '__main__':
     val_img_list = sorted(glob.glob(valid_data_path + 'area*/data/rgb/*.png'))
     val_label_list = sorted(glob.glob(valid_data_path + 'area*/data/semantic/*.png'))
     index = np.arange(len(val_img_list))
-    index = np.random.shuffle(index)
+    np.random.shuffle(index)
     index = index[0: len(val_img_list) // sample_ratio]
     val_img_list = val_img_list[index]
-    val_img_list = val_img_list[index]
+    val_label_list = val_label_list[index]
     
     
     save_path = '/data1/3d_map/data/S3DIS/'
@@ -137,10 +137,10 @@ if __name__ == '__main__':
     write_tfrecord(val_img_list, val_label_list, os.path.join(save_path, 'val.tfrecords'))
     name_dict_path = os.path.join(save_path, 'class_dict.txt')
     with open(name_dict_path,'w+') as f:
-        f.write(S3DIS_name_dict)
+        f.write(str(S3DIS_name_dict))
     num_dict_path = os.path.join(save_path, 'num_dict.txt')
     with open(num_dict_path,'w+') as f:
-        f.write(S3DIS_num_dict)
+        f.write(str(S3DIS_num_dict))
     
 
 
