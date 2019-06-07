@@ -39,7 +39,7 @@ def decode_gt_S3DIS(label_path):
     label_map =  np.array(Image.open(label_path), dtype=np.uint32)
     ret_map = np.zeros_like(label_map, dtype=np.uint8)
     
-    Index_map = label_map[:,:,0] * 256 * 256 + label_map[:,:,0] * 256 + label_map[:,:,0]
+    Index_map = label_map[:,:,0] * 256 * 256 + label_map[:,:, 1] * 256 + label_map[:,:,2]
     
     
     for i in Index_map.shape[0]:
