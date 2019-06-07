@@ -13,17 +13,6 @@ import os
 import glob
 
 
-IMG_HEIGHT = 2710
-IMG_WIDTH = 3384
-IMG_CHANNELS = 3
-
-NUM_TEST =100
-NUM_TOTAL=900
-box=(0,0,3328,2688)
-Resize_Height=1344
-Resize_Width=1664
-
-
 
 
 
@@ -51,6 +40,19 @@ def decode_gt_S3DIS(label_path):
     :return: a decoded label map, should be ID matrix Uint8
     """
     label_map =  np.array(Image.open(label_path), dtype=np.uint8)
+
+    def get_index(color):
+        ''' Parse a color as a base-256 number and returns the index
+        Args:
+            color: A 3-tuple in RGB-order where each element \in [0, 255]
+        Returns:
+            index: an int containing the indec specified in 'color'
+        '''
+        return color[0] * 256 * 256 + color[1] * 256 + color[2]
+    
+    label_ID_map = label_map[:,:,0] * 256 * 256 + label_map[:,:,0] * 256 + label_map[:,:,0]
+    print(label_ID_map)
+    
     return label_map
 #here to change
 

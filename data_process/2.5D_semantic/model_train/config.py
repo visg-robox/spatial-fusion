@@ -14,6 +14,9 @@ import dataset_util
 _RECORD_IMG = False
 _LOG_TRAIN_IMG_STEP = 100
 _LOG_VAL_IMG_STEP = int(dataset_util.NUM_IMAGES['validation'] / 10)
+BLANCE_WEIGHT = np.array([1,1,1,1,1,1,1,1,1,1,10,10,10,10,10,10,10,10,10,10],dtype = np.float)
+
+
 
 #多GPU梯度结算
 def average_gradients(tower_grads):
@@ -100,7 +103,6 @@ def model_fn(features, labels, mode, params):
         gt_decoded_labels = tf.py_func(preprocessing.decode_labels,
                                        [tf.expand_dims(label_splits[0], axis=3), batch_size, params['num_classes']],
                                        tf.uint8)
-
 
 
     def get_cross_entropy(logits,labels):

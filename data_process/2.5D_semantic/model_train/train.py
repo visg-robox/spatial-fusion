@@ -31,10 +31,11 @@ _CROP_HEIGHT = 1024
 _CROP_WIDTH = 1024
 
 #训练主要超参设置
-_MAX_ITER = 60000
-_MIDDLE_STEP = 22401
-_EPOCH = (_MAX_ITER - _MIDDLE_STEP)//dataset_util.NUM_IMAGES['train']*_BATCH_SIZE + 4
-_INITIAL_LR = 1e-2
+_MAX_ITER = 1000
+_MIDDLE_STEP = 0
+_EPOCH = (_MAX_ITER - _MIDDLE_STEP)//(dataset_util.NUM_IMAGES['train']//_BATCH_SIZE) + 2
+print(_EPOCH)
+_INITIAL_LR = 1e-3
 _INITIAL_STEP = 0
 _END_LR = 1e-6
 _WARM_UP_LR = 1e-4
@@ -53,7 +54,7 @@ _FREEZE_BN = False
 _BATCH_NORM_DECAY = 0.997
 
 
-MODEL_DIR  = 'ICNET_60000'
+MODEL_DIR  = 'ICNET_30000_fineture'
 MODEL_DIR = os.path.join('../data_and_checkpoint', dataset_util.DATASET_SHOT, 'model_checkpoint', MODEL_DIR)
 
 print(MODEL_DIR)
@@ -76,7 +77,7 @@ parser.add_argument('--optimizer', type=str, default=_OPTIMIZER,
 parser.add_argument('--data_dir', type=str, default = dataset_util.DATA_DIR,
                     help='Path to the directory containing the PASCAL VOC data tf record.')
 
-parser.add_argument('--epochs_per_eval', type=int, default=1,
+parser.add_argument('--epochs_per_eval', type=int, default=2,
                     help='The number of training epochs to run between evaluations.')
 
 parser.add_argument('--tensorboard_images_max_outputs', type=int, default=4,
@@ -224,7 +225,7 @@ def main(unused_argv):
 
     # Set up a RunConfig to only save checkpoints once per training cycle.
 
-    run_config = tf.estimator.RunConfig(session_config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)).replace(save_checkpoints_secs=1e9, keep_checkpoint_max=4)
+    run_config = tf.estimator.RunConfig(session_config=tf.ConfigProto(allow_soft_placement=True)).replace(save_checkpoints_secs=1e9, keep_checkpoint_max=4)
     model = tf.estimator.Estimator(
         model_fn=Model_fn,
         model_dir=FLAGS.model_dir,

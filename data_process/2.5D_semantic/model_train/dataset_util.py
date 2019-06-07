@@ -4,11 +4,11 @@
 import tensorflow as tf
 from collections import namedtuple
 
-DATASET_SHOT = 'apollo_img_label_8000'
-DATA_DIR = '../data_and_checkpoint/apollo_img_label_8000/tfrecord'
+DATASET_SHOT = 'multi_sequence_road002'
+DATA_DIR = '/media/luo/Dataset/RnnFusion/apollo_data/tfrecord/multi_sequence_road002'
 NUM_IMAGES = {
-    'train':8000 ,
-    'validation':1500,
+    'train':1005,
+    'validation':402,
 }
 
 CLASSNAME=[' sky ' ,

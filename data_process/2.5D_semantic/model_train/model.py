@@ -24,7 +24,7 @@ import os
 
 global _LOAD_PRETRAINED
 _LOAD_PRETRAINED = False
-_IMG_PRETRAIN = '../data_and_checkpoint/pretrain_model/cityscape_pretrain'
+_IMG_PRETRAIN = '/media/luo/Dataset/RnnFusion/spatial-fusion/data_process/2.5D_semantic/data_and_checkpoint/multi_sequence_road002/model_checkpoint/ICNET_30000'
 
 #special parameter
 
@@ -49,7 +49,7 @@ def model_generator(num_classes, batch_norm_decay):
                 _LOAD_PRETRAINED = True
                 if _IMG_PRETRAIN:
                     exclude = []
-                    exclude_name = ['global_step' ,'conv6_cls']
+                    exclude_name = ['global_step']
                     for name in exclude_name:
                         exclude_var_name = [v.name for v in tf.global_variables() if name in v.name]
                         exclude += exclude_var_name
@@ -64,7 +64,6 @@ def model_generator(num_classes, batch_norm_decay):
                 exclude_var= [v for v in tf.trainable_variables() if name in v.name]
                 train_exclude_var += exclude_var
             train_var = [v for v in tf.trainable_variables() if v not in train_exclude_var]
-            print(train_var)
 
 
         out = {}
