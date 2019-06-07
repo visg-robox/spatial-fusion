@@ -5,7 +5,7 @@ import tensorflow as tf
 from collections import namedtuple
 
 DATASET_SHOT = 'apollo_img_label_8000'
-DATA_DIR = '/media/luo/Dataset/apollo/Mydata/Tfrecord/img_label_8000'
+DATA_DIR = '../data_and_checkpoint/apollo_img_label_8000/tfrecord'
 NUM_IMAGES = {
     'train':8000 ,
     'validation':1500,

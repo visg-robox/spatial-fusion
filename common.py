@@ -102,7 +102,7 @@ class_preserve_proba_path = os.path.join(blockfile_path, para_dict['class_preser
 if int(para_dict['multi_sequence']):
     raw_data_path = para_dict['raw_data_path']
     train_sequence_list = para_dict['train_sequence_list'].split(' ')
-    eval_sequence_list = para_dict['eval_sequence_list'].split(' ')
+    test_sequence_list = para_dict['test_sequence_list'].split(' ')
     point_num_per_frame = int(para_dict['point_num_per_frame'])
     frame_num_pre_sequence = int(para_dict['frame_num_pre_sequence'])
 

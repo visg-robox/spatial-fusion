@@ -29,7 +29,7 @@ from data_process.generate_dataset import divide_multi_sequence
 
 #需要修改的变量
 _DATA_DIR = common.raw_data_path
-_EPISODE_LIST = common.train_sequence_list + common.eval_sequence_list
+_EPISODE_LIST = common.train_sequence_list + common.test_sequence_list
 _CAMERA = 'Camera 6'
 _SAVE_DIR = common.lidardata_path
 _SAMPLE_NUM = common.point_num_per_frame
@@ -199,7 +199,10 @@ def main(unused_argv):
         Extrincs_prefix = join(DATAPATH, 'Pose', Episode, _CAMERA)
         RGB_prefix = join(DATAPATH, 'ColorImage', Episode, _CAMERA)
         Depth_prefix = join(DATAPATH, 'Depth', Episode, _CAMERA)
-        Save_path = join(FLAGS.output_dir, Episode)
+        if Episode in common.train_sequence_list:
+            Save_path = join(FLAGS.output_dir, 'train', Episode)
+        if Episode in common.test_sequence_list:
+            Save_path = join(FLAGS.output_dir, 'test', Episode)
         pcl_feature_prefix = join(Save_path, 'infer_feature')
         if not os.path.isdir(pcl_feature_prefix):
             os.makedirs(pcl_feature_prefix)

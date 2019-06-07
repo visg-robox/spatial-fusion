@@ -25,16 +25,16 @@ _MAX_SCALE = 1.5
 
 #使用几块GPU训练和输出分辨率为多大
 _GPU_NUM = 1
-_BATCH_SIZE = 2
+_BATCH_SIZE = 10
 _BUFFER_SIZE = 60
-_CROP_HEIGHT = 768
-_CROP_WIDTH = 768
+_CROP_HEIGHT = 1024
+_CROP_WIDTH = 1024
 
 #训练主要超参设置
-_MAX_ITER = 30000
-_MIDDLE_STEP = 0
+_MAX_ITER = 60000
+_MIDDLE_STEP = 22401
 _EPOCH = (_MAX_ITER - _MIDDLE_STEP)//dataset_util.NUM_IMAGES['train']*_BATCH_SIZE + 4
-_INITIAL_LR = 7e-3
+_INITIAL_LR = 1e-2
 _INITIAL_STEP = 0
 _END_LR = 1e-6
 _WARM_UP_LR = 1e-4
@@ -53,7 +53,7 @@ _FREEZE_BN = False
 _BATCH_NORM_DECAY = 0.997
 
 
-MODEL_DIR  = 'deeplabV3+'
+MODEL_DIR  = 'ICNET_60000'
 MODEL_DIR = os.path.join('../data_and_checkpoint', dataset_util.DATASET_SHOT, 'model_checkpoint', MODEL_DIR)
 
 print(MODEL_DIR)
