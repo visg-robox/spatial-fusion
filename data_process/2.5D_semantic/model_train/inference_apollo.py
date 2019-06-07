@@ -15,7 +15,7 @@ from PIL import Image
 import numpy as np
 import tensorflow as tf
 from scipy import misc
-import train,config,dataset_util
+import config,dataset_util
 from utils import preprocessing
 import matplotlib.pyplot as plt
 import sys
@@ -58,6 +58,12 @@ parser.add_argument('--data_dir', type=str, default= _DATA_DIR,
 
 parser.add_argument('--episode_list', type=str, default= _EPISODE_LIST,
                     help='The directory containing the image data.')
+
+parser.add_argument('--model_dir', type=str,
+                    help='The directory containing the checkpoint')
+
+parser.add_argument('--model', type=str, choice = ['I','D'],
+                    help='ICNET or Deeplab.')
 
 parser.add_argument('--output_dir', type=str, default=_SAVE_DIR,
                     help='Path to the directory to generate the inference results')
@@ -193,14 +199,16 @@ def main(unused_argv):
 
     model = tf.estimator.Estimator(
         model_fn=config.model_fn,
-        model_dir=train.MODEL_DIR,
+        model_dir=FLAGS.model_dir,
         params={
             'output_stride': FLAGS.output_stride,
             'batch_size': 1,  # Batch size must be 1 because the images' size may differ
             'batch_norm_decay': 0.997,
             'num_classes': _NUM_CLASSES,
             'gpu_num': 1,
-            'freeze_batch_norm': False
+            'freeze_batch_norm': False,
+            'pretrained_model': None,
+            'model': FLAGS.model
         })
 
 

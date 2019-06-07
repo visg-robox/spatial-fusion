@@ -76,6 +76,12 @@ parser.add_argument('--optimizer', type=str, default=_OPTIMIZER,
 parser.add_argument('--data_dir', type=str, default = dataset_util.DATA_DIR,
                     help='Path to the directory containing the PASCAL VOC data tf record.')
 
+parser.add_argument('--model', type=str, choice = ['I','D'],
+                    help='ICNET or Deeplab.')
+
+parser.add_argument('--pretrained_model', type=str,
+                    help='pretrained_model')
+
 parser.add_argument('--epochs_per_eval', type=int, default=2,
                     help='The number of training epochs to run between evaluations.')
 
@@ -251,7 +257,9 @@ def main(unused_argv):
             'decay_rate':_EX_LR_DECAY_RATE,
             'warm_up_lr':FLAGS.warm_up_learning_rate,
             'warm_up_step':FLAGS.warm_up_step,
-            'gpu_num': _GPU_NUM
+            'gpu_num': _GPU_NUM,
+            'model': FLAGS.model,
+            'pretrained_model': FLAGS.pretrained_model
 
         })
 
@@ -301,58 +309,6 @@ def main(unused_argv):
             )
             print(eval_results)
 
-
-def testtimeline():
-    features, labels = input_fn(True, FLAGS.data_dir, _BATCH_SIZE)
-
-    train_op = model_fn(
-        features,
-        labels,
-        tf.estimator.ModeKeys.TRAIN,
-        params={
-            'model_dir': FLAGS.model_dir,
-            'batch_size': FLAGS.batch_size,
-            'batch_norm_decay': FLAGS.bn_decay,
-            'output_stride': FLAGS.output_stride,
-            'num_classes': dataset_util.NUM_CLASSES,
-            'classname': dataset_util.CLASSNAME,
-            'tensorboard_images_max_outputs': FLAGS.tensorboard_images_max_outputs,
-            'weight_decay': FLAGS.weight_decay,
-            'learning_rate_policy': FLAGS.learning_rate_policy,
-            'num_train': dataset_util.NUM_IMAGES['train'],
-            'initial_learning_rate': FLAGS.initial_learning_rate,
-            'max_iter': FLAGS.max_iter,
-            'end_learning_rate': FLAGS.end_learning_rate,
-            'power': _POWER,
-            'momentum': _MOMENTUM,
-            'optimizer': FLAGS.optimizer,
-            'freeze_batch_norm': FLAGS.freeze_batch_norm,
-            'initial_global_step': FLAGS.initial_global_step,
-            'decay_rate': _EX_LR_DECAY_RATE,
-            'warm_up_lr': FLAGS.warm_up_learning_rate,
-            'warm_up_step': FLAGS.warm_up_step,
-            'gpu_num': _GPU_NUM
-        }).train_op
-
-    saver = tf.train.Saver()
-    run_metadata = tf.RunMetadata()
-    run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-    # cf = tf.ConfigProto(graph_options=tf.GraphOptions(
-    #     optimizer_options=tf.OptimizerOptions(opt_level=tf.OptimizerOptions.L0)))
-    with tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)) as sess:
-        ckpt = tf.train.get_checkpoint_state(FLAGS.model_dir)
-        saver.restore(sess, ckpt.model_checkpoint_path)
-        for step in range(20):
-            if not step % 100:
-                print('process', step, '/', 20)
-            start = timeit.default_timer()
-            # preds = sess.run(predictions)
-            sess.run(train_op, options=run_options, run_metadata=run_metadata)
-            if step == 9:
-                with open(FLAGS.model_dir + '/timeline2.json', 'w') as wd:
-                    tl = timeline.Timeline(run_metadata.step_stats)
-                    ctf = tl.generate_chrome_trace_format()
-                    wd.write(ctf)
 
 if __name__ == '__main__':
     tf.logging.set_verbosity(tf.logging.INFO)
