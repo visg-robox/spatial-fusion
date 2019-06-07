@@ -256,7 +256,7 @@ def main(unused_argv):
             sem_path = join(Sem_prefix, path.replace('.jpg', '_bin.png'))
             RGB_path = image_path
             Depth_path = join(Depth_prefix, path.replace('.jpg', '.png'))
-            extrincs = decode_extrincs(path.split('.')[0], extrincs_list,join(Save_path, 'pose'))
+            extrincs = decode_extrincs(path.split('.')[0], extrincs_list , join(Save_path, 'pose'))
             pcl_feature_path = join(pcl_feature_prefix, path.split('.')[0])
             pcl_p_path = join(pcl_p_prefix, path.split('.')[0])
             pcl_gt_path = join(pcl_gt_prefix, path.split('.')[0])
