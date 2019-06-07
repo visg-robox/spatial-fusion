@@ -154,7 +154,7 @@ res_save_path = para_dict['res_save_path']
 make_path(res_save_path)
 # ############################################################################
 if sys.argv[2] == 'train':
-    method_name = (sys.argv[0]).split('.')[0]  # pretrain
+    method_name = (sys.argv[0]).split('/')[-1].split('.')[0]  # pretrain
     pre_train_model_dir = os.path.join(res_save_path, dataset_name, method_name)
     if pretrained:
         pre_train_step = sys.argv[3]
