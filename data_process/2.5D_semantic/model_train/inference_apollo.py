@@ -223,12 +223,9 @@ def main(unused_argv):
         pathlist = listdir(Sem_prefix)
         pathlist = [i for i in pathlist if 'json' in i][FLAGS.start_index : FLAGS.start_index + FLAGS.frame_number + 1]
         RGB_list=[join(RGB_prefix,i.replace('.json', '.jpg')) for i in pathlist]
-        if Episode in common.train_sequence_list:
-            List_path = common.lidardata_path + '/train.txt'
-        elif Episode in common.test_sequence_list:
-            List_path = common.lidardata_path + '/test.txt'
+        List_path = Save_path + '/list.txt'
         
-        with open(List_path,'a+') as fp:
+        with open(List_path,'w') as fp:
             for line in RGB_list:
                 fp.write(line+'\n')
         #一些支持的函数
