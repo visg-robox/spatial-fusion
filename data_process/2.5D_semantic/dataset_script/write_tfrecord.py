@@ -116,16 +116,16 @@ if __name__ == '__main__':
     index = np.arange(len(train_img_list), dtype=np.int)
     np.random.shuffle(index)
     index = index[0: len(train_img_list) // sample_ratio]
-    train_img_list = list(np.array(train_img_list))[index]
-    train_label_list = list(np.array(train_label_list))[index]
+    train_img_list = list(np.array(train_img_list)[index])
+    train_label_list = list(np.array(train_label_list)[index])
 
     val_img_list = sorted(glob.glob(valid_data_path + 'area*/data/rgb/*.png'))
     val_label_list = sorted(glob.glob(valid_data_path + 'area*/data/semantic/*.png'))
     index = np.arange(len(val_img_list), dtype=np.int)
     np.random.shuffle(index)
     index = index[0: len(val_img_list) // sample_ratio]
-    val_img_list = list(np.array(val_img_list))[index]
-    val_label_list = list(np.array(val_label_list))[index]
+    val_img_list = list(np.array(val_img_list)[index])
+    val_label_list = list(np.array(val_label_list)[index])
     
     
     save_path = '/data1/3d_map/data/S3DIS/'
