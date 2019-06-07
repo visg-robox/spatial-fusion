@@ -86,7 +86,7 @@ def divide_multi_sequence():
     lidardata_path = common.lidardata_path
     blockfile_path = common.blockfile_path
     train_list = common.train_sequence_list
-    test_list = common.eval_sequence_list
+    test_list = common.test_sequence_list
     for item in train_list:
         cur_lidardata_path = os.path.join(lidardata_path, item)
         cur_save_path = os.path.join(blockfile_path, 'train', item)

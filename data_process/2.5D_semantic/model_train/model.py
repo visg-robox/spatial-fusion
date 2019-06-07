@@ -24,7 +24,7 @@ import os
 
 global _LOAD_PRETRAINED
 _LOAD_PRETRAINED = False
-_IMG_PRETRAIN = '/media/luo/Dataset/RnnFusion/spatial-fusion/data_process/2.5D_semantic/data_and_checkpoint/multi_sequence_road002/model_checkpoint/ICNET_30000'
+_IMG_PRETRAIN = '/media/luo/Dataset/RnnFusion/spatial-fusion/data_process/2.5D_semantic/data_and_checkpoint/multi_sequence_road002/model_checkpoint/ICNET_30000_fineture'
 
 #special parameter
 

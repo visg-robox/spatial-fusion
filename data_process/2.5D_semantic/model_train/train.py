@@ -31,7 +31,7 @@ _CROP_HEIGHT = 1024
 _CROP_WIDTH = 1024
 
 #训练主要超参设置
-_MAX_ITER = 1000
+_MAX_ITER = 15000
 _MIDDLE_STEP = 0
 _EPOCH = (_MAX_ITER - _MIDDLE_STEP)//(dataset_util.NUM_IMAGES['train']//_BATCH_SIZE) + 2
 print(_EPOCH)
@@ -39,7 +39,7 @@ _INITIAL_LR = 1e-3
 _INITIAL_STEP = 0
 _END_LR = 1e-6
 _WARM_UP_LR = 1e-4
-_WARM_UP_STEP = 0
+_WARM_UP_STEP = 2000
 _WEIGHT_DECAY = 5e-5
 
 #优化策略选择
