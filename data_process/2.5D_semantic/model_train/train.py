@@ -25,7 +25,7 @@ _MAX_SCALE = 1.5
 
 #使用几块GPU训练和输出分辨率为多大
 _GPU_NUM = 1
-_BATCH_SIZE = 8
+_BATCH_SIZE = 10
 _BUFFER_SIZE = 60
 _CROP_HEIGHT = 1024
 _CROP_WIDTH = 1024
@@ -34,6 +34,7 @@ _CROP_WIDTH = 1024
 _MAX_ITER = 1000
 _MIDDLE_STEP = 0
 _EPOCH = (_MAX_ITER - _MIDDLE_STEP)//(dataset_util.NUM_IMAGES['train']//_BATCH_SIZE) + 2
+print(_EPOCH)
 _INITIAL_LR = 1e-3
 _INITIAL_STEP = 0
 _END_LR = 1e-6
@@ -53,7 +54,7 @@ _FREEZE_BN = False
 _BATCH_NORM_DECAY = 0.997
 
 
-MODEL_DIR  = 'ICNET_test_balance'
+MODEL_DIR  = 'ICNET_30000_fineture'
 MODEL_DIR = os.path.join('../data_and_checkpoint', dataset_util.DATASET_SHOT, 'model_checkpoint', MODEL_DIR)
 
 print(MODEL_DIR)
