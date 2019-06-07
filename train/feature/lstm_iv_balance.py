@@ -38,7 +38,7 @@ method_name = common.method_name
 
 if __name__ == '__main__':
 
-    train_path = common.blockfile_path
+    train_path = os.path.join(common.blockfile_path, 'train')
     res_save_path = os.path.join(common.res_save_path, dataset_name, method_name)
     common.make_path(res_save_path)
 
