@@ -14,8 +14,9 @@ import dataset_util
 _RECORD_IMG = False
 _LOG_TRAIN_IMG_STEP = 100
 _LOG_VAL_IMG_STEP = int(dataset_util.NUM_IMAGES['validation'] / 10)
-BLANCE_WEIGHT = np.array([1,1,1,1,1,1,1,1,1,1,10,10,10,10,10,10,10,10,10,10],dtype = np.float)
-
+BLANCE_WEIGHT = np.array([1,1,1,1,1,1,1,1,1,0.2, 10, 10, 10, 3 , 10 , 5, 5,10,10,10, 1, 0.2],dtype = np.float)
+BLANCE_WEIGHT = np.expand_dims(BLANCE_WEIGHT, axis = 1)
+balance_weight = tf.constant(BLANCE_WEIGHT, dtype=tf.float32)
 
 
 #多GPU梯度结算
@@ -112,8 +113,11 @@ def model_fn(features, labels, mode, params):
         valid_indices = tf.to_int32(labels_flat <= params['num_classes'] - 1)
         valid_logits = tf.dynamic_partition(logits_by_num_classes, valid_indices, num_partitions=2)[1]
         valid_labels = tf.dynamic_partition(labels_flat, valid_indices, num_partitions=2)[1]
-
-        cross_entropy = tf.losses.sparse_softmax_cross_entropy(
+        
+        label_onehot = tf.one_hot(indices = valid_labels, depth = BLANCE_WEIGHT.shape[0], dtype = tf.int32)
+        weight = tf.matmul(label_onehot, balance_weight)
+        
+        cross_entropy = tf.losses.sparse_softmax_cross_entropy(weights = weight,
             logits=valid_logits, labels=valid_labels)
         return cross_entropy
 
