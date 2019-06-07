@@ -19,7 +19,7 @@ from S3DIS_scipt.assets.utils import *
 
 S3DIS_dict = {}
 S3DIS_dict['<UNK>'] = 255
-json_label = load_labels('S3DIS_scipt/assets/semantic_labels.json')
+
 
 #here to change
 def decode_img_S3DIS(img_path):
@@ -42,11 +42,14 @@ def decode_gt_S3DIS(label_path):
     Index_map = label_map[:,:,0] * 256 * 256 + label_map[:,:, 1] * 256 + label_map[:,:,2]
     
     
-    for i in Index_map.shape[0]:
-        for j in Index_map.shape[1]:
+    for i in range(Index_map.shape[0]):
+        for j in range(Index_map.shape[1]):
             index = Index_map[i][j]
-            label_name = parse_label(json_label[int(index)]['instance_class'])
-            if label_map not in S3DIS_dict.keys():
+            if int(index) > len(json_label):
+                label_name = '<UNK>'
+            else:
+                label_name = parse_label(json_label[int(index)])['instance_class']
+            if label_name not in S3DIS_dict.keys():
                 S3DIS_dict[label_name] = len(S3DIS_dict) - 1
             label_ID = S3DIS_dict[label_name]
             print(label_ID)
@@ -75,7 +78,7 @@ def write_tfrecord(img_path_list, label_path_list, savepath):
         img_path=img_path_list[i]
         label_path=label_path_list[i]
 
-        assert img_path.split('/')[-1].split('_')[:-1] == label_path.split('/')[-1].split('_')[:-2]
+        assert img_path.split('/')[-1].split('_')[:-1] == label_path.split('/')[-1].split('_')[:-1]
 
         img = decode_img_S3DIS(img_path)
         img = np.array(img,dtype=np.uint8)
@@ -98,16 +101,16 @@ def write_tfrecord(img_path_list, label_path_list, savepath):
 
 if __name__ == '__main__':
     #here to change
-
+    json_label = load_labels('S3DIS_scipt/assets/semantic_labels.json')
 
     train_data_path = '/data1/3d_map/data/S3DIS/train/'
     valid_data_path = '/data1/3d_map/data/S3DIS/test/'
 
     train_img_list = sorted(glob.glob(train_data_path + 'area*/data/rgb/*.png'))
-    train_label_list = sorted(glob.glob(train_data_path + 'area*/data/semantic_pretty/*.png'))
+    train_label_list = sorted(glob.glob(train_data_path + 'area*/data/semantic/*.png'))
 
     val_img_list = sorted(glob.glob(valid_data_path + 'area*/data/rgb/*.png'))
-    val_label_list = sorted(glob.glob(valid_data_path + 'area*/data/semantic_pretty/*.png'))
+    val_label_list = sorted(glob.glob(valid_data_path + 'area*/data/semantic/*.png'))
     save_path = '/data1/3d_map/data/S3DIS/'
 
     #here to change
