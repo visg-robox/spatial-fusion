@@ -2,7 +2,7 @@ import os
 from enum import Enum, unique
 import sys
 import glob
-
+import numpy as np
 
 def make_path(path):
     if os.path.isdir(path) is False:
@@ -115,8 +115,12 @@ if int(para_dict['multi_sequence']):
 dataset_class_config = para_dict['dataset_class_config']
 dataset_name = para_dict['dataset_name']
 class_num = int(para_dict['class_num'])
-ignore_list_str = para_dict['ignore_list_str'].split()
-ignore_list = [int(ignore_list_str[i]) for i in range(len(ignore_list_str))]
+
+data_preserve_ratio = np.loadtxt(class_preserve_proba_path)
+ignore_list = list(np.where(np.equal(data_preserve_ratio,0))[0])
+
+# ignore_list_str = para_dict['ignore_list_str'].split()
+# ignore_list = [int(ignore_list_str[i]) for i in range(len(ignore_list_str))]
 
 
 # ############################################################################

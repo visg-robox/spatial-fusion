@@ -35,7 +35,7 @@ _MAX_ITER = 15000
 _MIDDLE_STEP = 0
 _EPOCH = (_MAX_ITER - _MIDDLE_STEP)//(dataset_util.NUM_IMAGES['train']//_BATCH_SIZE) + 2
 print(_EPOCH)
-_INITIAL_LR = 1e-3
+_INITIAL_LR = 5e-3
 _INITIAL_STEP = 0
 _END_LR = 1e-6
 _WARM_UP_LR = 1e-4
@@ -53,8 +53,7 @@ _EX_LR_DECAY_RATE=0.8
 _FREEZE_BN = False
 _BATCH_NORM_DECAY = 0.997
 
-
-MODEL_DIR  = 'ICNET_30000_fineture'
+MODEL_DIR  = 'ICNET_30000_balance_new'
 MODEL_DIR = os.path.join('../data_and_checkpoint', dataset_util.DATASET_SHOT, 'model_checkpoint', MODEL_DIR)
 
 print(MODEL_DIR)
