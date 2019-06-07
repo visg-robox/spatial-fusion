@@ -20,7 +20,7 @@ epoch:10
 lr:0.001
 batch_size:128
 time_step:20
-res_save_path:result
+res_save_path:/data1/3d_map/spatial-fusion/result
 pretrained:0
 model_path:None
 test_model_path:/home/zhangjian/code/project/spatial-fusion/result/apollo_record002/SPNet/14_model.pkl
