@@ -67,8 +67,10 @@ def model_generator(num_classes, batch_norm_decay):
             net = tf.image.resize_bilinear(encoder_output, low_level_features_size, name='upsample_1')
             net = tf.concat([net, low_level_features], axis=3, name='concat')
             net = layers_lib.conv2d(net, 256, [3, 3], stride=1, scope='conv_3x3_1')
-            net = layers_lib.conv2d(net, 256, [3, 3], stride=1, scope='conv_3x3_2')
-            net = layers_lib.conv2d(net, num_classes, [1, 1], activation_fn=None, normalizer_fn=None, scope='conv_1x1')
+            
+            #这里调整了feature的维度用来给后续网络作为输入从256变为128
+            feature = layers_lib.conv2d(net, 128, [3, 3], stride=1, scope='conv_3x3_2')
+            net = layers_lib.conv2d(feature, num_classes, [1, 1], activation_fn=None, normalizer_fn=None, scope='conv_1x1')
             logits = tf.image.resize_bilinear(net, inputs_size, name='upsample_2')
 
     with tf.name_scope('load_pretrain'):
@@ -77,7 +79,7 @@ def model_generator(num_classes, batch_norm_decay):
         _LOAD_PRETRAINED = True
         if _IMG_PRETRAIN:
           exclude = []
-          exclude_name = ['global_step']
+          exclude_name = ['global_step', 'upsampling_logits/conv_3x3_2', 'upsampling_logits/conv_1x1']
           for name in exclude_name:
             exclude_var_name = [v.name for v in tf.global_variables() if name in v.name]
             exclude += exclude_var_name
@@ -87,17 +89,24 @@ def model_generator(num_classes, batch_norm_decay):
 
     with tf.name_scope('train_var'):
       train_exclude_name = []
+      train_include_name = ['upsampling_logits']
+
       train_exclude_var = []
+      train_var = []
       for name in train_exclude_name:
         exclude_var = [v for v in tf.trainable_variables() if name in v.name]
         train_exclude_var += exclude_var
-      train_var = [v for v in tf.trainable_variables() if v not in train_exclude_var]
-      print(train_var)
+      train_var_without_exclude = [v for v in tf.trainable_variables() if v not in train_exclude_var]
+      
+      for name in train_include_name:
+        include_var = [v for v in train_var_without_exclude if name in v.name]
+        train_var += include_var
+      print('train_var:', train_var)
 
     out = {}
     out['logits'] = logits
     out['train_var'] = train_var
-    out['features'] = net
+    out['features'] = feature
 
     return out
 
