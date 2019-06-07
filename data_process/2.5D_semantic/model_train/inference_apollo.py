@@ -191,6 +191,19 @@ def main(unused_argv):
     # Using the Winograd non-fused algorithms provides a small performance boost.
     os.environ['TF_ENABLE_WINOGRAD_NONFUSED'] = '1'
 
+    model = tf.estimator.Estimator(
+        model_fn=config.model_fn,
+        model_dir=train.MODEL_DIR,
+        params={
+            'output_stride': FLAGS.output_stride,
+            'batch_size': 1,  # Batch size must be 1 because the images' size may differ
+            'batch_norm_decay': 0.997,
+            'num_classes': _NUM_CLASSES,
+            'gpu_num': 1,
+            'freeze_batch_norm': False
+        })
+
+
     DATAPATH = FLAGS.data_dir
     Episode_list = FLAGS.episode_list
     
@@ -229,18 +242,7 @@ def main(unused_argv):
             for line in RGB_list:
                 fp.write(line+'\n')
         #一些支持的函数
-    
-        model = tf.estimator.Estimator(
-            model_fn=config.model_fn,
-            model_dir=train.MODEL_DIR,
-            params={
-                'output_stride': FLAGS.output_stride,
-                'batch_size': 1,  # Batch size must be 1 because the images' size may differ
-                'batch_norm_decay': 0.997,
-                'num_classes': _NUM_CLASSES,
-                'gpu_num' : 1,
-                'freeze_batch_norm' : False
-            })
+
         image_files =read_examples_list(List_path)
         predictions = model.predict(
         input_fn=lambda: preprocessing.eval_input_fn(image_files),
