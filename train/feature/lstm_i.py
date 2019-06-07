@@ -32,22 +32,21 @@ LR = common.lr                              # learning rate
 FILE_NUM_STEP = common.file_num_step
 
 dataset_name = common.dataset_name
-method_name = 'lstm_i'
-
+method_name = common.method_name
 
 
 if __name__ == '__main__':
 
-    data_path = common.blockfile_path
-    infer_path = os.path.join(data_path, 'infer_feature')
-    gt_path = os.path.join(data_path, 'gt')
+    train_path = os.path.join(common.blockfile_path, 'train')
     res_save_path = os.path.join(common.res_save_path, dataset_name, method_name)
     common.make_path(res_save_path)
 
-    infer_file = get_file_list(infer_path)
-    infer_file.sort()
-    gt_file = get_file_list(gt_path)
-    gt_file.sort()
+    infer_file_list = common.get_file_list_with_pattern('infer_feature', train_path)
+    gt_file_list = common.get_file_list_with_pattern('gt', train_path)
+    if len(infer_file_list) == len(gt_file_list):
+        file_len = len(infer_file_list)
+    else:
+        raise RuntimeError('infer_file number is not equal to gt_file number')
 
     writer = SummaryWriter(os.path.join(res_save_path, 'event'))
     rnn = SSNet(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
@@ -62,17 +61,21 @@ if __name__ == '__main__':
     for epoch in range(EPOCH):
         scheduler.step()
         print('Epoch: ', epoch)
-        for time in range(len(infer_file)//FILE_NUM_STEP):
-            file_idx_list = random.sample(range(len(infer_file)), FILE_NUM_STEP)
+        for time in range(len(infer_file_list)//FILE_NUM_STEP):
+            file_idx_list = random.sample(range(len(infer_file_list)), FILE_NUM_STEP)
             voxel_dict = dict()
             gt_dict = dict()
             print('start reading file')
             for file_idx in file_idx_list:
-                infer_filename = infer_file[file_idx]
-                gt_filename = gt_file[file_idx]
+                infer_filename = infer_file_list[file_idx]
+                gt_filename = gt_file_list[file_idx]
+                if infer_filename.split('/')[-1] == gt_filename.split('/')[-1]:
+                    print(infer_filename)
+                else:
+                    raise RuntimeError('infer_file and gt_file is different')
                 voxel_dict.update(np.load(infer_filename).item())
                 gt_dict.update(np.load(gt_filename).item())
-            keys_list = get_common_keys(voxel_dict, gt_dict)
+            keys_list = common.get_common_keys(voxel_dict, gt_dict)
             print('finish reading file')
             random.shuffle(keys_list)
 

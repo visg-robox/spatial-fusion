@@ -18,28 +18,33 @@ def make_path(path):
 
 
 dataset_name = common.dataset_name
-method_name = 'icnet'
+method_name = common.method_name
 
 
 if __name__ == '__main__':
-    infer_path = os.path.join(common.blockfile_path, 'test', 'infer_label')
-    gt_path = os.path.join(common.blockfile_path, 'test', 'gt')
+    test_path = os.path.join(common.blockfile_path, 'test')
     res_save_path = os.path.join(common.res_save_path, dataset_name, method_name)
     make_path(res_save_path)
 
-    infer_path_list = get_file_list(infer_path)
-    infer_path_list.sort()
-    gt_path_list = get_file_list(gt_path)
-    gt_path_list.sort()
+    infer_file_list = common.get_file_list_with_pattern('infer_label', test_path)
+    gt_file_list = common.get_file_list_with_pattern('gt', test_path)
 
     infer_res = []
     gt_res = []
 
+    if len(infer_file_list) == len(gt_file_list):
+        file_len = len(infer_file_list)
+    else:
+        raise RuntimeError('infer_file number is not equal to gt_file number')
+
     # compare random choice from gt_voxel and infer voxel
-    for i in range(len(infer_path_list)):
-        infer_name = infer_path_list[i]
-        gt_name = gt_path_list[i]
-        print(infer_name)
+    for i in range(file_len):
+        infer_name = infer_file_list[i]
+        gt_name = gt_file_list[i]
+        if infer_name.split('/')[-1] == gt_name.split('/')[-1]:
+            print(infer_name)
+        else:
+            raise RuntimeError('infer_file and gt_file is different')
         infer_map = np.load(infer_name).item()
         gt_map = np.load(gt_name).item()
         infer_keys_list = list(infer_map.keys())
@@ -57,4 +62,4 @@ if __name__ == '__main__':
             # infer_res.append(infer_label.argmax())
             infer_res.append(np.array(infer_label).argmax())
     total_accuracy = getaccuracy(infer_res, gt_res, common.class_num)
-    eval_print_save(total_accuracy, 'icnet', res_save_path)
+    eval_print_save(total_accuracy, common.method_name, res_save_path)

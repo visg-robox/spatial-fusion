@@ -34,13 +34,6 @@ else:
     HIDDEN_SIZE = common.feature_num_ivo
 
 
-def get_common_keys(infer_dict, gt_dict):
-    infer_keys_list = list(infer_dict.keys())
-    gt_keys_list = list(gt_dict.keys())
-    common_keys_list = [v for v in infer_keys_list if v in gt_keys_list]
-    return common_keys_list
-
-
 def eval_spnet_balance(test_infer_path,
                test_gt_path,
                model_path,
@@ -70,7 +63,7 @@ def eval_spnet_balance(test_infer_path,
         label_p = np.ones(common.class_num)
         if "lstm" not in common.method_name:
             test_infer_dict, test_gt_dict = data_balance.data_balance(test_infer_dict, test_gt_dict, label_p)
-        test_keys_list = get_common_keys(test_infer_dict, test_gt_dict)
+        test_keys_list = common.get_common_keys(test_infer_dict, test_gt_dict)
         print('test file: ', test_infer_filename)
         test_loss_ave = 0
         time1 = time.time()
