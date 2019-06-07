@@ -17,9 +17,11 @@ from S3DIS_scipt.assets.utils import *
 
 
 
-S3DIS_dict = {}
-S3DIS_dict['<UNK>'] = 255
-
+S3DIS_name_dict = {}
+S3DIS_num_dict = {}
+S3DIS_name_dict['<UNK>'] = 255
+S3DIS_num_dict['<UNK>'] = 0
+json_label = load_labels('S3DIS_scipt/assets/semantic_labels.json')
 
 #here to change
 def decode_img_S3DIS(img_path):
@@ -49,10 +51,11 @@ def decode_gt_S3DIS(label_path):
                 label_name = '<UNK>'
             else:
                 label_name = parse_label(json_label[int(index)])['instance_class']
-            if label_name not in S3DIS_dict.keys():
-                S3DIS_dict[label_name] = len(S3DIS_dict) - 1
-            label_ID = S3DIS_dict[label_name]
-            print(label_ID)
+            if label_name not in S3DIS_name_dict.keys():
+                S3DIS_name_dict[label_name] = len(S3DIS_name_dict) - 1
+                S3DIS_num_dict[label_name] = 0
+            label_ID = S3DIS_name_dict[label_name]
+            S3DIS_num_dict[label_name] += 1
             ret_map[i][j] = label_ID
     return ret_map
 #here to change
@@ -101,16 +104,30 @@ def write_tfrecord(img_path_list, label_path_list, savepath):
 
 if __name__ == '__main__':
     #here to change
-    json_label = load_labels('S3DIS_scipt/assets/semantic_labels.json')
+
 
     train_data_path = '/data1/3d_map/data/S3DIS/train/'
     valid_data_path = '/data1/3d_map/data/S3DIS/test/'
+    sample_ratio = 5
+
 
     train_img_list = sorted(glob.glob(train_data_path + 'area*/data/rgb/*.png'))
     train_label_list = sorted(glob.glob(train_data_path + 'area*/data/semantic/*.png'))
+    index = np.arange(len(train_img_list))
+    index = np.random.random(index)
+    index = index[0: len(train_img_list) // sample_ratio]
+    train_img_list = train_img_list[index]
+    train_label_list = train_label_list[index]
 
     val_img_list = sorted(glob.glob(valid_data_path + 'area*/data/rgb/*.png'))
     val_label_list = sorted(glob.glob(valid_data_path + 'area*/data/semantic/*.png'))
+    index = np.arange(len(val_img_list))
+    index = np.random.random(index)
+    index = index[0: len(val_img_list) // sample_ratio]
+    val_img_list = val_img_list[index]
+    val_img_list = val_img_list[index]
+    
+    
     save_path = '/data1/3d_map/data/S3DIS/'
 
     #here to change
@@ -118,10 +135,12 @@ if __name__ == '__main__':
     
     write_tfrecord(train_img_list, train_label_list, os.path.join(save_path, 'train.tfrecords'))
     write_tfrecord(val_img_list, val_label_list, os.path.join(save_path, 'val.tfrecords'))
-    dict_path = os.path.join(save_path, 'class_dict.txt')
-    with open(dict_path,'w+') as f:
-        f.write(S3DIS_dict)
-    
+    name_dict_path = os.path.join(save_path, 'class_dict.txt')
+    with open(name_dict_path,'w+') as f:
+        f.write(S3DIS_name_dict)
+    num_dict_path = os.path.join(save_path, 'num_dict.txt')
+    with open(num_dict_path,'w+') as f:
+        f.write(S3DIS_num_dict)
     
 
 

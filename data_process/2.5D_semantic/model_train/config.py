@@ -49,7 +49,7 @@ def model_fn(features, labels, mode, params):
         image_splits = tf.split(next_img, gpu_num, axis=0)
 
         if mode == tf.estimator.ModeKeys.TRAIN:
-            batch_size = params['batch_size']
+            batch_size = params['batch_size']//params['gpu_num']
         else:
             batch_size = 1
 
