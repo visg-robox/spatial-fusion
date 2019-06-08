@@ -57,6 +57,7 @@ if __name__ == '__main__':
         raise RuntimeError('infer_file number is not equal to gt_file number')
 
     writer = SummaryWriter(os.path.join(res_save_path, 'event'))
+
     if Pretrained is False:
         model = spnet_res.SPNet(INPUT_SIZE, INPUT_SIZE, OUTPUT_SIZE)
     else:
@@ -70,7 +71,10 @@ if __name__ == '__main__':
     random.seed(10)
     model.cuda()
     model.train()
-    record_iter = 0
+    if Pretrained is False:
+        record_iter = 0
+    else:
+        record_iter = common.pre_train_step
     label_p = np.loadtxt(common.class_preserve_proba_path)
     for epoch in range(EPOCH):
         scheduler.step()

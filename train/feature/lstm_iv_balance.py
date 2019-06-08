@@ -35,6 +35,7 @@ FILE_NUM_STEP = common.file_num_step
 
 dataset_name = common.dataset_name
 method_name = common.method_name
+Pretrained = common.pretrained
 
 if __name__ == '__main__':
 
@@ -49,15 +50,24 @@ if __name__ == '__main__':
     else:
         raise RuntimeError('infer_file number is not equal to gt_file number')
 
+    if Pretrained is False:
+        rnn = SSNet(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
+    else:
+        pretrain_model_path = common.pre_train_model_path
+        print(pretrain_model_path)
+        rnn = torch.load(pretrain_model_path)
+
     writer = SummaryWriter(os.path.join(res_save_path, 'event'))
-    rnn = SSNet(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
     optimizer = torch.optim.Adam(rnn.parameters(), lr=LR, weight_decay=1e-5)
     loss_func = nn.CrossEntropyLoss()
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
 
     random.seed(10)
     rnn.cuda()
-    record_iter = 0
+    if Pretrained is False:
+        record_iter = 0
+    else:
+        record_iter = common.pre_train_step
     label_p = np.loadtxt(common.class_preserve_proba_path)
     for epoch in range(EPOCH):
         scheduler.step()

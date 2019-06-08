@@ -69,7 +69,10 @@ if __name__ == '__main__':
     random.seed(10)
     model.cuda()
     model.train()
-    record_iter = 0
+    if Pretrained is False:
+        record_iter = 0
+    else:
+        record_iter = common.pre_train_step
     label_p = np.loadtxt(common.class_preserve_proba_path)
     for epoch in range(EPOCH):
         scheduler.step()
