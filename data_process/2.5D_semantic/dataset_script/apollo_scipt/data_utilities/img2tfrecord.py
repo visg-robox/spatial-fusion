@@ -36,24 +36,24 @@ for i in range(IMG_HEIGHT):
 def disp2pc_mask_map(depthmap,Instrincs,indexmap):
     A = np.linalg.inv(Instrincs)
     A = np.transpose(A)
-
+    
     height, width = np.shape(depthmap)
-
+    
     index=np.where(depthmap>300)
     #
     # #temp = eval_time('start')
     #
     depthmap[index]=0
-
+    
     #temp.minus_last(name='2', processtime_name='depthtime')
     #temp.minus_last(name='3', processtime_name='looptime')
-
+    
     indexmap=indexmap.reshape([-1,3])
     depth=depthmap.reshape([-1,1])
     pc_map=np.dot(indexmap,A)*depth
     #temp.minus_last(name='3', processtime_name='mattime')
     pc_map = pc_map.reshape([height, width, 3])
-
+    
     return pc_map
 
 
@@ -67,7 +67,7 @@ def _bytes_feature(value):
 
 
 def walkfilelist(datapath,savepath,num_test,num_total):
-
+    
     namelist = []
     for i in walk(datapath):
         if i[1]==[]:
@@ -87,6 +87,43 @@ def walkfilelist(datapath,savepath,num_test,num_total):
                 trainlist.write(trainname+'\n')
             for testname in testid:
                 testlist.write(testname+'\n')
+
+
+
+def write_applo_tfrecord(listpath,savepath):
+    with open(listpath) as namelist:
+        imglist = [line.rstrip() for line in namelist]
+        writer = tf.python_io.TFRecordWriter(savepath)
+        num=0
+        for img_path in imglist:
+            num+=1
+            if num%50==0:
+                print('precess ',num,'/',len(imglist))
+            
+            label_path = img_path.replace('ColorImage', 'Label').replace('.jpg','_bin.png')
+            # depthpath=imgpath.replace('ColorImage','Depth').replace('jpg','png')
+            # depthmap = np.array(cv2.imread(depthpath, -1), dtype=np.uint16)
+            # depthmap = np.float32(depthmap) / 200.0
+            img = np.array(Image.open(img_path),dtype=np.uint8)
+            labelmap =np.array(Image.open(label_path),dtype=np.uint8)
+            for label in labels:
+                index=np.where(labelmap==label.id)
+                labelmap[index]=label.trainId
+            
+            img=img[:Resize_Height*2,:Resize_Width*2,:]
+            labelmap=labelmap[:Resize_Height*2,:Resize_Width*2]
+            img=cv2.resize(img,(Resize_Width,Resize_Height),interpolation=cv2.INTER_LINEAR)
+            labelmap=cv2.resize(labelmap,(Resize_Width,Resize_Height),interpolation=cv2.INTER_NEAREST)
+            img_raw = img.tobytes()
+            label_raw = labelmap.tobytes()
+            
+            example = tf.train.Example(
+                features=tf.train.Features(feature={'label_raw': _bytes_feature(label_raw),
+                                                    'image_raw': _bytes_feature(img_raw),
+                                                    }))
+            writer.write(example.SerializeToString())
+        writer.close()
+
 
 
 def Get_applo_list(save_path,phase):
@@ -109,69 +146,20 @@ def Get_applo_list(save_path,phase):
                         depthmap = np.array(cv2.imread(depthpath, -1), dtype=np.uint16)
                         if np.sum(depthmap==(2**16-1))<(IMG_WIDTH*IMG_HEIGHT*0.8):
                             sample_list.append(i)
-
+                
                 #sample_list=[i for i in sample_list if i.split('/')[2] in episode]
         # idx = np.arange(len(sample_list))
         # np.random.shuffle(idx)
         # sample_list = np.array(sample_list)[idx]
-
+        
         with open(Save_list_path, 'w') as trainlist:
             for num,name in enumerate(sample_list):
                 if num % (Sample_rate)==0:
                     trainlist.write(name)
         with open(Save_list_path, 'r') as trainlist:
             print(len(trainlist.readlines()))
-
-
-    def write_applo_tfrecord(listpath,savepath):
-        with open(listpath) as namelist:
-            imglist = [line.rstrip() for line in namelist]
-            writer = tf.python_io.TFRecordWriter(savepath)
-            num=0
-            for name in imglist:
-                num+=1
-                if num%50==0:
-                    print('precess ',num,'/',len(imglist))
-                imgpath=Abspath+name.split('\t')[0]
-                labelpath=Abspath+name.split('\t')[1]
-                # depthpath=imgpath.replace('ColorImage','Depth').replace('jpg','png')
-                # depthmap = np.array(cv2.imread(depthpath, -1), dtype=np.uint16)
-                # depthmap = np.float32(depthmap) / 200.0
-                img = np.array(Image.open(imgpath),dtype=np.uint8)
-                labelmap =np.array(Image.open(labelpath),dtype=np.uint8)
-                for label in labels:
-                    index=np.where(labelmap==label.id)
-                    labelmap[index]=label.trainId
-
-                #pc_map=disp2pc_mask_map(depthmap,Instrincs=INSTINCS6,indexmap=coormat)
-                img=img[:Resize_Height*2,:Resize_Width*2,:]
-                labelmap=labelmap[:Resize_Height*2,:Resize_Width*2]
-                #pc_map=pc_map[:Resize_Height*2,:Resize_Width*2,:]
-
-                #pc_map=cv2.resize(pc_map,(Resize_Width,Resize_Height),interpolation=cv2.INTER_LINEAR)
-                img=cv2.resize(img,(Resize_Width,Resize_Height),interpolation=cv2.INTER_LINEAR)
-                labelmap=cv2.resize(labelmap,(Resize_Width,Resize_Height),interpolation=cv2.INTER_NEAREST)
-
-
-                # cv2.imwrite(os.path.join(Savepath,'image.png'),img)
-                # cv2.imwrite(os.path.join(Savepath,'label.png'),labelmap*10)
-                # cv2.imwrite(os.path.join(Savepath,'depth.png'),pc_map[:,:,2])
-                #pc_map=np.float16(pc_map)
-
-                img_raw = img.tobytes()
-                label_raw = labelmap.tobytes()
-                # depth_raw = depth.tobytes()
-                #pc_raw = pc_map.tobytes()
-
-                example = tf.train.Example(
-                    features=tf.train.Features(feature={'label_raw': _bytes_feature(label_raw),
-                                                        'image_raw': _bytes_feature(img_raw),
-                                                        }))
-                writer.write(example.SerializeToString())
-            writer.close()
-
-
-
+    
+    
     Train_list=glob.glob(Name_list_path+'*'+phase+'*')
     print(Train_list)
     # Sample_list(Train_list)
@@ -199,11 +187,11 @@ def Get_applo_list(save_path,phase):
 
 
 if __name__ == '__main__':
-
+    
     if 1:
         # writefilelist(DATAPATH,SAVEPATH,NUM_TEST,NUM_TOTAL)
-        Savepath = '/media/luo/Dataset/apollo/Mydata/Tfrecord/img_label_8000'
-        Get_applo_list(Savepath,'train')
-        #Get_applo_list(Savepath, 'val')
-
+        Savepath = '/media/luo/Dataset/RnnFusion/apollo_data/tfrecord/multi_sequence_road002'
+        list_path = '/media/luo/Dataset/RnnFusion/apollo_data/lidar_data'
+        write_applo_tfrecord(os.path.join(list_path, 'train.txt'), os.path.join(Savepath,'train.tfrecords'))
+        write_applo_tfrecord(os.path.join(list_path, 'test.txt'), os.path.join(Savepath,'test.tfrecords'))
 

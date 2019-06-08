@@ -31,14 +31,15 @@ _CROP_HEIGHT = 1024
 _CROP_WIDTH = 1024
 
 #训练主要超参设置
-_MAX_ITER = 60000
-_MIDDLE_STEP = 22401
-_EPOCH = (_MAX_ITER - _MIDDLE_STEP)//dataset_util.NUM_IMAGES['train']*_BATCH_SIZE + 4
-_INITIAL_LR = 1e-2
+_MAX_ITER = 15000
+_MIDDLE_STEP = 0
+_EPOCH = (_MAX_ITER - _MIDDLE_STEP)//(dataset_util.NUM_IMAGES['train']//_BATCH_SIZE) + 2
+print(_EPOCH)
+_INITIAL_LR = 5e-3
 _INITIAL_STEP = 0
 _END_LR = 1e-6
 _WARM_UP_LR = 1e-4
-_WARM_UP_STEP = 0
+_WARM_UP_STEP = 2000
 _WEIGHT_DECAY = 5e-5
 
 #优化策略选择
@@ -52,8 +53,7 @@ _EX_LR_DECAY_RATE=0.8
 _FREEZE_BN = False
 _BATCH_NORM_DECAY = 0.997
 
-
-MODEL_DIR  = 'ICNET_60000'
+MODEL_DIR  = 'ICNET_30000_balance_new'
 MODEL_DIR = os.path.join('../data_and_checkpoint', dataset_util.DATASET_SHOT, 'model_checkpoint', MODEL_DIR)
 
 print(MODEL_DIR)
@@ -76,7 +76,13 @@ parser.add_argument('--optimizer', type=str, default=_OPTIMIZER,
 parser.add_argument('--data_dir', type=str, default = dataset_util.DATA_DIR,
                     help='Path to the directory containing the PASCAL VOC data tf record.')
 
-parser.add_argument('--epochs_per_eval', type=int, default=1,
+parser.add_argument('--model', type=str, choice = ['I','D'],
+                    help='ICNET or Deeplab.')
+
+parser.add_argument('--pretrained_model', type=str,
+                    help='pretrained_model')
+
+parser.add_argument('--epochs_per_eval', type=int, default=2,
                     help='The number of training epochs to run between evaluations.')
 
 parser.add_argument('--tensorboard_images_max_outputs', type=int, default=4,
@@ -224,7 +230,7 @@ def main(unused_argv):
 
     # Set up a RunConfig to only save checkpoints once per training cycle.
 
-    run_config = tf.estimator.RunConfig(session_config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)).replace(save_checkpoints_secs=1e9, keep_checkpoint_max=4)
+    run_config = tf.estimator.RunConfig(session_config=tf.ConfigProto(allow_soft_placement=True)).replace(save_checkpoints_secs=1e9, keep_checkpoint_max=4)
     model = tf.estimator.Estimator(
         model_fn=Model_fn,
         model_dir=FLAGS.model_dir,
@@ -251,7 +257,9 @@ def main(unused_argv):
             'decay_rate':_EX_LR_DECAY_RATE,
             'warm_up_lr':FLAGS.warm_up_learning_rate,
             'warm_up_step':FLAGS.warm_up_step,
-            'gpu_num': _GPU_NUM
+            'gpu_num': _GPU_NUM,
+            'model': FLAGS.model,
+            'pretrained_model': FLAGS.pretrained_model
 
         })
 
@@ -301,58 +309,6 @@ def main(unused_argv):
             )
             print(eval_results)
 
-
-def testtimeline():
-    features, labels = input_fn(True, FLAGS.data_dir, _BATCH_SIZE)
-
-    train_op = model_fn(
-        features,
-        labels,
-        tf.estimator.ModeKeys.TRAIN,
-        params={
-            'model_dir': FLAGS.model_dir,
-            'batch_size': FLAGS.batch_size,
-            'batch_norm_decay': FLAGS.bn_decay,
-            'output_stride': FLAGS.output_stride,
-            'num_classes': dataset_util.NUM_CLASSES,
-            'classname': dataset_util.CLASSNAME,
-            'tensorboard_images_max_outputs': FLAGS.tensorboard_images_max_outputs,
-            'weight_decay': FLAGS.weight_decay,
-            'learning_rate_policy': FLAGS.learning_rate_policy,
-            'num_train': dataset_util.NUM_IMAGES['train'],
-            'initial_learning_rate': FLAGS.initial_learning_rate,
-            'max_iter': FLAGS.max_iter,
-            'end_learning_rate': FLAGS.end_learning_rate,
-            'power': _POWER,
-            'momentum': _MOMENTUM,
-            'optimizer': FLAGS.optimizer,
-            'freeze_batch_norm': FLAGS.freeze_batch_norm,
-            'initial_global_step': FLAGS.initial_global_step,
-            'decay_rate': _EX_LR_DECAY_RATE,
-            'warm_up_lr': FLAGS.warm_up_learning_rate,
-            'warm_up_step': FLAGS.warm_up_step,
-            'gpu_num': _GPU_NUM
-        }).train_op
-
-    saver = tf.train.Saver()
-    run_metadata = tf.RunMetadata()
-    run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-    # cf = tf.ConfigProto(graph_options=tf.GraphOptions(
-    #     optimizer_options=tf.OptimizerOptions(opt_level=tf.OptimizerOptions.L0)))
-    with tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)) as sess:
-        ckpt = tf.train.get_checkpoint_state(FLAGS.model_dir)
-        saver.restore(sess, ckpt.model_checkpoint_path)
-        for step in range(20):
-            if not step % 100:
-                print('process', step, '/', 20)
-            start = timeit.default_timer()
-            # preds = sess.run(predictions)
-            sess.run(train_op, options=run_options, run_metadata=run_metadata)
-            if step == 9:
-                with open(FLAGS.model_dir + '/timeline2.json', 'w') as wd:
-                    tl = timeline.Timeline(run_metadata.step_stats)
-                    ctf = tl.generate_chrome_trace_format()
-                    wd.write(ctf)
 
 if __name__ == '__main__':
     tf.logging.set_verbosity(tf.logging.INFO)

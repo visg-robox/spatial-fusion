@@ -15,7 +15,7 @@ dataset_class_config:apollo
 train_sequence_list:Record002 Record003 Record004 Record005 Record020
 test_sequence_list:Record021 Record006
 point_num_per_frame:60000
-frame_num_pre_sequence:5
+frame_num_pre_sequence:200
 
 class_num:22
 ignore_list_str:0 1 2 3 4 5 6 7 8 11 12

@@ -15,7 +15,7 @@ from PIL import Image
 import numpy as np
 import tensorflow as tf
 from scipy import misc
-import train,config,dataset_util
+import config,dataset_util
 from utils import preprocessing
 import matplotlib.pyplot as plt
 import sys
@@ -58,6 +58,12 @@ parser.add_argument('--data_dir', type=str, default= _DATA_DIR,
 
 parser.add_argument('--episode_list', type=str, default= _EPISODE_LIST,
                     help='The directory containing the image data.')
+
+parser.add_argument('--model_dir', type=str,
+                    help='The directory containing the checkpoint')
+
+parser.add_argument('--model', type=str, choice = ['I','D'],
+                    help='ICNET or Deeplab.')
 
 parser.add_argument('--output_dir', type=str, default=_SAVE_DIR,
                     help='Path to the directory to generate the inference results')
@@ -191,6 +197,21 @@ def main(unused_argv):
     # Using the Winograd non-fused algorithms provides a small performance boost.
     os.environ['TF_ENABLE_WINOGRAD_NONFUSED'] = '1'
 
+    model = tf.estimator.Estimator(
+        model_fn=config.model_fn,
+        model_dir=FLAGS.model_dir,
+        params={
+            'output_stride': FLAGS.output_stride,
+            'batch_size': 1,  # Batch size must be 1 because the images' size may differ
+            'batch_norm_decay': 0.997,
+            'num_classes': _NUM_CLASSES,
+            'gpu_num': 1,
+            'freeze_batch_norm': False,
+            'pretrained_model': None,
+            'model': FLAGS.model
+        })
+
+
     DATAPATH = FLAGS.data_dir
     Episode_list = FLAGS.episode_list
     
@@ -199,10 +220,7 @@ def main(unused_argv):
         Extrincs_prefix = join(DATAPATH, 'Pose', Episode, _CAMERA)
         RGB_prefix = join(DATAPATH, 'ColorImage', Episode, _CAMERA)
         Depth_prefix = join(DATAPATH, 'Depth', Episode, _CAMERA)
-        if Episode in common.train_sequence_list:
-            Save_path = join(FLAGS.output_dir, 'train', Episode)
-        if Episode in common.test_sequence_list:
-            Save_path = join(FLAGS.output_dir, 'test', Episode)
+        Save_path = join(FLAGS.output_dir, Episode)
         pcl_feature_prefix = join(Save_path, 'infer_feature')
         if not os.path.isdir(pcl_feature_prefix):
             os.makedirs(pcl_feature_prefix)
@@ -213,7 +231,6 @@ def main(unused_argv):
         if not os.path.isdir(pcl_gt_prefix):
             os.makedirs(pcl_gt_prefix)
     
-        List_path = join(Save_path, 'list.txt')
         shutil.copy('inference_apollo.py', join(Save_path, 'inference.py'))
         shutil.copy('train.py', join(Save_path, 'train.py'))
         shutil.copy('config.py', join(Save_path, 'config.py'))
@@ -227,27 +244,18 @@ def main(unused_argv):
         pathlist = listdir(Sem_prefix)
         pathlist = [i for i in pathlist if 'json' in i][FLAGS.start_index : FLAGS.start_index + FLAGS.frame_number + 1]
         RGB_list=[join(RGB_prefix,i.replace('.json', '.jpg')) for i in pathlist]
+        List_path = Save_path + '/list.txt'
+        
         with open(List_path,'w') as fp:
             for line in RGB_list:
                 fp.write(line+'\n')
         #一些支持的函数
-    
-        model = tf.estimator.Estimator(
-            model_fn=config.model_fn,
-            model_dir=train.MODEL_DIR,
-            params={
-                'output_stride': FLAGS.output_stride,
-                'batch_size': 1,  # Batch size must be 1 because the images' size may differ
-                'batch_norm_decay': 0.997,
-                'num_classes': _NUM_CLASSES,
-                'gpu_num' : 1,
-                'freeze_batch_norm' : False
-            })
+
         image_files =read_examples_list(List_path)
         predictions = model.predict(
         input_fn=lambda: preprocessing.eval_input_fn(image_files),
         hooks=None)
-    
+
         f = open(os.path.join(Save_path, 'accuracy_record.txt'), 'w')
         for pred_dict, image_path in zip(predictions, image_files):
             #路径规则
@@ -255,12 +263,12 @@ def main(unused_argv):
             sem_path = join(Sem_prefix, path.replace('.jpg', '_bin.png'))
             RGB_path = image_path
             Depth_path = join(Depth_prefix, path.replace('.jpg', '.png'))
-            extrincs = decode_extrincs(path.split('.')[0], extrincs_list,join(Save_path, 'pose'))
+            extrincs = decode_extrincs(path.split('.')[0], extrincs_list , join(Save_path, 'pose'))
             pcl_feature_path = join(pcl_feature_prefix, path.split('.')[0])
             pcl_p_path = join(pcl_p_prefix, path.split('.')[0])
             pcl_gt_path = join(pcl_gt_prefix, path.split('.')[0])
-    
-    
+
+
             #输出和图片
             RGB = np.array(Image.open(RGB_path))
             pred_P=pred_dict['probabilities_origin']
@@ -268,7 +276,7 @@ def main(unused_argv):
             pred_feature = pred_dict['feature_out']
             feature_shape = pred_feature.shape[0:2]
             p_shape = pred_P.shape[0:2]
-    
+
             #因为全分辨率的feature实在是太占显存了，所以feature返回不是全分辨率，要使用双线性插值来获得
             origin_shape = RGB.shape[0:2]
             ratio_f = (np.array(feature_shape, dtype= np.float32) - 1) / (np.array(origin_shape, dtype = np.float32) - 1)
@@ -276,7 +284,7 @@ def main(unused_argv):
 
             ratio_p = (np.array(p_shape, dtype=np.float32) - 1) / (np.array(origin_shape, dtype=np.float32) - 1)
             ratio_p = np.array([ratio_p[1], ratio_p[0]])
-    
+
             #保存预测的图片
             pred_ID = np.repeat(pred_ID,  3, axis=2)
             print(pred_ID.shape)
@@ -284,14 +292,14 @@ def main(unused_argv):
             if not os.path.isdir(pred_ID_PATH):
                 os.makedirs(pred_ID_PATH)
             misc.imsave(join(pred_ID_PATH, path).replace('.jpg', '.png'), np.uint8(pred_ID))
-    
+
             #获得采样之后的xy_index, 和铺平之后的index，以及采样完之后的点云
             Sem = np.array(cv2.imread(sem_path, -1),dtype = np.uint8)
             Depth = np.array(cv2.imread(Depth_path, -1),dtype=np.uint16)
             pcl, gt_map, index_xy, index = Image_map2pcl_global(Depth, Sem, extrincs, FLAGS.sample_point)
             index_xy = np.array(index_xy, dtype= np.float32)
-    
-    
+
+
             #下面提供了feature和概率的获得方式，第一维都是点的数量
             point_feature = bilinear_interp_PointWithIndex(pred_feature, index_xy * ratio_f)
             point_probabilities = bilinear_interp_PointWithIndex(pred_P, index_xy * ratio_p)
@@ -308,9 +316,9 @@ def main(unused_argv):
             np.save(pcl_feature_path, pcl_feature)
             np.save(pcl_gt_path, pcl_gt)
             np.save(pcl_p_path, pcl_p)
-    
-    
-    
+
+
+
             # points_color = PointCloud(array=pcl, frame_number=0)
             # # point_sem_p = PointCloud(array=pcl, sem_array=semmap, frame_number=0)
             # points_color.save_to_disk(join(Save_path, 'Point_Cloud/pc_color', path.split('.')[0]))

@@ -126,10 +126,15 @@ def eval_spnet(model_path):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    test_path = os.path.join(common.blockfile_path, 'test')
-    res_path = common.res_save_path
     
-    model_path = '/media/luo/Dataset/RnnFusion/spatial-fusion/train/feature/runs/SPNET/100000/100000newdata_model.pkl'
+    parser.add_argument('--model_relative_path', type = str)
+
+    FLAGS, unparsed = parser.parse_known_args()
+    
+    test_path = os.path.join(common.blockfile_path, 'test')
+    
+    model_path = os.path.join(common.test_model_path, FLAGS.model_relative_path)
+    
     print(model_path)
     save_path = os.path.dirname(model_path)
     # import sys

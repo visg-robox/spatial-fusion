@@ -4,7 +4,8 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-from model import model_generator
+from model_dir.activated_model.ICnet_model import ICNet_model
+from model_dir.activated_model.deeplabv3_plus import deeplab_model
 import numpy as np
 from utils import preprocessing
 import dataset_util
@@ -14,6 +15,9 @@ import dataset_util
 _RECORD_IMG = False
 _LOG_TRAIN_IMG_STEP = 100
 _LOG_VAL_IMG_STEP = int(dataset_util.NUM_IMAGES['validation'] / 10)
+
+
+
 
 #多GPU梯度结算
 def average_gradients(tower_grads):
@@ -45,20 +49,22 @@ def model_fn(features, labels, mode, params):
         image_splits = tf.split(next_img, gpu_num, axis=0)
 
         if mode == tf.estimator.ModeKeys.TRAIN:
-            batch_size = params['batch_size']
+            batch_size = params['batch_size']//params['gpu_num']
         else:
             batch_size = 1
 
     with tf.name_scope('model'):
         outdict = []
-        network = model_generator(params['num_classes'],
-                                     batch_norm_decay=params['batch_norm_decay'])
+        if params['model'] == 'I':
+            network = ICNet_model
+        if params['model'] == 'D':
+            network = deeplab_model
         for i in range(gpu_num):
             with tf.device('/gpu:%s' % i):
                 if not params['freeze_batch_norm']:
-                    out = network(image_splits[i], mode==tf.estimator.ModeKeys.TRAIN)
+                    out = network(image_splits[i], mode==tf.estimator.ModeKeys.TRAIN, params['num_classes'], params['batch_norm_decay'], params['pretrained_model'])
                 else:
-                    out = network(image_splits[i], is_training=False)
+                    out = network(image_splits[i], False, params['num_classes'], params['batch_norm_decay'], params['pretrained_model'] )
                 outdict.append(out)
 
         out = outdict[0]
@@ -102,7 +108,6 @@ def model_fn(features, labels, mode, params):
                                        tf.uint8)
 
 
-
     def get_cross_entropy(logits,labels):
         logits_by_num_classes = tf.reshape(logits, [-1, params['num_classes']])
         labels_flat = tf.reshape(labels, [-1, ])
@@ -110,8 +115,11 @@ def model_fn(features, labels, mode, params):
         valid_indices = tf.to_int32(labels_flat <= params['num_classes'] - 1)
         valid_logits = tf.dynamic_partition(logits_by_num_classes, valid_indices, num_partitions=2)[1]
         valid_labels = tf.dynamic_partition(labels_flat, valid_indices, num_partitions=2)[1]
-
-        cross_entropy = tf.losses.sparse_softmax_cross_entropy(
+        balance_weight = tf.constant(dataset_util.BLANCE_WEIGHT, dtype=tf.float32)
+        label_onehot = tf.one_hot(indices = valid_labels, depth = dataset_util.NUM_CLASSES, dtype = tf.float32)
+        weight = tf.matmul(label_onehot, balance_weight)
+        
+        cross_entropy = tf.losses.sparse_softmax_cross_entropy(weights = weight,
             logits=valid_logits, labels=valid_labels)
         return cross_entropy
 
