@@ -222,9 +222,6 @@ def main(unused_argv):
     if not os.path.isdir(tmp_path):
         os.makedirs(tmp_path)
 
-    shutil.copyfile('model.py', os.path.join(tmp_path, 'model.py'))
-    shutil.copyfile('config.py', os.path.join(tmp_path, 'config.py'))
-    shutil.copyfile('train.py', os.path.join(tmp_path, 'train.py'))
     shutil.copyfile('dataset_util.py', os.path.join(tmp_path, 'dataset_util.py'))
     Model_fn=model_fn
 

@@ -62,7 +62,7 @@ parser.add_argument('--episode_list', type=str, default= _EPISODE_LIST,
 parser.add_argument('--model_dir', type=str,
                     help='The directory containing the checkpoint')
 
-parser.add_argument('--model', type=str, choice = ['I','D'],
+parser.add_argument('--model', type=str, choices = ['I','D'],
                     help='ICNET or Deeplab.')
 
 parser.add_argument('--output_dir', type=str, default=_SAVE_DIR,
@@ -234,7 +234,6 @@ def main(unused_argv):
         shutil.copy('inference_apollo.py', join(Save_path, 'inference.py'))
         shutil.copy('train.py', join(Save_path, 'train.py'))
         shutil.copy('config.py', join(Save_path, 'config.py'))
-        shutil.copy('model.py', join(Save_path, 'model.py'))
     
         extrincs_path = join(Extrincs_prefix, 'pose.txt')
         extrincs_list = open(extrincs_path).readlines()

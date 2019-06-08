@@ -30,6 +30,8 @@ parser.add_argument('--model_dir', type=str, default=MODEL_DIR,
                     help="Base directory for the model. "
                          "Make sure 'model_checkpoint_path' given in 'checkpoint' file matches "
                          "with checkpoint name.")
+parser.add_argument('--model', type=str, choice = ['I','D'],
+                    help='ICNET or Deeplab.')
 
 parser.add_argument('--output_stride', type=int, default=16,
                     help='model_output_stride')
@@ -101,6 +103,7 @@ def main(unused_argv):
             'classname': dataset_util.CLASSNAME,
             'model_dir': FLAGS.model_dir,
             'tensorboard_images_max_outputs':1,
+            'model': FLAGS.model,
             'gpu_num' : 0
         }).predictions
 

@@ -52,8 +52,8 @@ def deeplab_model(inputs, is_training, num_classes, batch_norm_decay = 0.997, pr
           net = tf.image.resize_bilinear(encoder_output, low_level_features_size, name='upsample_1')
           net = tf.concat([net, low_level_features], axis=3, name='concat')
           net = layers_lib.conv2d(net, 256, [3, 3], stride=1, scope='conv_3x3_1')
-          net = layers_lib.conv2d(net, 256, [3, 3], stride=1, scope='conv_3x3_2')
-          net = layers_lib.conv2d(net, num_classes, [1, 1], activation_fn=None, normalizer_fn=None, scope='conv_1x1')
+          feature = layers_lib.conv2d(net, 128, [3, 3], stride=1, scope='conv_3x3_2')
+          net = layers_lib.conv2d(feature, num_classes, [1, 1], activation_fn=None, normalizer_fn=None, scope='conv_1x1')
           logits = tf.image.resize_bilinear(net, inputs_size, name='upsample_2')
   
   with tf.name_scope('load_pretrain'):
@@ -81,7 +81,7 @@ def deeplab_model(inputs, is_training, num_classes, batch_norm_decay = 0.997, pr
   out = {}
   out['logits'] = logits
   out['train_var'] = train_var
-  out['features'] = net
+  out['features'] = feature
   
   return out
 
