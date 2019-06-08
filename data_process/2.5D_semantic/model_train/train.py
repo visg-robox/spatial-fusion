@@ -24,11 +24,11 @@ _MIN_SCALE = 0.8
 _MAX_SCALE = 1.5
 
 #使用几块GPU训练和输出分辨率为多大
-_GPU_NUM = 1
-_BATCH_SIZE = 10
+_GPU_id = [0]
+_BATCH_SIZE = 2
 _BUFFER_SIZE = 60
-_CROP_HEIGHT = 1024
-_CROP_WIDTH = 1024
+_CROP_HEIGHT = 768
+_CROP_WIDTH = 768
 
 #训练主要超参设置
 _MAX_ITER = 15000
@@ -53,10 +53,9 @@ _EX_LR_DECAY_RATE=0.8
 _FREEZE_BN = False
 _BATCH_NORM_DECAY = 0.997
 
-MODEL_DIR  = 'ICNET_30000_balance_new'
-MODEL_DIR = os.path.join('../data_and_checkpoint', dataset_util.DATASET_SHOT, 'model_checkpoint', MODEL_DIR)
+MODEL_name  = 'ICNET'
 
-print(MODEL_DIR)
+
 
 
 
@@ -76,10 +75,10 @@ parser.add_argument('--optimizer', type=str, default=_OPTIMIZER,
 parser.add_argument('--data_dir', type=str, default = dataset_util.DATA_DIR,
                     help='Path to the directory containing the PASCAL VOC data tf record.')
 
-parser.add_argument('--model', type=str, choice = ['I','D'],
+parser.add_argument('--model', type=str, choices = ['I','D'],
                     help='ICNET or Deeplab.')
 
-parser.add_argument('--pretrained_model', type=str,
+parser.add_argument('--pretrained_model', type=str, default = None,
                     help='pretrained_model')
 
 parser.add_argument('--epochs_per_eval', type=int, default=2,
@@ -127,7 +126,7 @@ parser.add_argument('--bn_decay', type=float, default=_BATCH_NORM_DECAY,
 parser.add_argument('--initial_global_step', type=int, default=_INITIAL_STEP,
                     help='Initial global step for controlling learning rate when fine-tuning model.')
 
-parser.add_argument('--model_dir', type=str, default=MODEL_DIR,
+parser.add_argument('--model_dir', type=str, default=MODEL_name,
                     help='Base directory for the model.')
 
 parser.add_argument('--freeze_batch_norm', default=_FREEZE_BN,
@@ -215,6 +214,8 @@ def main(unused_argv):
     # Using the Winograd non-fused algorithms provides a small performance boost.
     os.environ['TF_ENABLE_WINOGRAD_NONFUSED'] = '1'
 
+    MODEL_DIR = os.path.join('../data_and_checkpoint', dataset_util.DATASET_SHOT, 'model_checkpoint', FLAGS.model_dir)
+    print(MODEL_DIR)
     if FLAGS.clean_model_dir:
         shutil.rmtree(FLAGS.model_dir, ignore_errors=True)
 
@@ -230,10 +231,10 @@ def main(unused_argv):
     run_config = tf.estimator.RunConfig(session_config=tf.ConfigProto(allow_soft_placement=True)).replace(save_checkpoints_secs=1e9, keep_checkpoint_max=4)
     model = tf.estimator.Estimator(
         model_fn=Model_fn,
-        model_dir=FLAGS.model_dir,
+        model_dir=MODEL_DIR,
         config=run_config,
         params={
-            'model_dir': FLAGS.model_dir,
+            'model_dir': MODEL_DIR,
             'output_stride': FLAGS.output_stride,
             'batch_size': FLAGS.batch_size,
             'batch_norm_decay': FLAGS.bn_decay,
@@ -254,7 +255,7 @@ def main(unused_argv):
             'decay_rate':_EX_LR_DECAY_RATE,
             'warm_up_lr':FLAGS.warm_up_learning_rate,
             'warm_up_step':FLAGS.warm_up_step,
-            'gpu_num': _GPU_NUM,
+            'gpu_id': _GPU_id,
             'model': FLAGS.model,
             'pretrained_model': FLAGS.pretrained_model
 
@@ -295,7 +296,7 @@ def main(unused_argv):
                 # steps=1  # For debug
             )
 
-        if 1:
+        if 0:
             tf.logging.info("Start evaluation.")
             # Evaluate the model and print results
             eval_results = model.evaluate(

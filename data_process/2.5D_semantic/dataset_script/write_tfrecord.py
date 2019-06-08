@@ -17,10 +17,7 @@ from S3DIS_scipt.assets.utils import *
 
 
 
-S3DIS_name_dict = {}
-S3DIS_num_dict = {}
-S3DIS_name_dict['<UNK>'] = 255
-S3DIS_num_dict['<UNK>'] = 0
+S3DIS_name_dict= {'chair':0, 'ceiling':1, 'column':2, 'table':3, 'window':4,  'sofa':5, 'wall':6, 'floor':7, 'board':8, 'door':9, 'bookcase':10, 'clutter':11, 'beam':12, '<UNK>':255}
 json_label = load_labels('S3DIS_scipt/assets/semantic_labels.json')
 
 #here to change
@@ -39,7 +36,8 @@ def decode_gt_S3DIS(label_path):
     """
     
     label_map =  np.array(Image.open(label_path), dtype=np.uint32)
-    ret_map = np.zeros_like(label_map, dtype=np.uint8)
+    h,w = label_map.shape[0:1]
+    ret_map = np.zeros_like([h,w,1], dtype=np.uint8)
     
     Index_map = label_map[:,:,0] * 256 * 256 + label_map[:,:, 1] * 256 + label_map[:,:,2]
     
@@ -51,11 +49,7 @@ def decode_gt_S3DIS(label_path):
                 label_name = '<UNK>'
             else:
                 label_name = parse_label(json_label[int(index)])['instance_class']
-            if label_name not in S3DIS_name_dict.keys():
-                S3DIS_name_dict[label_name] = len(S3DIS_name_dict) - 1
-                S3DIS_num_dict[label_name] = 0
             label_ID = S3DIS_name_dict[label_name]
-            S3DIS_num_dict[label_name] += 1
             ret_map[i][j] = label_ID
     return ret_map
 #here to change
@@ -105,7 +99,7 @@ def write_tfrecord(img_path_list, label_path_list, savepath):
 if __name__ == '__main__':
     #here to change
 
-
+    
     train_data_path = '/data1/3d_map/data/S3DIS/train/'
     valid_data_path = '/data1/3d_map/data/S3DIS/test/'
     sample_ratio = 5
@@ -139,8 +133,6 @@ if __name__ == '__main__':
     with open(name_dict_path,'w+') as f:
         f.write(str(S3DIS_name_dict))
     num_dict_path = os.path.join(save_path, 'num_dict.txt')
-    with open(num_dict_path,'w+') as f:
-        f.write(str(S3DIS_num_dict))
     
 
 

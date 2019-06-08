@@ -2,16 +2,19 @@
 #change this file to apply task on different task
 
 import tensorflow as tf
+import tensorflow as tf
+from collections import namedtuple
+import numpy as np
 
-
-DATA_DIR = '../data_and_checkpoint/kitti/tfrecord'
+DATASET_SHOT = 'S3DIS_Sample0.2'
+DATA_DIR = '/media/luo/Dataset/S3DIS/S3DIS_tfrecord'
 NUM_IMAGES = {
-    'train':157 ,
-    'validation':43,
+    'train':10580 ,
+    'validation':3580,
 }
 
-CLASSNAME=['road','sidewalk','building','wall','fence','pole','traffic light','traffic sign','vegetation','terrain','sky','person','rider','car','truck','bus','train','motocycle','bicycle']
-NUM_CLASSES=len(CLASSNAME)
+CLASSNAME=['chair', 'ceiling', 'column', 'table', 'window',  'sofa', 'wall', 'floor', 'board', 'door', 'bookcase', 'clutter', 'beam']
+NUM_CLASSES=len(CLASSNAME) #13
 
 HEIGHT = 1080
 WIDTH = 1080
@@ -21,20 +24,23 @@ IGNORE_LABEL = 255
 RGB_MEAN = {'R' : 123.68, 'G' : 116.779, 'B' : 103.939}
 
 # colour map
-LABEL_COLORS = [(128, 64, 128), (244, 35, 231), (69, 69, 69)
-                # 0 = road, 1 = sidewalk, 2 = building
-                ,(102, 102, 156), (190, 153, 153), (153, 153, 153)
-                # 3 = wall, 4 = fence, 5 = pole
-                ,(250, 170, 29), (219, 219, 0), (106, 142, 35)
-                # 6 = traffic light, 7 = traffic sign, 8 = vegetation
-                ,(152, 250, 152), (69, 129, 180), (219, 19, 60)
-                # 9 = terrain, 10 = sky, 11 = person
-                ,(255, 0, 0), (0, 0, 142), (0, 0, 69)
-                # 12 = rider, 13 = car, 14 = truck
-                ,(0, 60, 100), (0, 79, 100), (0, 0, 230)
-                # 15 = bus, 16 = train, 17 = motocycle
-                ,(119, 10, 32)]
-                # 18 = bicycle, 19 = void label
+LABEL_COLORS = [
+    [255, 255, 255],
+    [220, 20, 60],
+    [190, 153, 153],
+    [0, 0, 0],
+    [70, 70, 70],
+    [0, 255, 255],
+    [255, 255, 0],
+    [0, 0, 255],
+    [244, 35, 232],
+    [107, 142, 35],
+     [151, 115, 255],
+     [102, 102, 156],
+     [255, 124, 0]]
+
+BLANCE_WEIGHT = np.ones([NUM_CLASSES], dtype = np.float32)
+BLANCE_WEIGHT = np.expand_dims(BLANCE_WEIGHT, axis = 1)
 
 def parse_record(raw_record):
     """Parse kitti image and label from a tf record."""
@@ -54,7 +60,9 @@ def parse_record(raw_record):
     image.set_shape([HEIGHT *WIDTH* 3])
     image = tf.reshape(image, [HEIGHT ,WIDTH, 3])
 
-    label.set_shape([HEIGHT * WIDTH * 1])
-    label = tf.reshape(label, [HEIGHT,WIDTH, 1])
+    label.set_shape([HEIGHT * WIDTH * 3])
+    label = tf.reshape(label, [HEIGHT,WIDTH, 3])
+    label = tf.slice(label,(0,0,0),(HEIGHT,WIDTH,1))
+    print(label)
 
     return image, label
