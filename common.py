@@ -116,8 +116,9 @@ dataset_class_config = para_dict['dataset_class_config']
 dataset_name = para_dict['dataset_name']
 class_num = int(para_dict['class_num'])
 
-data_preserve_ratio = np.loadtxt(class_preserve_proba_path)
-ignore_list = list(np.where(np.equal(data_preserve_ratio,0))[0])
+if sys.argv[2] != 'statistic':
+    data_preserve_ratio = np.loadtxt(class_preserve_proba_path)
+    ignore_list = list(np.where(np.equal(data_preserve_ratio,0))[0])
 
 # ignore_list_str = para_dict['ignore_list_str'].split()
 # ignore_list = [int(ignore_list_str[i]) for i in range(len(ignore_list_str))]
