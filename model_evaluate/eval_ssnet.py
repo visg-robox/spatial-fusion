@@ -89,7 +89,7 @@ def eval_spnet_balance(test_path,
                 test_output = rnn(test_input, time_step)
 
             else:
-                nv = data_loader_torch.featuremap_to_batch_ivo_with_neighbour(test_infer_dict,
+                test_input = data_loader_torch.featuremap_to_batch_ivo_with_neighbour(test_infer_dict,
                                                                         test_current_keys,
                                                                         TEST_BATCH_SIZE,
                                                                         common.near_num,
