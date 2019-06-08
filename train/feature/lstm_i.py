@@ -68,7 +68,7 @@ if __name__ == '__main__':
     if Pretrained is False:
         record_iter = 0
     else:
-        record_iter = common.pre_train_step
+        record_iter = int(common.pre_train_step)
 
     for epoch in range(EPOCH):
         scheduler.step()
