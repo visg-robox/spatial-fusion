@@ -18,6 +18,7 @@
 # import OpenEXR
 import json
 from   scipy.ndimage import imread
+import numpy as np
 
 """ Semantics """
 def get_index( color ):
@@ -85,3 +86,27 @@ def read_exr( image_fpath ):
     return im
 
 
+S3DIS_name_dict= {'chair':0, 'ceiling':1, 'column':2, 'table':3, 'window':4,  'sofa':5, 'wall':6, 'floor':7, 'board':8, 'door':9, 'bookcase':10, 'clutter':11, 'beam':12, '<UNK>':255}
+json_label = load_labels('S3DIS_scipt/assets/semantic_labels.json')
+
+def decode_gt_S3DIS(label_path, json_set = json_label):
+    """
+    :param label_path: path of a single label file
+    :return: a decoded label map, should be ID matrix Uint8
+    """
+
+    label_map =  np.array(Image.open(label_path), dtype=np.uint32)
+    h,w = label_map.shape[0:2]
+    ret_map = np.zeros([h,w], dtype=np.uint8)
+    Index_map = label_map[:,:,0] * 256 * 256 + label_map[:,:, 1] * 256 + label_map[:,:,2]
+    for i in range(Index_map.shape[0]):
+        for j in range(Index_map.shape[1]):
+            index = Index_map[i][j]
+            if int(index) > len(json_label):
+                label_name = '<UNK>'
+            else:
+                label_name = parse_label(json_set[int(index)])['instance_class']
+            label_ID = S3DIS_name_dict[label_name]
+            ret_map[i][j] = label_ID
+    return ret_map
+#here to change

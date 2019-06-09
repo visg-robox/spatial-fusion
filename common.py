@@ -170,7 +170,7 @@ if sys.argv[2] == 'test':
 
 # fusion method
 @unique
-class FsMethod(Enum):
+class FsMeth.od(Enum):
     RNN_FEATURE = 0
     RNN_LABEL = 1
     BAYES = 2
