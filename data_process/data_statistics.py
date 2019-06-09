@@ -1,3 +1,6 @@
+import sys
+sys.path.append("../")
+
 import numpy as np
 import os
 from os.path import join
@@ -51,7 +54,7 @@ def save_preserve_ratio(sample_ratio=0.2, min_classnum=100):
     PROBABILTY = True
     if (STATISTICS):
 
-        gt_path_list = glob.glob(join(common.blockfile_path, '*/gt/*.npy'))
+        gt_path_list = glob.glob(join(common.blockfile_path, '*/*/gt/*.npy'))
         save_path = os.path.join(common.blockfile_path, 'data_ratio.txt')
         statistics(gt_path_list, CLASS_NUM, save_path)
     

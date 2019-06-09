@@ -4,16 +4,20 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-from model import model_generator
+from model_dir.activated_model.ICnet_model import ICNet_model
+from model_dir.activated_model.deeplabv3_plus import deeplab_model
 import numpy as np
 from utils import preprocessing
 import dataset_util
 
 
 #为了节省空间，确定tfrecord是否存储图片
-_RECORD_IMG = False
+_RECORD_IMG = True
 _LOG_TRAIN_IMG_STEP = 100
 _LOG_VAL_IMG_STEP = int(dataset_util.NUM_IMAGES['validation'] / 10)
+
+
+
 
 #多GPU梯度结算
 def average_gradients(tower_grads):
@@ -37,7 +41,9 @@ def average_gradients(tower_grads):
 def model_fn(features, labels, mode, params):
     """Model function for PASCAL VOC."""
     with tf.name_scope('data_feed'):
-        gpu_num = params['gpu_num'] if mode == tf.estimator.ModeKeys.TRAIN else 1
+        
+        gpu_id = params['gpu_id'] if mode == tf.estimator.ModeKeys.TRAIN else params['gpu_id'][0]
+        gpu_num = len(gpu_id)
         next_img = features['image']
         input_shape = tf.shape(next_img)[1:3]
         if mode == tf.estimator.ModeKeys.PREDICT:
@@ -45,20 +51,22 @@ def model_fn(features, labels, mode, params):
         image_splits = tf.split(next_img, gpu_num, axis=0)
 
         if mode == tf.estimator.ModeKeys.TRAIN:
-            batch_size = int(params['batch_size']/params['gpu_num'])
+            batch_size = params['batch_size']//gpu_num
         else:
             batch_size = 1
 
     with tf.name_scope('model'):
         outdict = []
-        network = model_generator(params['num_classes'],
-                                     batch_norm_decay=params['batch_norm_decay'])
-        for i in range(gpu_num):
+        if params['model'] == 'I':
+            network = ICNet_model
+        if params['model'] == 'D':
+            network = deeplab_model
+        for i in gpu_id:
             with tf.device('/gpu:%s' % i):
                 if not params['freeze_batch_norm']:
-                    out = network(image_splits[i], mode==tf.estimator.ModeKeys.TRAIN)
+                    out = network(image_splits[i], mode==tf.estimator.ModeKeys.TRAIN, params['num_classes'], params['batch_norm_decay'], params['pretrained_model'])
                 else:
-                    out = network(image_splits[i], is_training=False)
+                    out = network(image_splits[i], False, params['num_classes'], params['batch_norm_decay'], params['pretrained_model'] )
                 outdict.append(out)
 
         out = outdict[0]
@@ -69,8 +77,9 @@ def model_fn(features, labels, mode, params):
     with tf.name_scope('prediction'):
         pred_classes = tf.expand_dims(tf.argmax(logits, axis=3, output_type=tf.int32), axis=3)
 
+        print(pred_classes)
         pred_decoded_labels = tf.py_func(preprocessing.decode_labels,
-                                         [pred_classes, batch_size, params['num_classes']],
+                                         (pred_classes, batch_size, params['num_classes']),
                                          tf.uint8)
 
         predictions = {}
@@ -96,11 +105,11 @@ def model_fn(features, labels, mode, params):
 
         labels = tf.squeeze(labels, axis=3)
         label_splits = tf.split(labels, gpu_num, axis=0)
-
+        # reduce the channel dimension.
+        print(label_splits[0])
         gt_decoded_labels = tf.py_func(preprocessing.decode_labels,
-                                       [tf.expand_dims(label_splits[0], axis=3), batch_size, params['num_classes']],
+                                       (tf.expand_dims(label_splits[0], axis=3), batch_size, params['num_classes']),
                                        tf.uint8)
-
 
 
     def get_cross_entropy(logits,labels):
@@ -110,8 +119,11 @@ def model_fn(features, labels, mode, params):
         valid_indices = tf.to_int32(labels_flat <= params['num_classes'] - 1)
         valid_logits = tf.dynamic_partition(logits_by_num_classes, valid_indices, num_partitions=2)[1]
         valid_labels = tf.dynamic_partition(labels_flat, valid_indices, num_partitions=2)[1]
-
-        cross_entropy = tf.losses.sparse_softmax_cross_entropy(
+        balance_weight = tf.constant(dataset_util.BLANCE_WEIGHT, dtype=tf.float32)
+        label_onehot = tf.one_hot(indices = valid_labels, depth = dataset_util.NUM_CLASSES, dtype = tf.float32)
+        weight = tf.matmul(label_onehot, balance_weight)
+        
+        cross_entropy = tf.losses.sparse_softmax_cross_entropy(weights = weight,
             logits=valid_logits, labels=valid_labels)
         return cross_entropy
 
@@ -182,7 +194,7 @@ def model_fn(features, labels, mode, params):
             tower_grads = []
             tower_CE = []
             with tf.name_scope("total_loss"):
-                for i in range(gpu_num):
+                for i in gpu_id:
                     with tf.device('/gpu:%s' % i):
                         logit = tf.image.resize_bilinear(outdict[i]['logits'], input_shape)
                         ce = get_cross_entropy(logit, label_splits[i])
@@ -226,7 +238,7 @@ def model_fn(features, labels, mode, params):
         images = tf.cast(
             tf.map_fn(preprocessing.mean_image_addition, images),
             tf.uint8)
-        visiolize= tf.concat(values=[images ,gt_decoded_labels, pred_decoded_labels], axis=1)
+        visiolize= tf.concat(values=[images ,gt_decoded_labels,pred_decoded_labels], axis=1)
         temp_shape= images.get_shape().as_list()
         print(temp_shape)
         visionlize = tf.slice(visiolize, [0, 0, 0, 0], [1, temp_shape[1]*3, temp_shape[2], temp_shape[3]])

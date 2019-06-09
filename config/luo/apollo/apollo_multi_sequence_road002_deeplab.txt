@@ -6,8 +6,8 @@ multi_sequence:1
 
 dataset_name:apollo_multi_sequence002
 raw_data_path:/media/luo/Dataset/apollo/Origin_data/road02_ins
-lidardata_path:/media/luo/Dataset/RnnFusion/apollo_data/lidar_data
-blockfile_path:/media/luo/Dataset/RnnFusion/apollo_data/block_data
+lidardata_path:/media/luo/Dataset/RnnFusion/apollo_data/deeplab/lidar_data
+blockfile_path:/media/luo/Dataset/RnnFusion/apollo_data/deeplab/block_data
 class_preserve_proba_path:data_dropout_ratio.txt
 
 dataset_class_config:apollo
@@ -26,7 +26,7 @@ epoch:10
 lr:0.001
 batch_size:128
 time_step:20
-res_save_path:/data1/3d_map/spatial-fusion/result
+res_save_path:/media/luo/Dataset/RnnFusion/spatial-fusion/result
 pretrained:0
 model_path:None
 test_model_path:/home/zhangjian/code/project/spatial-fusion/result/apollo_record002/SPNet/14_model.pkl

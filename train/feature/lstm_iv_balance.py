@@ -34,42 +34,56 @@ FILE_NUM_STEP = common.file_num_step
 
 
 dataset_name = common.dataset_name
-method_name = 'lstm_iv_balance'
+method_name = common.method_name
+Pretrained = common.pretrained
 
 if __name__ == '__main__':
 
-    data_path = common.blockfile_path
-    infer_path = os.path.join(data_path, 'infer_feature')
-    gt_path = os.path.join(data_path, 'gt')
+    train_path = os.path.join(common.blockfile_path, 'train')
     res_save_path = os.path.join(common.res_save_path, dataset_name, method_name)
     common.make_path(res_save_path)
 
-    infer_file = get_file_list(infer_path)
-    infer_file.sort()
-    gt_file = get_file_list(gt_path)
-    gt_file.sort()
+    infer_file_list = common.get_file_list_with_pattern('infer_feature', train_path)
+    gt_file_list = common.get_file_list_with_pattern('gt', train_path)
+    if len(infer_file_list) == len(gt_file_list):
+        file_len = len(infer_file_list)
+    else:
+        raise RuntimeError('infer_file number is not equal to gt_file number')
+
+    if Pretrained is False:
+        rnn = SSNet(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
+    else:
+        pretrain_model_path = common.pre_train_model_path
+        print(pretrain_model_path)
+        rnn = torch.load(pretrain_model_path)
 
     writer = SummaryWriter(os.path.join(res_save_path, 'event'))
-    rnn = SSNet(INPUT_SIZE, HIDDEN_SIZE, OUTPUT_SIZE)
     optimizer = torch.optim.Adam(rnn.parameters(), lr=LR, weight_decay=1e-5)
     loss_func = nn.CrossEntropyLoss()
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.9)
 
     random.seed(10)
     rnn.cuda()
-    record_iter = 0
+    if Pretrained is False:
+        record_iter = 0
+    else:
+        record_iter = int(common.pre_train_step)
     label_p = np.loadtxt(common.class_preserve_proba_path)
     for epoch in range(EPOCH):
         scheduler.step()
         print('Epoch: ', epoch)
-        for time in range(len(infer_file)//5):
-            file_idx_list = random.sample(range(len(infer_file)), 5)
+        for time in range(file_len//common.file_num_step):
+            file_idx_list = random.sample(range(file_len), common.file_num_step)
             voxel_dict = dict()
             gt_dict = dict()
             print('start reading file')
             for file_idx in file_idx_list:
-                infer_filename = infer_file[file_idx]
-                gt_filename = gt_file[file_idx]
+                infer_filename = infer_file_list[file_idx]
+                gt_filename = gt_file_list[file_idx]
+                if infer_filename.split('/')[-1] == gt_filename.split('/')[-1]:
+                    print(infer_filename)
+                else:
+                    raise RuntimeError('infer_file and gt_file is different')
                 voxel_dict.update(np.load(infer_filename, allow_pickle=True).item())
                 gt_dict.update(np.load(gt_filename, allow_pickle=True).item())
             keys_list = data_balance.data_balance_rnn(voxel_dict, gt_dict, label_p)

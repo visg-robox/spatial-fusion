@@ -10,10 +10,9 @@ from sklearn.neighbors import KDTree
 NEAR_NUM = 25
 MAX_DISTANCE = np.linalg.norm(center_to_key([1, 1, 1]), 2)
 
+
 def data_balance_rnn(voxel_map, gt_map, label_probability):
-    voxel_keys = list(voxel_map.keys())
-    gt_keys = list(gt_map.keys())
-    keys = [v for v in voxel_keys if v in gt_keys]
+    keys = common.get_common_keys(voxel_map, gt_map)
     keys_list = []
     for i in range(len(keys)):
         key = keys[i]
@@ -31,10 +30,7 @@ def data_balance_rnn(voxel_map, gt_map, label_probability):
 
 # 没有大于1的概率
 def data_balance(voxel_map, gt_map, label_probability):
-    voxel_keys = list(voxel_map.keys())
-    gt_keys = list(gt_map.keys())
-    keys = [v for v in voxel_keys if v in gt_keys]
-
+    keys = common.get_common_keys(voxel_map, gt_map)
     voxel_res = dict()
     gt_res = dict()
 
@@ -56,10 +52,7 @@ def data_balance(voxel_map, gt_map, label_probability):
 
 # 对某些较少的类别进行强制重复
 def data_balance_new(voxel_map, gt_map, label_probability):   #add repeat data when p >1
-    voxel_keys = list(voxel_map.keys())
-    gt_keys = list(gt_map.keys())
-    keys = [v for v in voxel_keys if v in gt_keys]
-
+    keys = common.get_common_keys(voxel_map, gt_map)
     voxel_res = dict()
     gt_res = dict()
 

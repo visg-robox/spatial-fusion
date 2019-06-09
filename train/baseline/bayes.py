@@ -45,47 +45,46 @@ def make_path(path):
         os.makedirs(path)
 
 
-def get_common_keys(infer_dict, gt_dict):
-    infer_keys_list = list(infer_dict.keys())
-    gt_keys_list = list(gt_dict.keys())
-    common_keys_list = [v for v in infer_keys_list if v in gt_keys_list]
-    return common_keys_list
-
 dataset_name = common.dataset_name
-method_name = 'bayes'
+method_name = common.method_name
 
 
 if __name__ == '__main__':
-    data_path = os.path.join(common.blockfile_path, 'test')
-    infer_path = os.path.join(data_path, 'infer_label')
-    gt_path = os.path.join(data_path, 'gt')
+    test_path = os.path.join(common.blockfile_path, 'test')
     res_save_path = os.path.join(common.res_save_path, dataset_name, method_name)
     make_path(res_save_path)
 
-    infer_path_list = get_file_list(infer_path)
-    infer_path_list.sort()
-    gt_path_list = get_file_list(gt_path)
-    gt_path_list.sort()
+    infer_file_list = common.get_file_list_with_pattern('infer_label', test_path)
+    gt_file_list = common.get_file_list_with_pattern('gt', test_path)
 
     infer_res = []
     gt_res = []
 
-    for i in range(len(infer_path_list)):
-        infer_name = infer_path_list[i]
-        gt_name = gt_path_list[i]
-        print(infer_name)
+    if len(infer_file_list) == len(gt_file_list):
+        file_len = len(infer_file_list)
+    else:
+        raise RuntimeError('infer_file number is not equal to gt_file number')
+    for i in range(file_len):
+        infer_name = infer_file_list[i]
+        gt_name = gt_file_list[i]
+        if infer_name.split('/')[-1] == gt_name.split('/')[-1]:
+            print(infer_name)
+        else:
+            raise RuntimeError('infer_file and gt_file is different')
         infer_map = np.load(infer_name, allow_pickle=True).item()
         gt_map = np.load(gt_name, allow_pickle=True).item()
-        keys = get_common_keys(infer_map, gt_map)
+        keys = common.get_common_keys(infer_map, gt_map)
         for key in keys:
             infer_voxel = infer_map[key]
             gt_voxel = gt_map[key]
             gt_res.append(int(gt_voxel.feature_info_list[0].feature_list[0]))
             label_fusion = [1 for _ in range(common.class_num)]
-            for idx in range(len(infer_voxel.semantic_info_list)):
-            # for idx in range(len(infer_voxel.feature_info_list)):
-                label_fusion = [a * b for a, b in zip(label_fusion, infer_voxel.semantic_info_list[idx].label_list)]
-                # label_fusion = [a * b for a, b in zip(label_fusion, infer_voxel.feature_info_list[idx].feature_list)]
+            try:
+                for idx in range(len(infer_voxel.semantic_info_list)):
+                    label_fusion = [a * b for a, b in zip(label_fusion, infer_voxel.semantic_info_list[idx].label_list)]
+            except AttributeError:
+                for idx in range(len(infer_voxel.feature_info_list)):
+                    label_fusion = [a * b for a, b in zip(label_fusion, infer_voxel.feature_info_list[idx].feature_list)]
             infer_res.append(int(numpy.argmax(label_fusion)))
     total_accuracy = getaccuracy(infer_res, gt_res, common.class_num)
-    eval_print_save(total_accuracy, 'bayesian', res_save_path)
+    eval_print_save(total_accuracy, common.method_name, res_save_path)

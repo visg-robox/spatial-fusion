@@ -1,4 +1,4 @@
-from model_lib.ICNET_model.network import  Network
+from model_dir.model_lib.ICNET_model.network import  Network
 import tensorflow as tf
 
 class ICNet(Network):

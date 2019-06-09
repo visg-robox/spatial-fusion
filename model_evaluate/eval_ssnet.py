@@ -34,23 +34,17 @@ else:
     HIDDEN_SIZE = common.feature_num_ivo
 
 
-def get_common_keys(infer_dict, gt_dict):
-    infer_keys_list = list(infer_dict.keys())
-    gt_keys_list = list(gt_dict.keys())
-    common_keys_list = [v for v in infer_keys_list if v in gt_keys_list]
-    return common_keys_list
-
-
-def eval_spnet_balance(test_infer_path,
-               test_gt_path,
+def eval_spnet_balance(test_path,
                model_path,
                time_step=TIME_STEP,
                log_dir='.',
                ignore_list = []):
-    test_infer_file_list = get_file_list(test_infer_path)
-    test_infer_file_list.sort()
-    test_gt_file_list = get_file_list(test_gt_path)
-    test_gt_file_list.sort()
+    test_infer_file_list = common.get_file_list_with_pattern('infer_feature', test_path)
+    test_gt_file_list = common.get_file_list_with_pattern('gt', test_path)
+    if len(test_infer_file_list) == len(test_gt_file_list):
+        file_len = len(test_infer_file_list)
+    else:
+        raise RuntimeError('infer_file number is not equal to gt_file number')
 
     loss_func = nn.CrossEntropyLoss()
     rnn = torch.load(model_path)
@@ -62,7 +56,7 @@ def eval_spnet_balance(test_infer_path,
 
     test_loss_all = 0
     # for test_file_idx in range(5):
-    for test_file_idx in range(len(test_infer_file_list)):
+    for test_file_idx in range(file_len):
         test_infer_filename = test_infer_file_list[test_file_idx]
         test_gt_filename = test_gt_file_list[test_file_idx]
         test_infer_dict = np.load(test_infer_filename, allow_pickle=True).item()
@@ -70,7 +64,7 @@ def eval_spnet_balance(test_infer_path,
         label_p = np.ones(common.class_num)
         if "lstm" not in common.method_name:
             test_infer_dict, test_gt_dict = data_balance.data_balance(test_infer_dict, test_gt_dict, label_p)
-        test_keys_list = get_common_keys(test_infer_dict, test_gt_dict)
+        test_keys_list = common.get_common_keys(test_infer_dict, test_gt_dict)
         print('test file: ', test_infer_filename)
         test_loss_ave = 0
         time1 = time.time()
@@ -95,7 +89,7 @@ def eval_spnet_balance(test_infer_path,
                 test_output = rnn(test_input, time_step)
 
             else:
-                nv = data_loader_torch.featuremap_to_batch_ivo_with_neighbour(test_infer_dict,
+                test_input = data_loader_torch.featuremap_to_batch_ivo_with_neighbour(test_infer_dict,
                                                                         test_current_keys,
                                                                         TEST_BATCH_SIZE,
                                                                         common.near_num,
@@ -124,28 +118,29 @@ def eval_spnet_balance(test_infer_path,
 
 
 def eval_spnet(model_path):
-    data_path = common.blockfile_path
-    test_infer_path = os.path.join(data_path, 'test', 'infer_feature')
-    test_gt_path = test_infer_path.replace('infer_feature', 'gt')
+    test_path = os.path.join(common.blockfile_path, 'test')
     print(model_path)
     save_path = os.path.dirname(model_path)
-    loss = eval_spnet_balance(test_infer_path, test_gt_path, model_path, time_step=common.time_step, log_dir=save_path, ignore_list = common.ignore_list)
+    loss = eval_spnet_balance(test_path, model_path, time_step=common.time_step, log_dir=save_path, ignore_list = common.ignore_list)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    data_path = common.blockfile_path
-    test_infer_path = os.path.join(data_path, 'test', 'infer_feature')
-    test_gt_path = test_infer_path.replace('infer_feature', 'gt')
-    res_path = common.res_save_path
     
-    model_path = '/media/luo/Dataset/RnnFusion/spatial-fusion/train/feature/runs/SPNET/100000/100000newdata_model.pkl'
+    parser.add_argument('--model_relative_path', type = str)
+
+    FLAGS, unparsed = parser.parse_known_args()
+    
+    test_path = os.path.join(common.blockfile_path, 'test')
+    
+    model_path = os.path.join(common.test_model_path, FLAGS.model_relative_path)
+    
     print(model_path)
     save_path = os.path.dirname(model_path)
     # import sys
     # sys.path.append("/media/zhangjian/U/RnnFusion")
     # eval_ssnet(test_infer_path, test_gt_path, model_path, res_path, window_size=20, time_step=20)
     # eval_ssnet_cell(test_infer_path, test_gt_path, model_path, input_window=5, time_step=20)
-    loss = eval_spnet_balance(test_infer_path, test_gt_path, model_path, time_step=common.time_step, log_dir=save_path, ignore_list = common.ignore_list)
+    loss = eval_spnet_balance(test_path, model_path, time_step=common.time_step, log_dir=save_path, ignore_list = common.ignore_list)
 
 

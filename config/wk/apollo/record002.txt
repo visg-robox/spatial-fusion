@@ -17,7 +17,7 @@ near_num:25
 
 epoch:10
 lr:0.001
-batch_size:64
+batch_size:128
 time_step:20
 pretrained:0
 
