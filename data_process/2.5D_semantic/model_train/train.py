@@ -24,22 +24,22 @@ _MIN_SCALE = 0.8
 _MAX_SCALE = 1.5
 
 #使用几块GPU训练和输出分辨率为多大
-_GPU_id = [0]
-_BATCH_SIZE = 2
+_GPU_id = [0, 1]
+_BATCH_SIZE = 8
 _BUFFER_SIZE = 60
 _CROP_HEIGHT = 768
 _CROP_WIDTH = 768
 
 #训练主要超参设置
-_MAX_ITER = 15000
+_MAX_ITER = 60000
 _MIDDLE_STEP = 0
 _EPOCH = (_MAX_ITER - _MIDDLE_STEP)//(dataset_util.NUM_IMAGES['train']//_BATCH_SIZE) + 2
 print(_EPOCH)
-_INITIAL_LR = 5e-3
+_INITIAL_LR = 1e-2
 _INITIAL_STEP = 0
 _END_LR = 1e-6
 _WARM_UP_LR = 1e-4
-_WARM_UP_STEP = 2000
+_WARM_UP_STEP = 0
 _WEIGHT_DECAY = 5e-5
 
 #优化策略选择
@@ -50,6 +50,7 @@ _DECAY_POLICY = 'poly'  #choices=['poly', 'piecewise','exponential' ,'warm']
 _EX_LR_DECAY_RATE=0.8
 
 #BN层设置
+_PRETRIANED = '../data_and_checkpoint/pretrain_model/resnet_v2_101_2017_04_14'
 _FREEZE_BN = False
 _BATCH_NORM_DECAY = 0.997
 
