@@ -11,7 +11,7 @@ from model_evaluate.eval_ssnet import eval_spnet
 
 MODEL_DIR = common.test_model_path
 
-TIME_INTERVAL = 2
+TIME_INTERVAL = 200
 
 
 def run_with_time():
@@ -37,10 +37,9 @@ def auto_eval(model_dir_path):
                 sys.exit(0)
             signal.signal(signal.SIGINT, signal_handler)
 
-            # eval_spnet(model_name)
+            eval_spnet(model_name)
 
     model_test_state.close()
-
 
 
 if __name__ == '__main__':
