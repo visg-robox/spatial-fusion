@@ -13,9 +13,7 @@ def delete_keys(model_dir_path):
     # common.make_path(model_dir_path)
     test_state_db_name = os.path.join(model_dir_path, 'current_test_state.db')
     model_test_state = shelve.open(test_state_db_name, flag='c', writeback=True)
-    model_name_list = common.find_file_with_pattern('pkl', model_dir_path)
-    model_name_list.sort()
-    keys = list(model_name_list.keys())
+    keys = list(model_test_state.keys())
     print("now we have following keys:")
     print('[%s]' % ', '.join(map(str, keys)))
     for key in sys.stdin:
