@@ -33,6 +33,7 @@ APOLLO_CLASSNAME=[' sky ' ,
            ' billboard ' ,
            ' building ' ,
            ' vegatation ']
+
 APOLLO_ID_COLOR = [( 70, 130, 180),
                 (  0,   0, 142),
                 (  0,   0, 230),
@@ -87,8 +88,21 @@ CARLA_ID_COLOR =  {
     255:[0  ,0  , 0] # TrafficSigns
 }
 
-S3DIS_CLASSNAME = []
-S3DIS_ID_COLOR = []
+S3DIS_CLASSNAME = ['chair', 'ceiling', 'column', 'table', 'window',  'sofa', 'wall', 'floor', 'board', 'door', 'bookcase', 'clutter', 'beam']
+S3DIS_ID_COLOR = [
+    (255, 255, 255),
+    (220, 20, 60),
+    (190, 153, 153),
+    (0, 0, 0),
+    (70, 70, 70),
+    (0, 255, 255),
+    (255, 255, 0),
+    (0, 0, 255),
+    (244, 35, 232),
+    (107, 142, 35),
+     (151, 115, 255),
+     (102, 102, 156),
+     (255, 124, 0)]
 
 if dataset_class_config == 'carla':
     CLASSNAME = CARLA_CLASSNAME

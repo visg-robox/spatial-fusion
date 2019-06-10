@@ -93,7 +93,12 @@ else:
     voxel_length = 0.05
 print(voxel_length)
 # region
-block_len = 5
+if 'block_length' in list(para_dict.keys()):
+    block_length = float(para_dict['block_length'])
+else:
+    block_length = 0.05
+print(block_length)
+
 region_x = int(para_dict['region_x'])
 region_y = int(para_dict['region_y'])
 region_z = int(para_dict['region_z'])

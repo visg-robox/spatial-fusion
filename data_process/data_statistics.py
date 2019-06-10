@@ -41,7 +41,8 @@ def statistics(path_list, classnum, save_path):
             for j in range(len(semantic_info)):
                 gt_list.append(int(semantic_info[j].feature_list[0]))
             gt_class = int(stats.mode(gt_list)[0][0])
-            label_cal[int(gt_class)] += 1
+            if gt_class < classnum and gt_class >= 0:
+                label_cal[int(gt_class)] += 1
     total_num = np.sum(label_cal)
     print(total_num)
     ratio = label_cal / total_num

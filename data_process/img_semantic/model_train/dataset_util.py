@@ -7,7 +7,7 @@ from collections import namedtuple
 import numpy as np
 
 DATASET_SHOT = 'S3DIS_Sample0.2'
-DATA_DIR = '/media/luo/SeagateBackupPlusDrive/cityscape/S3DIS_tfrecord'
+DATA_DIR = '/media/luo/Dataset/S3DIS/tfrecord'
 NUM_IMAGES = {
     'train':10580 ,
     'validation':3580,
