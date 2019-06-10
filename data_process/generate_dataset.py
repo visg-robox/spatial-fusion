@@ -100,6 +100,24 @@ def divide_multi_sequence():
     save_preserve_ratio()
 
 
+def divide_multi_sequence_s3d():
+    lidardata_path = common.lidardata_path
+    blockfile_path = common.blockfile_path
+    train_list = os.listdir(os.path.join(common.blockfile_path, 'train'))
+    test_list = os.listdir(os.path.join(common.test_sequence_list, 'test'))
+    for item in train_list:
+        cur_lidardata_path = os.path.join(lidardata_path, item)
+        cur_save_path = os.path.join(blockfile_path, 'train', item)
+        common.make_path(cur_save_path)
+        preprocess_record_feature(cur_lidardata_path, cur_save_path)
+    for item in test_list:
+        cur_lidardata_path = os.path.join(lidardata_path, item)
+        cur_save_path = os.path.join(blockfile_path, 'test', item)
+        common.make_path(cur_save_path)
+        preprocess_record_feature(cur_lidardata_path, cur_save_path)
+    save_preserve_ratio()
+
+
 if __name__ == "__main__":
     divide_multi_sequence()
 
