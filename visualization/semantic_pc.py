@@ -1,4 +1,6 @@
-# import common
+import sys
+sys.path.append("../")
+import common
 from torch import nn
 import torch
 from random import choice
@@ -6,10 +8,9 @@ from model.rnn import *
 from torch.autograd import Variable
 from data_process.data_process_label import *
 from data_process import data_loader_torch,data_balance
-import sys
-sys.path.append('/media/luo/Dataset/RnnFusion/spatial-fusion/')
 
-BATCH_SIZE = 32
+
+BATCH_SIZE = common.batch_size
 #这里用来修改可视化的中心坐标以及范围
 visionlize_center = [-12142.5, 3250.5, 40]
 Range = np.array([common.region_x, common.region_y, common.region_z]) * common.block_len
@@ -19,18 +20,16 @@ Range = np.array([common.region_x, common.region_y, common.region_z]) * common.b
 # output: write .txt file
 def visualize_pc(data_path, gt_path = None, save_path = '.', fusion_method = 0, model_path=None):
     if model_path:
-        # rnn = SSNet(common.feature_num, common.feature_num, common.class_num)
         rnn = torch.load(model_path)
         rnn.cuda()
         rnn.eval()
     result_map = VoxelMap(visionlize_center)
-    map_name = common.FsMethod(fusion_method).name + '_res'
-    data_source_path = get_file_list(data_path)
-    data_source_path.sort()
-    gt_source_path = get_file_list(gt_path)
-    gt_source_path.sort()
+    map_name = common.FsMethod(fusion_method).name + '_visualization'
 
-    for num,source_filename in enumerate(data_source_path):
+    infer_file_list = common.get_file_list_with_pattern('infer_feature', data_path)
+    gt_file_list = common.get_file_list_with_pattern('gt', data_path)
+
+    for num, source_filename in enumerate(infer_file_list):
         position = source_filename.split('/')[-1].split('.')[0].split('_')
         position = np.array(position,dtype=np.int)
         distance = abs(np.array(visionlize_center) - position/100)
@@ -39,7 +38,7 @@ def visualize_pc(data_path, gt_path = None, save_path = '.', fusion_method = 0, 
             keys_list = list(voxel_dict.keys())
             print(len(keys_list))
             if gt_path:
-                gt_filename = gt_source_path[num]
+                gt_filename = gt_file_list[num]
                 gt_dict = np.load(gt_filename).item()
                 gt = data_loader_torch.featuremap_to_gt_num(gt_dict,
                                                                 keys_list,
@@ -52,7 +51,6 @@ def visualize_pc(data_path, gt_path = None, save_path = '.', fusion_method = 0, 
                 keys_list = list(map(lambda a:tuple(a), keys_list))
                 gt = gt[valid_index]
                 print(len(keys_list))
-
 
             print('source file name: ', source_filename)
             if fusion_method is common.FsMethod.STF:
@@ -105,7 +103,6 @@ def visualize_pc(data_path, gt_path = None, save_path = '.', fusion_method = 0, 
                     output =  gt.cpu().data.numpy()
                     result_map.insert(key_to_center(keys_list[j]), output[j])
 
-
             if fusion_method is common.FsMethod.BAYES:
                 for key in keys_list:
                     cur_voxel = voxel_dict[key]
@@ -128,7 +125,7 @@ def visualize_pc(data_path, gt_path = None, save_path = '.', fusion_method = 0, 
 
 # True, False
 VISUALIZE_STF = True
-VISUALIZE_RNN_FEATURE = False
+VISUALIZE_LSTM_FEATURE = False
 VISUALIZE_RNN_LABEL   = False
 VISUALIZE_BAYES       = False
 VISUALIZE_BASELINE    = False
@@ -137,13 +134,12 @@ VISUALIZE_GT = False
 if __name__ == '__main__':
     if VISUALIZE_STF:
 
-        model_path = '../train/feature/runs/SPNET/100000/100000newdata_model.pkl'
-        save_path = '../train/feature/runs/SPNET/100000/'
-        data_path  = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data/test_feature/infer'
-        gt_path = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data/test_feature/gt'
-        visualize_pc(data_path, gt_path, save_path, common.FsMethod.STF, model_path)
+        model_path = common.visualize_model
+        save_path = os.path.join(os.path.dirname(model_path), common.model_step + '_visualization')
+        test_path = os.path.join(common.blockfile_path, 'test')
+        visualize_pc(test_path, save_path, common.FsMethod.STF, model_path)
 
-    if VISUALIZE_RNN_FEATURE:
+    if VISUALIZE_LSTM_FEATURE:
         root_path = common.project_path
         model_path = root_path + 'train/feature/runs/LSTM_imgfeature/47500_model.pkl'
         save_path = root_path + 'train/feature/runs/LSTM_imgfeature/'

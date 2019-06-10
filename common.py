@@ -168,6 +168,12 @@ if sys.argv[2] == 'test':
     method_name = sys.argv[3]  # pretrain & eval
     test_model_path = os.path.join(res_save_path, dataset_name, method_name)
 
+if sys.argv[2] == 'visualize':
+    method_name = sys.argv[3]
+    model_step = sys.argv[4]
+    visualize_model = os.path.join(res_save_path, dataset_name, method_name, model_step + '_model.pkl')
+
+
 # fusion method
 @unique
 class FsMeth.od(Enum):
