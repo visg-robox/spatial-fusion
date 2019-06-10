@@ -1,0 +1,37 @@
+region_x:10
+region_y:10
+region_z:10
+
+
+dataset_name:S3DIS_sample_oneroom_deeplab
+
+multi_sequence:1
+raw_data_path:/data1/3d_map/data/S3DIS
+lidardata_path:/data1/3d_map/data/S3DIS/S3DIS_sample_oneroom_deeplab/lidar_data
+blockfile_path:/data1/3d_map/data/S3DIS/S3DIS_sample_oneroom_deeplab/block_data
+class_preserve_proba_path:data_dropout_ratio.txt
+
+
+dataset_class_config:apollo
+train_sequence_list:Record002 Record003 Record004 Record005 Record020
+test_sequence_list:Record021 Record006
+point_num_per_frame:40000
+
+frame_num_pre_sequence:200
+
+class_num:22
+ignore_list_str:0 1 2 3 4 5 6 7 8 11 12
+
+near_num:25
+
+epoch:10
+lr:0.001
+batch_size:128
+time_step:50
+res_save_path:/data1/3d_map/spatial-fusion/result
+pretrained:0
+model_path:None
+
+file_num_step:5
+test_batch_size:64
+model_save_step:5000

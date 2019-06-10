@@ -42,7 +42,7 @@ def model_fn(features, labels, mode, params):
     """Model function for PASCAL VOC."""
     with tf.name_scope('data_feed'):
         
-        gpu_id = params['gpu_id'] if mode == tf.estimator.ModeKeys.TRAIN else params['gpu_id'][0]
+        gpu_id = params['gpu_id'] if mode == tf.estimator.ModeKeys.TRAIN else params['gpu_id'][0:1]
         gpu_num = len(gpu_id)
         next_img = features['image']
         input_shape = tf.shape(next_img)[1:3]
