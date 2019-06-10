@@ -69,7 +69,10 @@ def data_balance_new(voxel_map, gt_map, label_probability):   #add repeat data w
         key = keys[i]
         label = int(gt_map[key].feature_info_list[0].feature_list[0])
         near_keys = near_array[i, :, :]
-        probability = label_probability[label]
+        if label < common.class_num and label >= 0:
+            probability = label_probability[label]
+        else:
+            probability = 0
         if probability <=1:
             if np.random.binomial(1, probability) is 1:
                 for j in range(near_keys.shape[0]):
