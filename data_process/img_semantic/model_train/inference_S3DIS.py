@@ -31,9 +31,10 @@ from dataset_script.S3DIS_scipt.assets.utils import *
 # 需要修改的变量
 _DATA_DIR = common.raw_data_path
 _SAMPLE_NUM = common.point_num_per_frame
-_ROOM_CLASS = ['WC', 'hallway', 'office', 'conferenceRoom', 'lobby', 'storage', 'pantry']
+#_ROOM_CLASS = ['WC', 'hallway', 'office', 'conferenceRoom', 'lobby', 'storage', 'pantry']
+_ROOM_CLASS = ['office']
 _ROOM_NUMBER = 1
-_SAVE_DIR = common.blockfile_path
+_SAVE_DIR = common.lidardata_path
 
 
 # 一般不用修改,输入图片的尺寸和相机５的内参
@@ -266,7 +267,7 @@ def write_sequence_lidar_data(sequcence_save_dir, RGB_list, model):
         np.save(pcl_feature_path, pcl_feature)
         np.save(pcl_gt_path, pcl_gt)
         np.save(pcl_p_path, pcl_p)
-        # np.savetxt(join(pcl_prefix, frame + '.txt'), pcl_rgb)
+        np.savetxt(join(pcl_prefix, frame + '.txt'), pcl_rgb)
         
         
         # points_color = PointCloud(array=pcl, frame_number=0)
@@ -298,7 +299,7 @@ def main(unused_argv):
     DATAPATH = FLAGS.data_dir
     write_S3DIS_lidar_data(DATAPATH, 'train', model)
     write_S3DIS_lidar_data(DATAPATH, 'test', model)
-    #divide_multi_sequence()
+    divide_multi_sequence()
 
 
 if __name__ == '__main__':

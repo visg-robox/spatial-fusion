@@ -86,7 +86,12 @@ para_dict = load_txt_dict(txt_path)
 
 # preprocess config path ####################################################
 
-voxel_length = 0.05
+
+if 'voxel_length' in list(para_dict.keys()):
+    voxel_length = float(para_dict['voxel_length'])
+else:
+    voxel_length = 0.05
+print(voxel_length)
 # region
 block_len = 5
 region_x = int(para_dict['region_x'])

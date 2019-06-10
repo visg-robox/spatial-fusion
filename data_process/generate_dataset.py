@@ -85,15 +85,15 @@ def devide_with_pose():
 def divide_multi_sequence():
     lidardata_path = common.lidardata_path
     blockfile_path = common.blockfile_path
-    train_list = common.train_sequence_list
-    test_list = common.test_sequence_list
+    train_list = os.listdir(lidardata_path + '/train')
+    test_list =  os.listdir(lidardata_path + '/test')
     for item in train_list:
-        cur_lidardata_path = os.path.join(lidardata_path, item)
+        cur_lidardata_path = os.path.join(lidardata_path, 'train', item)
         cur_save_path = os.path.join(blockfile_path, 'train', item)
         common.make_path(cur_save_path)
         preprocess_record_feature(cur_lidardata_path, cur_save_path)
     for item in test_list:
-        cur_lidardata_path = os.path.join(lidardata_path, item)
+        cur_lidardata_path = os.path.join(lidardata_path, 'train', item)
         cur_save_path = os.path.join(blockfile_path, 'test', item)
         common.make_path(cur_save_path)
         preprocess_record_feature(cur_lidardata_path, cur_save_path)
