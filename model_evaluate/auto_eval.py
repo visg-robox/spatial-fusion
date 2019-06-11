@@ -23,10 +23,10 @@ def run_with_time():
 def auto_eval(model_dir_path):
     common.make_path(model_dir_path)
     test_state_db_name = os.path.join(model_dir_path, 'current_test_state.db')
-    model_test_state = shelve.open(test_state_db_name, flag='c', writeback=True)
     model_name_list = common.find_file_with_pattern('pkl', model_dir_path)
     model_name_list.sort()
     for model_name in model_name_list:
+        model_test_state = shelve.open(test_state_db_name, flag='c', writeback=True)
         if model_name not in model_test_state:
             model_test_state[model_name] = 1
 
@@ -38,8 +38,7 @@ def auto_eval(model_dir_path):
             signal.signal(signal.SIGINT, signal_handler)
 
             eval_spnet(model_name)
-
-    model_test_state.close()
+        model_test_state.close()
 
 
 if __name__ == '__main__':
