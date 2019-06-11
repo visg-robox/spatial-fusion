@@ -33,6 +33,6 @@ res_save_path:/media/luo/Dataset/RnnFusion/spatial-fusion/result
 pretrained:0
 model_path:None
 
-file_num_step:5
+file_num_step:1
 test_batch_size:64
 model_save_step:5000

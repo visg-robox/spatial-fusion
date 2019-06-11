@@ -17,7 +17,7 @@ import numpy as np
 import timeit
 from scipy import misc
 import os
-from train import MODEL_DIR,input_fn
+from train import input_fn
 
 
 parser = argparse.ArgumentParser()
@@ -26,11 +26,11 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', type=str, default=dataset_util.DATA_DIR,
                     help='Path to the directory containing the PASCAL VOC data tf record.')
 
-parser.add_argument('--model_dir', type=str, default=MODEL_DIR,
+parser.add_argument('--model_dir', type=str,
                     help="Base directory for the model. "
                          "Make sure 'model_checkpoint_path' given in 'checkpoint' file matches "
                          "with checkpoint name.")
-parser.add_argument('--model', type=str, choice = ['I','D'],
+parser.add_argument('--model', type=str, choices = ['I','D'],
                     help='ICNET or Deeplab.')
 
 parser.add_argument('--output_stride', type=int, default=16,
@@ -39,7 +39,7 @@ parser.add_argument('--output_stride', type=int, default=16,
 
 _IGNORE_LABEL=255
 VAL_NUM=dataset_util.NUM_IMAGES['validation']
-SAVE_DIR = MODEL_DIR +'/my_eval/visionlize'
+
 
 
 def compute_mean_iou(total_cm):
@@ -83,10 +83,11 @@ def compute_mean_iou(total_cm):
 
 
 def main(unused_argv):
+
+    os.environ['TF_ENABLE_WINOGRAD_NONFUSED'] = '1'
+    SAVE_DIR = FLAGS.model_dir + '/my_eval/visionlize'
     if not os.path.isdir(SAVE_DIR):
         os.makedirs(SAVE_DIR)
-    os.environ['TF_ENABLE_WINOGRAD_NONFUSED'] = '1'
-
     features, labels = input_fn(False, FLAGS.data_dir, 1)
     predictions = config.model_fn(
         features,
@@ -104,7 +105,8 @@ def main(unused_argv):
             'model_dir': FLAGS.model_dir,
             'tensorboard_images_max_outputs':1,
             'model': FLAGS.model,
-            'gpu_num' : 0
+            'gpu_id' : [0],
+            'pretrained_model':None
         }).predictions
 
     # Manually load the latest checkpoint
@@ -122,7 +124,7 @@ def main(unused_argv):
         #array for compute miou
         sum_cm = np.zeros((dataset_util.NUM_CLASSES, dataset_util.NUM_CLASSES), dtype=np.int32)
 
-        for step in range(VAL_NUM):
+        for step in range(400):
             if not step%10:
                 print('process', step, '/', VAL_NUM)
             # preds = sess.run(predictions, options=run_options, run_metadata=run_metadata)
