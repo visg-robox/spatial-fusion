@@ -97,7 +97,7 @@ def main(unused_argv):
             'output_stride': FLAGS.output_stride,
             'batch_size': 1,  # Batch size must be 1 because the images' size may differ
             'pre_trained_model': None,
-            'batch_norm_decay' : 1,
+            'batch_norm_decay' : 0.97,
             'weight_decay':1e-4,
             'num_classes': dataset_util.NUM_CLASSES,
             'freeze_batch_norm': True,
@@ -124,7 +124,7 @@ def main(unused_argv):
         #array for compute miou
         sum_cm = np.zeros((dataset_util.NUM_CLASSES, dataset_util.NUM_CLASSES), dtype=np.int32)
 
-        for step in range(400):
+        for step in range(1000):
             if not step%10:
                 print('process', step, '/', VAL_NUM)
             # preds = sess.run(predictions, options=run_options, run_metadata=run_metadata)

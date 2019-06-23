@@ -5,24 +5,21 @@ region_y:10
 region_z:10
 
 
-dataset_name:S3DIS_sample_oneroom_deeplab
+dataset_name:S3DIS_all
 
 multi_sequence:1
 raw_data_path:/data1/3d_map/data/S3DIS
-lidardata_path:/data1/3d_map/data/S3DIS/S3DIS_sample_oneroom_deeplab/lidar_data
-blockfile_path:/data1/3d_map/data/S3DIS/S3DIS_sample_oneroom_deeplab/block_data
+lidardata_path:/data1/3d_map/data/S3DIS/S3DIS_all/lidar_data
+blockfile_path:/data1/3d_map/data/S3DIS/S3DIS_all/block_data
 class_preserve_proba_path:data_dropout_ratio.txt
 
 
 dataset_class_config:S3DIS
-train_sequence_list:Record002 Record003 Record004 Record005 Record020
-test_sequence_list:Record021 Record006
 point_num_per_frame:40000
 
-frame_num_pre_sequence:200
 
 class_num:22
-ignore_list_str:0 1 2 3 4 5 6 7 8 11 12
+ignore_list_str:255
 
 near_num:25
 

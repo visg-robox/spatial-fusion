@@ -47,7 +47,7 @@ def model_fn(features, labels, mode, params):
         next_img = features['image']
         input_shape = tf.shape(next_img)[1:3]
         if mode == tf.estimator.ModeKeys.PREDICT:
-            next_img = tf.image.resize_bilinear(next_img,[dataset_util.HEIGHT,dataset_util.WIDTH])
+            next_img = tf.image.resize_bilinear(next_img,[dataset_util.HEIGHT, dataset_util.WIDTH])
         image_splits = tf.split(next_img, gpu_num, axis=0)
 
         if mode == tf.estimator.ModeKeys.TRAIN:

@@ -31,8 +31,9 @@ from dataset_script.S3DIS_scipt.assets.utils import *
 # 需要修改的变量
 _DATA_DIR = common.raw_data_path
 _SAMPLE_NUM = common.point_num_per_frame
-_ROOM_CLASS = ['WC', 'hallway', 'office', 'conferenceRoom', 'lobby', 'storage', 'pantry']
-# _ROOM_CLASS = ['office']
+#_ROOM_CLASS = ['WC', 'hallway', 'office', 'conferenceRoom', 'lobby', 'storage', 'pantry']
+_ROOM_CLASS = ['office']
+_ROOM_NUMBER = 1
 _SAVE_DIR = common.lidardata_path
 
 
@@ -56,9 +57,6 @@ parser.add_argument('--output_dir', type=str, default=_SAVE_DIR,
                     help='Path to the directory to generate the inference results')
 
 parser.add_argument('--sample_point', type=str, default=_SAMPLE_NUM,
-                    help='Path to the directory to generate the inference results')
-
-parser.add_argument('--frag', type=str, default= '0_7',
                     help='Path to the directory to generate the inference results')
 
 
@@ -169,14 +167,22 @@ def bilinear_interp_PointWithIndex(items, target_shape, xy):
         valueArray = items[index]
     return valueArray
 
-def write_S3DIS_lidar_data(data_dir, phase, model, room_class_set):
+def write_S3DIS_lidar_data(data_dir, phase, model):
     rgb_path_list_all = glob.glob(os.path.join(data_dir, phase, '*/data/rgb/*.png'))
-    
-    for room_class in room_class_set:
+    if phase == 'train':
+        room_num = _ROOM_NUMBER * 5
+    else:
+        room_num = _ROOM_NUMBER
+    for room_class in _ROOM_CLASS:
         rgb_path = [i for i in rgb_path_list_all if room_class in i]
         room_id_set = set(map(get_room_id, rgb_path))
-        print(room_class, len(rgb_path))
-        for room_id in room_id_set:
+        if len(room_id_set) > room_num:
+            room_id_set = np.array(list(room_id_set))
+            np.random.shuffle(room_id_set)
+            room_id_set_sample = list(room_id_set[:room_num])
+        else:
+            room_id_set_sample = room_id_set
+        for room_id in room_id_set_sample:
             rgb_list = [i for i in rgb_path if room_id in i]
             save_dir = os.path.join(_SAVE_DIR, phase, room_id)
             write_sequence_lidar_data(save_dir, rgb_list, model)
@@ -275,12 +281,8 @@ def write_sequence_lidar_data(sequcence_save_dir, RGB_list, model):
 def main(unused_argv):
     # Using the Winograd non-fused algorithms provides a small performance boost.
     os.environ['TF_ENABLE_WINOGRAD_NONFUSED'] = '1'
-    gpu_options = tf.GPUOptions(allow_growth = True)
-    run_config = tf.estimator.RunConfig(session_config = tf.ConfigProto(allow_soft_placement=True, gpu_options = gpu_options))
-    
     
     model = tf.estimator.Estimator(
-        config = run_config,
         model_fn=config.model_fn,
         model_dir=FLAGS.model_dir,
         params={
@@ -295,10 +297,8 @@ def main(unused_argv):
         })
     
     DATAPATH = FLAGS.data_dir
-    index = FLAGS.frag.split('_')
-    room_class_set = _ROOM_CLASS[int(index[0]) : int(index[1])]
-    write_S3DIS_lidar_data(DATAPATH, 'train', model, room_class_set)
-    write_S3DIS_lidar_data(DATAPATH, 'test', model, room_class_set)
+    write_S3DIS_lidar_data(DATAPATH, 'train', model)
+    write_S3DIS_lidar_data(DATAPATH, 'test', model)
     divide_multi_sequence()
 
 
