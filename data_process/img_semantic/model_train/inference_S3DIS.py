@@ -31,7 +31,7 @@ from dataset_script.S3DIS_scipt.assets.utils import *
 # 需要修改的变量
 _DATA_DIR = common.raw_data_path
 _SAMPLE_NUM = common.point_num_per_frame
-_ROOM_CLASS = ['WC', 'hallway', 'conferenceRoom', 'lobby', 'storage', 'pantry', 'office',]
+_ROOM_CLASS = ['WC', 'hallway', 'conferenceRoom', 'lobby', 'storage', 'pantry', 'office']
 # _ROOM_CLASS = ['office']
 _SAVE_DIR = common.lidardata_path
 

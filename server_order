@@ -20,7 +20,8 @@ CUDA_VISIBLE_DEVICES=2 python inference_apollo.py ../../../config/server/apollo/
 
 =======s3dis==========
 首先需要替换掉原来的dataset_util文件为相应文件夹下的文件, 确保你有相应的模型, 之后再使用一下命令
-CUDA_VISIBLE_DEVICES=0 python inference_S3DIS.py ../../../config/server/S3DIS/S3DIS_multi_sequence_deeplab.txt SPNET --model_dir ../data_and_checkpoint/S3DIS_deeplab60000_no_b --model D
+CUDA_VISIBLE_DEVICES=0 python inference_S3DIS.py ../../../config/server/S3DIS/S3DIS_multi_sequence_deeplab.txt SPNET --model_dir ../data_and_checkpoint/S3DIS_deeplab60000_no_b --model D --frag 0_5
+
 
 
 
