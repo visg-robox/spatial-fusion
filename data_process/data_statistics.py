@@ -8,7 +8,7 @@ import common
 
 CLASS_NUM = common.class_num
 SAMPLE_ratio = 0.2
-MIN_CLASS_NUM = 100
+MIN_CLASS_NUM = 10
 from scipy import stats
 import glob
 import common
