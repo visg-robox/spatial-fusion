@@ -11,7 +11,7 @@ from model_evaluate.eval_ssnet import eval_spnet
 
 MODEL_DIR = common.test_model_path
 
-TIME_INTERVAL = 200
+TIME_INTERVAL = 0
 
 
 def run_with_time():

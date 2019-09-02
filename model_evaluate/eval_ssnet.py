@@ -20,6 +20,7 @@ from torch import nn
 from torch.autograd import Variable
 
 
+
 # Hyper Parameters
 TEST_BATCH_SIZE = common.test_batch_size
 TIME_STEP = common.time_step                          # rnn time step / image height
@@ -32,7 +33,6 @@ elif "lstm_i" in common.method_name:
 else:
     INPUT_SIZE = common.feature_num_ivo         # rnn input size / image width
     HIDDEN_SIZE = common.feature_num_ivo
-
 
 def eval_spnet_balance(test_path,
                model_path,
@@ -127,13 +127,13 @@ def eval_spnet(model_path):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--model_relative_path', type = str)
+    parser.add_argument('--model_step', type = str)
 
     FLAGS, unparsed = parser.parse_known_args()
     
     test_path = os.path.join(common.blockfile_path, 'test')
     
-    model_path = os.path.join(common.test_model_path, FLAGS.model_relative_path)
+    model_path = os.path.join(common.test_model_path, FLAGS.model_step + '_model.pkl')
     
     print(model_path)
     save_path = os.path.dirname(model_path)
