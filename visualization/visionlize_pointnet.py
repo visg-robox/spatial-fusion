@@ -9,7 +9,7 @@ sys.path.append('/media/luo/Dataset/RnnFusion/spatial-fusion/')
 
 
 def visionlize_pointnet(test_gt_path,  model_path, sample_num,):
-    test_gt_file_list = get_file_list(test_gt_path)
+    test_gt_file_list = common.get_file_list(test_gt_path)
     test_gt_file_list.sort()
     test_gt_file_list = test_gt_file_list[0:sample_num]
 

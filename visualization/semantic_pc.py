@@ -7,7 +7,7 @@ from torch.autograd import Variable
 from data_process.data_process_label import *
 from data_process import data_loader_torch,data_balance
 import sys
-sys.path.append('/media/luo/Dataset/RnnFusion/spatial-fusion/')
+sys.path.append('../spatial-fusion/')
 
 BATCH_SIZE = 32
 #这里用来修改可视化的中心坐标以及范围
@@ -25,9 +25,9 @@ def visualize_pc(data_path, gt_path = None, save_path = '.', fusion_method = 0, 
         rnn.eval()
     result_map = VoxelMap(visionlize_center)
     map_name = common.FsMethod(fusion_method).name + '_res'
-    data_source_path = get_file_list(data_path)
+    data_source_path = common.get_file_list(data_path)
     data_source_path.sort()
-    gt_source_path = get_file_list(gt_path)
+    gt_source_path = common.get_file_list(gt_path)
     gt_source_path.sort()
 
     for num,source_filename in enumerate(data_source_path):
@@ -164,7 +164,7 @@ if __name__ == '__main__':
         visualize_pc(data_path, gt_path, save_path, common.FsMethod.BASELINE)
 
     if VISUALIZE_GT:
-        root_path = common.project_path
+        root_path = common.blockfile_path
         save_path  = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data/test_feature/'
         data_path  = '/media/luo/Dataset/RnnFusion/apollo_data/processed_data/test_feature/gt'
         visualize_pc(data_path, data_path, save_path, common.FsMethod.GT)

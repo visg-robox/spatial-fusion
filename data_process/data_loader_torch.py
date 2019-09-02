@@ -160,7 +160,7 @@ def featuremap_to_gt_num(voxel_map, keys_list, batch_size, ignore_list):
         res[i] = int(stats.mode(gt_list)[0][0])
         # res[i] = int(semantic_info[0].feature_list[0])
         #这里把无效的class置为255
-        if res[i] in ignore_list:
+        if int(res[i]) in ignore_list:
             res[i] = int(-100)
         # res[i] = torch.FloatTensor(semantic_info[0].label_list)
 

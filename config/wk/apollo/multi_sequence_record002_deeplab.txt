@@ -1,0 +1,36 @@
+region_x:20
+region_y:20
+region_z:4
+
+
+dataset_name:apollo_multi_sequence_road002_deeplab
+
+multi_sequence:1
+raw_data_path:/home/wangkai/project2/dataset/apollo_multi/test/Record006/road02_ins
+lidardata_path:/home/wangkai/project2/dataset/apollo_multi/test/Record006/lidar_data
+blockfile_path:/home/wangkai/project2/dataset/apollo_multi/deeplab/block_data/
+class_preserve_proba_path:data_dropout_ratio.txt
+
+
+dataset_class_config:apollo
+train_sequence_list:Record002 Record003 Record004 Record005 Record020
+test_sequence_list:Record021 Record006
+point_num_per_frame:40000
+frame_num_pre_sequence:200
+
+class_num:22
+ignore_list_str:0 1 2 3 4 5 6 7 8 11 12
+
+near_num:25
+
+epoch:10
+lr:0.001
+batch_size:128
+time_step:20
+res_save_path:/home/wangkai/spatial-fusion/result
+pretrained:0
+model_path:None
+
+file_num_step:5
+test_batch_size:64
+model_save_step:5000
