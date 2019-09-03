@@ -21,7 +21,8 @@ from torch.autograd import Variable
 from tensorboardX import SummaryWriter
 from model import spnet
 from data_process import data_balance
-import math
+
+import time as timer
 
 # Hyper Parameters
 
@@ -84,6 +85,7 @@ if __name__ == '__main__':
             voxel_dict = dict()
             gt_dict = dict()
             print('start reading file')
+            readFileStartTime = timer.time()
             for file_idx in file_idx_list:
                 infer_filename = infer_file_list[file_idx]
                 gt_filename = gt_file_list[file_idx]
@@ -96,7 +98,12 @@ if __name__ == '__main__':
             voxel_dict_res, gt_dict_res, keys_list = data_balance.data_balance_new(voxel_dict, gt_dict, label_p)
             # keys_list = common.get_common_keys(voxel_dict_res, gt_dict_res)
             print('finish reading file')
+            readFileEndTime = timer.time()
+            print('read file use: ')
+            print(readFileEndTime-readFileStartTime)
             random.shuffle(keys_list)
+
+            trainStartTime = timer.time()
             for i in range(len(keys_list)//BATCH_SIZE):
                 current_keys = keys_list[i*BATCH_SIZE:(i+1)*BATCH_SIZE]
                 input_data = data_loader_torch.featuremap_to_batch_ivo_with_neighbour(voxel_dict_res, current_keys, BATCH_SIZE, NEAR_NUM, TIME_STEP, INPUT_SIZE)
@@ -121,6 +128,10 @@ if __name__ == '__main__':
                     torch.save(model, model_name)
                     #test_loss = eval_spnet_balance(test_infer_path, test_gt_path, model, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
                     #writer.add_scalar('data/feature_test_loss', test_loss, record_iter)
+            trainEndTime = timer.time()
+            print('train use: ')
+            print(trainEndTime-trainStartTime)
+
 
     writer.close()
 
