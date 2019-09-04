@@ -270,8 +270,6 @@ def write_sequence_lidar_data(sequcence_save_dir, RGB_list, model):
         # # point_sem_p.save_to_disk(join(sequcence_save_dir, 'Point_Cloud/pc_sem', path.split('.')[0]))
     f.close()
 
-
-
 def main(unused_argv):
     # Using the Winograd non-fused algorithms provides a small performance boost.
     os.environ['TF_ENABLE_WINOGRAD_NONFUSED'] = '1'
