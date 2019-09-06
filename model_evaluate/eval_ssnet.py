@@ -254,12 +254,12 @@ def eval_spnet_multi_process(model_path, scene_name="Record006/"):
     print(time2 - time1)
 
     #excel_file_list = os.listdir(save_path)
-    excel_file_list = glob(os.path.join(save_path + '*xlwt.xls'))
-    matrix_file_list = glob(os.path.join(save_path + '*matrix,txt'))
+    excel_file_list = glob(os.path.join(save_path, '*xlwt.xls'))
+    matrix_file_list = glob(os.path.join(save_path, '*matrix.txt'))
     class_dict = {}  #{class_name: class_acc, class_iou, class_percentage}
     num_points_all = 0
 
-
+    total_matrix = 0
     for i in range(len(excel_file_list)):
         # points_num = int(excel_file_list[i].split('_')[-2])
         # excel_file_name = excel_file_list[i]
@@ -272,6 +272,7 @@ def eval_spnet_multi_process(model_path, scene_name="Record006/"):
         # class_iou  = sheet1.row_values(4)
         # class_percentage = sheet1.row_values(7)
         matrix = np.loadtxt(matrix_file_name)
+        print(i)
         if i == 0:
             total_matrix = matrix
         else:
@@ -290,7 +291,7 @@ def eval_spnet_multi_process(model_path, scene_name="Record006/"):
         #         class_dict[class_name[real_index]] = [class_acc, class_iou, class_percentage]
         # num_points_all += points_num
     points_num = np.sum(total_matrix, axis = 0)[2]
-    eval_print_save(total_matrix, 'spnet', model_path,  points_num = points_num)
+    eval_print_save(total_matrix, 'spnet', os.path.dirname(model_path),  points_num = points_num)
 '''
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
