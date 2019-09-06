@@ -230,8 +230,8 @@ def eval_spnet_multi_process(model_path, scene_name="Record006/"):
     data_source_path.sort()
     gt_source_path = common.get_file_list(gt_path)
     gt_source_path.sort()
-    data_source_path = data_source_path[:5]
-    gt_source_path = gt_source_path[:5]
+    # data_source_path = data_source_path[:5]
+    # gt_source_path = gt_source_path[:5]
 
     length = len(data_source_path)
 
