@@ -220,7 +220,7 @@ def do(all_path, model, model_path, save_path):
 def eval_spnet_multi_process(model_path, scene_name="Record006/"):
     time1 = time.time()
     print(model_path)
-    save_path = os.path.join(os.path.dirname(model_path), 'eval_result')
+    save_path = os.path.join(os.path.dirname(model_path), 'eval_result', model_path.split('.')[0])
     print(save_path)
     common.make_path(save_path)
     data_path = os.path.join(common.blockfile_path, 'test', scene_name, 'infer_feature')
@@ -291,7 +291,7 @@ def eval_spnet_multi_process(model_path, scene_name="Record006/"):
         #         class_dict[class_name[real_index]] = [class_acc, class_iou, class_percentage]
         # num_points_all += points_num
     points_num = np.sum(total_matrix, axis = 0)[2]
-    eval_print_save(total_matrix, 'spnet', os.path.dirname(model_path),  points_num = points_num)
+    eval_print_save(total_matrix, model_path.split('.')[0], os.path.dirname(save_path),  points_num = points_num)
 '''
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
