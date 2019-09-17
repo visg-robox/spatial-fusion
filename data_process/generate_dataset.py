@@ -91,12 +91,17 @@ def divide_multi_sequence():
         cur_lidardata_path = os.path.join(lidardata_path, 'train', item)
         cur_save_path = os.path.join(blockfile_path, 'train', item)
         common.make_path(cur_save_path)
-        preprocess_record_feature(cur_lidardata_path, cur_save_path)
+        with open(os.path.join(cur_save_path, 'log_train.txt'), 'a+') as log_f:
+            preprocess_record_feature(cur_lidardata_path, cur_save_path)
+            log_f.write(item + '\n')
     for item in test_list:
         cur_lidardata_path = os.path.join(lidardata_path, 'train', item)
         cur_save_path = os.path.join(blockfile_path, 'test', item)
         common.make_path(cur_save_path)
-        preprocess_record_feature(cur_lidardata_path, cur_save_path)
+        with open(os.path.join(cur_save_path, 'log_test.txt'), 'a+') as log_f:
+            preprocess_record_feature(cur_lidardata_path, cur_save_path)
+            log_f.write(item + '\n')
+        
     save_preserve_ratio()
 
 
