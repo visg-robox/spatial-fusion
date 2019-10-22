@@ -20,7 +20,6 @@ from data_process import data_balance
 from torch import nn
 from torch.autograd import Variable
 from functools import partial
-import xlrd
 from glob import glob
 
 # Hyper Parameters

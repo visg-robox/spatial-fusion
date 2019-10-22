@@ -28,7 +28,9 @@ class attention(nn.Module):
         flag = flag.view(shape[0], shape[1] * shape[2])
 
         attn_weights = self.get_attn_weights(K, Q, flag)  # [bz, near_num*time_step, 1]
+
         attn_value = attn_weights.permute(0, 2, 1).bmm(V)
+
         output = self.decoder(attn_value.squeeze(1))
         output = output.view(shape[0], self.label_num)
 

@@ -95,7 +95,7 @@ def visualize_pc(all_path, save_path = '.', fusion_method = 0, model_path=None):
                                                                             BATCH_SIZE,
                                                                             common.time_step,
                                                                             common.feature_num_iv)
-            input_data = Variable(input_data).cuda()
+            input_data = Variable(input_data).cuda() ,
             with torch.no_grad():
                 output = rnn(input_data, common.time_step)
             for j in range(len(current_keys)):
