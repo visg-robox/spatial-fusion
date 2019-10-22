@@ -46,6 +46,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', type=str, default=_DATA_DIR,
                     help='The directory containing the image data.')
 
+parser.add_argument('--room_list', type=str, default=None,
+                    help='Path to the directory to generate the inference results')
 parser.add_argument('--model_dir', type=str,
                     help='The directory containing the checkpoint')
 
@@ -58,9 +60,11 @@ parser.add_argument('--output_dir', type=str, default=_SAVE_DIR,
 parser.add_argument('--sample_point', type=str, default=_SAMPLE_NUM,
                     help='Path to the directory to generate the inference results')
 
-parser.add_argument('--frag', type=str, default= '0_7',
+parser.add_argument('--room_list', type=str, default=None,
                     help='Path to the directory to generate the inference results')
 
+parser.add_argument('--phase', type=str, default='train',
+                    help='Path to the directory to generate the inference results')
 
 _NUM_CLASSES = dataset_util.NUM_CLASSES
 
@@ -169,17 +173,30 @@ def bilinear_interp_PointWithIndex(items, target_shape, xy):
         valueArray = items[index]
     return valueArray
 
-def write_S3DIS_lidar_data(data_dir, phase, model, room_class_set):
+def write_S3DIS_lidar_data(data_dir, phase, model, room_list_path):
     rgb_path_list_all = glob.glob(os.path.join(data_dir, phase, '*/data/rgb/*.png'))
-    
-    for room_class in room_class_set:
-        rgb_path = [i for i in rgb_path_list_all if room_class in i]
-        room_id_set = set(map(get_room_id, rgb_path))
-        print(room_class, len(rgb_path))
+    room_id_set = set(map(get_room_id, rgb_path_list_all))
+    if room_list_path:
+        print('load room list\n')
+        room_list = []
+        with open(room_list_path, 'r') as r_f:
+            for line in r_f:
+                room_list.append(line.strip())
+    else:
+        print('process all room\n')
+        room_list = room_id_set
+        with open(os.path.join(_SAVE_DIR, phase, 'all_room_list.txt'), 'w+') as l_f:
+            for r in room_list:
+                l_f.write(r + '\n')
+
+    with open(os.path.join(_SAVE_DIR, phase, 'log_room.txt'), 'w+') as log_f:
         for room_id in room_id_set:
-            rgb_list = [i for i in rgb_path if room_id in i]
-            save_dir = os.path.join(_SAVE_DIR, phase, room_id)
-            write_sequence_lidar_data(save_dir, rgb_list, model)
+            if room_id in room_list:
+                print(room_id + '\n')
+                rgb_list = [i for i in rgb_path_list_all if room_id in i]
+                save_dir = os.path.join(_SAVE_DIR, phase, room_id)
+                write_sequence_lidar_data(save_dir, rgb_list, model)
+                log_f.write(room_id + '\n')
 
 def write_sequence_lidar_data(sequcence_save_dir, RGB_list, model):
     pcl_feature_prefix = join(sequcence_save_dir, 'infer_feature')
@@ -293,13 +310,10 @@ def main(unused_argv):
             'pretrained_model': None,
             'model': FLAGS.model
         })
-    
+
+
     DATAPATH = FLAGS.data_dir
-    index = FLAGS.frag.split('_')
-    room_class_set = _ROOM_CLASS[int(index[0]) : int(index[1])]
-    write_S3DIS_lidar_data(DATAPATH, 'train', model, room_class_set)
-    write_S3DIS_lidar_data(DATAPATH, 'test', model, room_class_set)
-    divide_multi_sequence()
+    write_S3DIS_lidar_data(DATAPATH, FLAGS.phase, model, FLAGS.room_list)
 
 
 if __name__ == '__main__':
