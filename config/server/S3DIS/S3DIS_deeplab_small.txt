@@ -5,7 +5,7 @@ region_y:10
 region_z:10
 
 
-dataset_name:S3DIS_all
+dataset_name:S3DIS_small
 
 multi_sequence:1
 raw_data_path:/data1/3d_map/data/S3DIS_raw

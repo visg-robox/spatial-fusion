@@ -45,6 +45,18 @@ python lstm_iv_balance.py ../../config/server/carla/scene1.txt train
 python STFNet.py ../../config/server/carla/scene1.txt train
 python STFNet_res.py ../../config/server/carla/scene1.txt train
 
+
+----S3DIS-----
+python bayes.py ../../config/server/S3DIS/S3DIS_deeplab_small.txt train
+
+python lstm_i.py ../../config/server/S3DIS/S3DIS_deeplab_small.txt train
+python lstm_iv_balance.py ../../config/server/S3DIS/S3DIS_deeplab_small.txt train
+
+python STFNet.py ../../config/server/S3DIS/S3DIS_deeplab_small.txt train
+python STFNet_res.py ../../config/server/S3DIS/S3DIS_deeplab_small.txt train
+
+
+
 ------------------------------TEST-----------------------------------------------------
 
 CUDA_VISIBLE_DEVICES=2 python auto_eval.py ../config/server/apollo/apollo_multi_sequence_road002.txt test lstm_i
