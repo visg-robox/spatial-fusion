@@ -178,7 +178,7 @@ def block_regular(location):
 # input: arbitrary location in voxel
 # output: voxel center
 def voxel_regular(location):
-    location = np.array(location)
+    location = np.array(location , dtype= np.float32)
     voxel_center = (location // common.voxel_length + 0.5) * common.voxel_length
     return voxel_center
 

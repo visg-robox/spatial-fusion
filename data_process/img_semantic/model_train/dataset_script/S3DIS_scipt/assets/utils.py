@@ -18,6 +18,8 @@
 # import OpenEXR
 import json
 from   scipy.ndimage import imread
+import numpy as np
+from PIL import Image
 
 """ Semantics """
 def get_index( color ):
@@ -85,3 +87,70 @@ def read_exr( image_fpath ):
     return im
 
 
+S3DIS_name_dict= {'chair':0, 'ceiling':1, 'column':2, 'table':3, 'window':4,  'sofa':5, 'wall':6, 'floor':7, 'board':8, 'door':9, 'bookcase':10, 'clutter':11, 'beam':12, '<UNK>':255}
+json_label = load_labels('dataset_script/S3DIS_scipt/assets/semantic_labels.json')
+
+def decode_gt_S3DIS(label_path, json_set = json_label):
+    """
+    :param label_path: path of a single label file
+    :return: a decoded label map, should be ID matrix Uint8
+    """
+
+    label_map =  np.array(Image.open(label_path), dtype=np.uint32)
+    h,w = label_map.shape[0:2]
+    ret_map = np.zeros([h,w], dtype=np.uint8)
+    Index_map = label_map[:,:,0] * 256 * 256 + label_map[:,:, 1] * 256 + label_map[:,:,2]
+    for i in range(Index_map.shape[0]):
+        for j in range(Index_map.shape[1]):
+            index = Index_map[i][j]
+            if int(index) > len(json_label):
+                label_name = '<UNK>'
+            else:
+                label_name = parse_label(json_set[int(index)])['instance_class']
+            label_ID = S3DIS_name_dict[label_name]
+            ret_map[i][j] = label_ID
+    return ret_map
+#here to change
+
+def get_room_id(path):
+    """
+    由绝对路径得到房间号
+    :param path:
+    :return:
+    """
+    file_path = path.split('/')[-1]
+    room_id = file_path.split('_')[2] + '_' + file_path.split('_')[3]
+    return room_id
+
+def decode_extrincs_S3DIS(path):
+    """
+    返回当前frame图像的内参以及外参矩阵
+    :param path:
+    :return:
+    """
+    with open(path) as f:
+        parameter = json.load(f)
+    instrincs = parameter["camera_k_matrix"]
+    extrincs = parameter["camera_rt_matrix"]
+    broad = np.expand_dims(np.array([0,0,0,1.0]),axis=0)
+    
+    extrincs = np.concatenate([extrincs,broad], axis=0)
+    extrincs = np.linalg.inv(extrincs)
+    
+    return np.array(extrincs), np.array(instrincs)
+
+
+def decode_depth_S3DIS(depth_path):
+    """
+    返回以float型米为单位的深度图
+    :param depth_path:
+    :return:
+    """
+    depth = np.array(Image.open(depth_path), dtype = np.float32) / 512.0
+    return depth
+    
+def rgb_path2all_path_S3DIS(rgb_path):
+    sem_path = rgb_path.replace('rgb', 'semantic')
+    depth_path = rgb_path.replace('rgb', 'depth')
+    pose_path = rgb_path.replace('rgb', 'pose').replace('png','json')
+    return sem_path, depth_path, pose_path

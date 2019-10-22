@@ -86,9 +86,19 @@ para_dict = load_txt_dict(txt_path)
 
 # preprocess config path ####################################################
 
-voxel_length = 0.05
+
+if 'voxel_length' in list(para_dict.keys()):
+    voxel_length = float(para_dict['voxel_length'])
+else:
+    voxel_length = 0.05
+print(voxel_length)
 # region
-block_len = 5
+if 'block_length' in list(para_dict.keys()):
+    block_len = float(para_dict['block_length'])
+else:
+    block_len = 0.05
+print(block_len)
+
 region_x = int(para_dict['region_x'])
 region_y = int(para_dict['region_y'])
 region_z = int(para_dict['region_z'])
@@ -101,10 +111,11 @@ class_preserve_proba_path = os.path.join(blockfile_path, para_dict['class_preser
 
 if int(para_dict['multi_sequence']):
     raw_data_path = para_dict['raw_data_path']
-    train_sequence_list = para_dict['train_sequence_list'].split(' ')
-    test_sequence_list = para_dict['test_sequence_list'].split(' ')
+    if para_dict['dataset_class_config'] == 'apollo':
+        train_sequence_list = para_dict['train_sequence_list'].split(' ')
+        test_sequence_list = para_dict['test_sequence_list'].split(' ')
+        frame_num_pre_sequence = int(para_dict['frame_num_pre_sequence'])
     point_num_per_frame = int(para_dict['point_num_per_frame'])
-    frame_num_pre_sequence = int(para_dict['frame_num_pre_sequence'])
 
 
 # ###########################################################################
@@ -118,7 +129,7 @@ class_num = int(para_dict['class_num'])
 
 if os.path.exists(class_preserve_proba_path):
     data_preserve_ratio = np.loadtxt(class_preserve_proba_path)
-    ignore_list = list(np.where(np.equal(data_preserve_ratio,0))[0])
+    ignore_list = list(np.where(np.equal(data_preserve_ratio,0))[0]) + [255,-100]
 
 # ignore_list_str = para_dict['ignore_list_str'].split()
 # ignore_list = [int(ignore_list_str[i]) for i in range(len(ignore_list_str))]

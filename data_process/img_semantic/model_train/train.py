@@ -220,7 +220,7 @@ def main(unused_argv):
     if FLAGS.clean_model_dir:
         shutil.rmtree(FLAGS.model_dir, ignore_errors=True)
 
-    tmp_path = os.path.join(FLAGS.model_dir, 'pyfile')
+    tmp_path = os.path.join(MODEL_DIR, 'pyfile')
     if not os.path.isdir(tmp_path):
         os.makedirs(tmp_path)
 
