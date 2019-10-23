@@ -18,7 +18,6 @@ from scipy import misc
 import config, dataset_util
 from utils import preprocessing
 import matplotlib.pyplot as plt
-from scipy import  misc
 import sys
 import json
 
@@ -265,7 +264,7 @@ def write_sequence_lidar_data(sequcence_save_dir, RGB_list, model):
         pred_ID_PATH = join(sequcence_save_dir, 'Pictures/Infer/ID')
         if not os.path.isdir(pred_ID_PATH):
             os.makedirs(pred_ID_PATH)
-        misc.imsave(join(pred_ID_PATH, frame + '.png'), np.uint8(pred_ID))
+        cv2.imsave(join(pred_ID_PATH, frame + '.png'), np.uint8(pred_ID))
         #保存点云数据, 前三维是三维坐标
         np.savetxt(join(pcl_pose_prefix, frame), extrincs)
         pcl_feature = np.concatenate([pcl, point_feature], axis=1)
