@@ -186,17 +186,16 @@ def write_S3DIS_lidar_data(data_dir, phase, model, room_list_path):
             for r in room_list:
                 l_f.write(r + '\n')
     count = 0
-    room_list = set(room_list)
-    for room_id in room_id_set:
-        if room_id in room_list:
-            count += 1
-            print('process %d/%d\n'%(count, len(room_list)))
-            with open(os.path.join(_SAVE_DIR, phase, 'log_room.txt'), 'a+') as log_f:
-                print(room_id + '\n')
-                rgb_list = [i for i in rgb_path_list_all if room_id in i]
-                save_dir = os.path.join(_SAVE_DIR, phase, room_id)
-                write_sequence_lidar_data(save_dir, rgb_list, model)
-                log_f.write(room_id + '\n')
+    
+    for room_id in room_list:
+        count += 1
+        print('process %d/%d\n'%(count, len(room_list)))
+        with open(os.path.join(_SAVE_DIR, phase, 'log_room.txt'), 'a+') as log_f:
+            print(room_id + '\n')
+            rgb_list = [i for i in rgb_path_list_all if room_id in i]
+            save_dir = os.path.join(_SAVE_DIR, phase, room_id)
+            write_sequence_lidar_data(save_dir, rgb_list, model)
+            log_f.write(room_id + '\n')
 
 def write_sequence_lidar_data(sequcence_save_dir, RGB_list, model):
     pcl_feature_prefix = join(sequcence_save_dir, 'infer_feature')
