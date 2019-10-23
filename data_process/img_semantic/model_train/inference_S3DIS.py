@@ -183,7 +183,7 @@ def write_S3DIS_lidar_data(data_dir, phase, model, room_list_path):
     else:
         print('process all room\n')
         room_list = room_id_set
-        with open(os.path.join(_SAVE_DIR, phase, 'all_room_list.txt'), 'w+') as l_f:
+        with open(os.path.join(_SAVE_DIR, phase, 'all_room_list.txt'), 'w') as l_f:
             for r in room_list:
                 l_f.write(r + '\n')
     count = 0
