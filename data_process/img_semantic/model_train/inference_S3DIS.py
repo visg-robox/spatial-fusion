@@ -173,6 +173,7 @@ def bilinear_interp_PointWithIndex(items, target_shape, xy):
 def write_S3DIS_lidar_data(data_dir, phase, model, room_list_path):
     rgb_path_list_all = glob.glob(os.path.join(data_dir, phase, '*/data/rgb/*.png'))
     room_id_set = set(map(get_room_id, rgb_path_list_all))
+    sorted(room_id_set)
     if room_list_path:
         print('load room list\n')
         room_list = []
@@ -181,7 +182,7 @@ def write_S3DIS_lidar_data(data_dir, phase, model, room_list_path):
                 room_list.append(line.strip())
     else:
         print('process all room\n')
-        room_list = sorted(room_id_set)
+        room_list = room_id_set
         with open(os.path.join(_SAVE_DIR, phase, 'all_room_list.txt'), 'w+') as l_f:
             for r in room_list:
                 l_f.write(r + '\n')
