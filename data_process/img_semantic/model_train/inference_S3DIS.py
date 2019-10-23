@@ -46,8 +46,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', type=str, default=_DATA_DIR,
                     help='The directory containing the image data.')
 
-parser.add_argument('--room_list', type=str, default=None,
-                    help='Path to the directory to generate the inference results')
 parser.add_argument('--model_dir', type=str,
                     help='The directory containing the checkpoint')
 
