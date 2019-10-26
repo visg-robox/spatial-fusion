@@ -18,7 +18,6 @@ from scipy import misc
 import config, dataset_util
 from utils import preprocessing
 import matplotlib.pyplot as plt
-from scipy import  misc
 import sys
 import json
 
@@ -184,21 +183,21 @@ def write_S3DIS_lidar_data(data_dir, phase, model, room_list_path):
                 room_list.append(line.strip())
     else:
         print('process all room\n')
-        room_list = room_id_set
-        with open(os.path.join(_SAVE_DIR, phase, 'all_room_list.txt'), 'w+') as l_f:
+        room_list = list(room_id_set)
+        with open(os.path.join(_SAVE_DIR, phase, 'all_room_list.txt'), 'w') as l_f:
             for r in room_list:
                 l_f.write(r + '\n')
     count = 0
-    for room_id in room_id_set:
-        if room_id in room_list:
-            count += 1
-            print('process %d/%d\n'%(count, len(room_list)))
-            with open(os.path.join(_SAVE_DIR, phase, 'log_room.txt'), 'a+') as log_f:
-                print(room_id + '\n')
-                rgb_list = [i for i in rgb_path_list_all if room_id in i]
-                save_dir = os.path.join(_SAVE_DIR, phase, room_id)
-                write_sequence_lidar_data(save_dir, rgb_list, model)
-                log_f.write(room_id + '\n')
+    
+    for room_id in room_list:
+        count += 1
+        print('process %d/%d\n'%(count, len(room_list)))
+        with open(os.path.join(_SAVE_DIR, phase, 'log_room.txt'), 'a+') as log_f:
+            print(room_id + '\n')
+            rgb_list = [i for i in rgb_path_list_all if room_id in i]
+            save_dir = os.path.join(_SAVE_DIR, phase, room_id)
+            write_sequence_lidar_data(save_dir, rgb_list, model)
+            log_f.write(room_id + '\n')
 
 def write_sequence_lidar_data(sequcence_save_dir, RGB_list, model):
     pcl_feature_prefix = join(sequcence_save_dir, 'infer_feature')
@@ -267,7 +266,7 @@ def write_sequence_lidar_data(sequcence_save_dir, RGB_list, model):
         pred_ID_PATH = join(sequcence_save_dir, 'Pictures/Infer/ID')
         if not os.path.isdir(pred_ID_PATH):
             os.makedirs(pred_ID_PATH)
-        misc.imsave(join(pred_ID_PATH, frame + '.png'), np.uint8(pred_ID))
+        cv2.imwrite(join(pred_ID_PATH, frame + '.png'), np.uint8(pred_ID))
         #保存点云数据, 前三维是三维坐标
         np.savetxt(join(pcl_pose_prefix, frame), extrincs)
         pcl_feature = np.concatenate([pcl, point_feature], axis=1)

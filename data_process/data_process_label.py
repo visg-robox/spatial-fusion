@@ -95,7 +95,7 @@ def pre_process(infer_path, gt_path, pose_path, infer_save_path, gt_save_path):
 
 
 def make_dir(dir):
-    if not os.path.isdir(dir):
+    if not os.path.exists(dir):
         os.makedirs(dir)
 
 TRAIN_FLAG = True

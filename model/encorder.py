@@ -27,7 +27,6 @@ VECTOR_DIM = common.vector_size
 OFFSET_DIM = common.offset_size
 LOCATION_DIM = common.location_size
 
-
 class encorder(nn.Module):
     def __init__(self, qk_dim):
         super(encorder, self).__init__()

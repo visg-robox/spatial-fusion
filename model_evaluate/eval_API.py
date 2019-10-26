@@ -1,7 +1,7 @@
 import argparse
 import math
 import numpy as np
-#import tensorflow as tf
+import tensorflow as tf
 import socket
 
 import os
@@ -150,7 +150,7 @@ def getaccuracy(pred,gt,validclass=VALIDCLASS,ignoreclass=-1):
     return class_num
 
 
-def eval_print_save(total_accuracy, method_name, logdir, classname = CLASSNAME, record_valid = True):
+def eval_print_save(total_accuracy, method_name, logdir, classname = CLASSNAME, record_valid = True, points_num=0):
     per_class_accuracy = total_accuracy[:, 1] / total_accuracy[:, 2]
     mean_accuracy = np.sum(total_accuracy[:, 1]) / np.sum(total_accuracy[:, 2])
     per_class_iou = total_accuracy[:, 1] / (total_accuracy[:, 0] + total_accuracy[:, 2] - total_accuracy[:, 1])
@@ -180,8 +180,8 @@ def eval_print_save(total_accuracy, method_name, logdir, classname = CLASSNAME, 
     booksheet.write(0,2,'mean')
     booksheet.write(1, 2 ,format(mean_accuracy,'.3%'))
     booksheet.write(4, 2  , format(miou,'.3%'))
-
-    workbook.save(logdir+'/'+method_name+'_xlwt.xls')
+    print(logdir + '/' + method_name + '_' + str(points_num) + '_xlwt.xls')
+    workbook.save(logdir + '/' + method_name + '_' + str(points_num) + '_xlwt.xls')
 
     if not os.path.isdir(logdir):
         os.makedirs(logdir)

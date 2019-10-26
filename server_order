@@ -7,20 +7,25 @@ cd /data1/3d_map/spatial-fusion/train/feature
 cd /data1/3d_map/spatial-fusion/model_evaluate
 
 cd /data1/3d_map/spatial-fusion/data_process/img_semantic
-cd /data1/3d_map/spatial-fusion/data_process/img_semantic/model_train
+
 
 
 ------------------------------Generate_data-----------------------------------------------------
+cd /data1/3d_map/spatial-fusion/data_process/img_semantic/model_train
 source activate test
 
+
+获得lidar_data
 =======apollo==========
 ----deeplab-----
-CUDA_VISIBLE_DEVICES=2 python inference_apollo.py ../../../config/server/apollo/apollo_multi_sequence_road002_deeplab.txt None --model_dir ../data_and_checkpoint/deeplabV3+_15000_balance --model D
-
+CUDA_VISIBLE_DEVICES=0 python inference_S3DIS.py ../../../config/server/S3DIS/S3DIS_deeplab_small.txt SPNET --model_dir ../data_and_checkpoint/S3DIS_deeplab60000_no_b --model D --phase train
 
 =======s3dis==========
 首先需要替换掉原来的dataset_util文件为相应文件夹下的文件, 确保你有相应的模型, 之后再使用一下命令
-CUDA_VISIBLE_DEVICES=0 python inference_S3DIS.py ../../../config/server/S3DIS/S3DIS_multi_sequence_deeplab.txt SPNET --model_dir ../data_and_checkpoint/S3DIS_deeplab60000_no_b --model D --frag 0_5
+CUDA_VISIBLE_DEVICES=0 python inference_S3DIS.py ../../../config/server/S3DIS/S3DIS_deeplab_small.txt SPNET --model_dir ../data_and_checkpoint/S3DIS_deeplab60000_no_b --model D --phase test --room_list ../../../../data/S3DIS/S3DIS_small/lidar_data/test/all_room_list.txt 
+
+获得block data
+python generate_dataset.py ../../../config/server/S3DIS/S3DIS_deeplab_small.txt SPNET
 
 
 
@@ -44,6 +49,18 @@ python lstm_iv_balance.py ../../config/server/carla/scene1.txt train
 
 python STFNet.py ../../config/server/carla/scene1.txt train
 python STFNet_res.py ../../config/server/carla/scene1.txt train
+
+
+----S3DIS-----
+python bayes.py ../../config/server/S3DIS/S3DIS_deeplab_small.txt train
+
+python lstm_i.py ../../config/server/S3DIS/S3DIS_deeplab_small.txt train
+python lstm_iv_balance.py ../../config/server/S3DIS/S3DIS_deeplab_small.txt train
+
+python STFNet.py ../../config/server/S3DIS/S3DIS_deeplab_small.txt train
+python STFNet_res.py ../../config/server/S3DIS/S3DIS_deeplab_small.txt train
+
+
 
 ------------------------------TEST-----------------------------------------------------
 

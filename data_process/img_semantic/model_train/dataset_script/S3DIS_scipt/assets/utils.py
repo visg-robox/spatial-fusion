@@ -17,7 +17,6 @@
 # import numpy
 # import OpenEXR
 import json
-from   scipy.ndimage import imread
 import numpy as np
 from PIL import Image
 

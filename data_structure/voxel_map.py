@@ -146,7 +146,7 @@ class VoxelMap:
         return True
 
     def write_map(self, path, file_name, onehot = True):
-        full_path = path + file_name
+        full_path = os.path.join(path, file_name)
         obj_file = open(full_path + '.txt', 'w')
         for i in range(len(self.map)):
             for key in self.map[i]:
