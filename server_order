@@ -12,7 +12,7 @@ cd /data1/3d_map/spatial-fusion/data_process/img_semantic
 
 ------------------------------Generate_data-----------------------------------------------------
 cd /data1/3d_map/spatial-fusion/data_process/img_semantic/model_train
-source activate test
+source activate py36
 
 
 获得lidar_data
