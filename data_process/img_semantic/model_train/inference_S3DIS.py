@@ -184,7 +184,7 @@ def write_S3DIS_lidar_data(data_dir, phase, model, room_list_path):
     else:
         print('process all room\n')
         room_list = list(room_id_set)
-        with open(os.path.join(_SAVE_DIR, phase, 'all_room_list.txt'), 'w') as l_f:
+        with open(os.path.join(_SAVE_DIR, phase + '_all_room_list.txt'), 'w') as l_f:
             for r in room_list:
                 l_f.write(r + '\n')
     count = 0
@@ -192,9 +192,9 @@ def write_S3DIS_lidar_data(data_dir, phase, model, room_list_path):
     for room_id in room_list:
         count += 1
         print('process %d/%d\n'%(count, len(room_list)))
-        with open(os.path.join(_SAVE_DIR, phase, 'log_room.txt'), 'a+') as log_f:
+        with open(os.path.join(_SAVE_DIR, phase + 'log_room.txt'), 'a+') as log_f:
             print(room_id + '\n')
-            rgb_list = [i for i in rgb_path_list_all if room_id in i]
+            rgb_list = [i for i in rgb_path_list_all if get_room_id(i)==room_id]
             save_dir = os.path.join(_SAVE_DIR, phase, room_id)
             write_sequence_lidar_data(save_dir, rgb_list, model)
             log_f.write(room_id + '\n')
