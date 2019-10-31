@@ -117,8 +117,9 @@ def get_room_id(path):
     :param path:
     :return:
     """
+    area_path = path.split('/')[-4]
     file_path = path.split('/')[-1]
-    room_id = file_path.split('_')[2] + '_' + file_path.split('_')[3]
+    room_id = area_path + '_' + file_path.split('_')[2] + '_' + file_path.split('_')[3]
     return room_id
 
 def decode_extrincs_S3DIS(path):
