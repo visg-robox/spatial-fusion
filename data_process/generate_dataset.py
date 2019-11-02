@@ -9,8 +9,16 @@ import common
 import numpy as np
 from data_process.data_statistics import save_preserve_ratio
 from data_process.data_process_feature import preprocess_feature, preprocess_record_feature
+import argparse
 
 SCENCE_NUM = 4
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--room_list', type=str, default=None,
+                    help='Path to the directory to generate the inference results')
+
+parser.add_argument('--phase', type=str, default='train',
+                    help='Path to the directory to generate the inference results')
 
 
 def get_file_list(data_dir):
@@ -82,30 +90,28 @@ def devide_with_pose():
         shutil.move(cur_gt_file, os.path.join(test_gt_save_path, fname))
 
 
-def divide_multi_sequence():
+def divide_multi_sequence(phase, list):
     lidardata_path = common.lidardata_path
     blockfile_path = common.blockfile_path
-    train_list = os.listdir(lidardata_path + '/train')
-    test_list =  os.listdir(lidardata_path + '/test')
-    for item in train_list:
-        cur_lidardata_path = os.path.join(lidardata_path, 'train', item)
-        cur_save_path = os.path.join(blockfile_path, 'train', item)
+    for item in list:
+        cur_lidardata_path = os.path.join(lidardata_path, phase, item)
+        cur_save_path = os.path.join(blockfile_path, phase, item)
         common.make_path(cur_save_path)
-        with open(os.path.join(cur_save_path, 'log_train.txt'), 'a+') as log_f:
+        with open(os.path.join(cur_save_path, phase + '_log.txt'), 'a+') as log_f:
             preprocess_record_feature(cur_lidardata_path, cur_save_path)
             log_f.write(item + '\n')
-    for item in test_list:
-        cur_lidardata_path = os.path.join(lidardata_path, 'test', item)
-        cur_save_path = os.path.join(blockfile_path, 'test', item)
-        common.make_path(cur_save_path)
-        with open(os.path.join(cur_save_path, 'log_test.txt'), 'a+') as log_f:
-            preprocess_record_feature(cur_lidardata_path, cur_save_path)
-            log_f.write(item + '\n')
-        
-    save_preserve_ratio()
+    # save_preserve_ratio()
 
 
 if __name__ == "__main__":
-    divide_multi_sequence()
-
+    FLAGS = parser.parse_args()
+    phase = FLAGS.phase
+    list_path = FLAGS.room_list
+    room_list = []
+    with open(list_path, 'r') as r_f:
+        for line in r_f:
+            room_list.append(line.strip())
+    divide_multi_sequence(phase, room_list)
+    
+    
 
