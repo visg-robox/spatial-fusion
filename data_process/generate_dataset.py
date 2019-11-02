@@ -13,13 +13,6 @@ import argparse
 
 SCENCE_NUM = 4
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--room_list', type=str, default=None,
-                    help='Path to the directory to generate the inference results')
-
-parser.add_argument('--phase', type=str, default='train',
-                    help='Path to the directory to generate the inference results')
-
 
 def get_file_list(data_dir):
     path_list = list()
