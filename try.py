@@ -25,3 +25,4 @@ time.sleep(5)  # 表示do something
 obj.terminate()  # 终止线程
 t.join()
 print("主线程结束")
+
