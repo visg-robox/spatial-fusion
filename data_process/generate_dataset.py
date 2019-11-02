@@ -98,8 +98,8 @@ def divide_multi_sequence(phase, list):
 
 if __name__ == "__main__":
     
-    phase = sys.argv[2]
-    list_path = sys.argv[3]
+    phase = sys.argv[3]
+    list_path = sys.argv[4]
     room_list = []
     with open(list_path, 'r') as r_f:
         for line in r_f:
