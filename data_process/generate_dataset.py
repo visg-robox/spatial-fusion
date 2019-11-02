@@ -104,9 +104,9 @@ def divide_multi_sequence(phase, list):
 
 
 if __name__ == "__main__":
-    FLAGS = parser.parse_args()
-    phase = FLAGS.phase
-    list_path = FLAGS.room_list
+    
+    phase = sys.argv[2]
+    list_path = sys.argv[3]
     room_list = []
     with open(list_path, 'r') as r_f:
         for line in r_f:

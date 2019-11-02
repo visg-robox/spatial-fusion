@@ -25,7 +25,7 @@ CUDA_VISIBLE_DEVICES=0 python inference_S3DIS.py ../../../config/server/S3DIS/S3
 CUDA_VISIBLE_DEVICES=0 python inference_S3DIS.py ../../../config/server/S3DIS/S3DIS_deeplab_small.txt SPNET --model_dir ../data_and_checkpoint/S3DIS_deeplab60000_no_b --model D --phase test --room_list ../../../../data/S3DIS/S3DIS_small/lidar_data/test/all_room_list.txt 
 
 获得block data
-python generate_dataset.py ../../../config/server/S3DIS/S3DIS_deeplab_small.txt SPNET
+python generate_dataset.py ../config/server/S3DIS/S3DIS_deeplab_small.txt SPNET --phase test --room_list ../../../../data/S3DIS/S3DIS_small/lidar_data/test/all_room_list.txt
 
 
 
