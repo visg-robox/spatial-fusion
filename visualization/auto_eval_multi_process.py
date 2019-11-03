@@ -150,7 +150,7 @@ if __name__ == '__main__' :
     if common.para_dict['dataset_class_config'] == 'apollo':
         scene_name = 'Record006/'
         data_path = os.path.join(common.blockfile_path, 'test/' + scene_name + 'infer_feature/')
-        gt_path = os.path.join(common.blockfile_path, 'test/' + scene_name + '/gt/')
+        gt_path = os.path.join(common.blockfile_path, 'test/' + scene_name + 'gt/')
         data_source_path = common.get_file_list(data_path)
         data_source_path.sort()
         gt_source_path = common.get_file_list(gt_path)
@@ -169,8 +169,8 @@ if __name__ == '__main__' :
             for line in r_f:
                 room_list.append(line.strip())
         for item in room_list:
-            data_path = os.path.join(common.blockfile_path, 'test/' + item + 'infer_feature/')
-            gt_path = os.path.join(common.blockfile_path, 'test/' + item + 'gt/')
+            data_path = os.path.join(common.blockfile_path, 'test/' + item + '/infer_feature/')
+            gt_path = os.path.join(common.blockfile_path, 'test/' + item + '/gt/')
             data_source_path = common.get_file_list(data_path)
             data_source_path.sort()
             gt_source_path = common.get_file_list(gt_path)
