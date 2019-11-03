@@ -132,7 +132,7 @@ def visualize_pc(all_path, save_path = '.', fusion_method = 0, model_path=None):
 
 
 def do(all_path):
-    model_path = common.test_model_path + '/spfnet_res_100000_model.pkl'
+    model_path = common.test_model_path + '/150000_model.pkl'
     save_path = os.path.join(common.test_model_path, 'visual_spnet_multiprocess')
     make_dir(save_path)
 
@@ -143,14 +143,17 @@ def do(all_path):
 
 if __name__ == '__main__' :
     time1 = time.time()
-    scene_name = 'Record006/'
-    data_path = os.path.join(common.blockfile_path, 'test/' + scene_name + 'infer_feature/')
-    gt_path = os.path.join(common.blockfile_path, 'test/' + scene_name + '/gt/')
-
-    data_source_path = common.get_file_list(data_path)
-    data_source_path.sort()
-    gt_source_path = common.get_file_list(gt_path)
-    gt_source_path.sort()
+    if common.para_dict['dataset_class_config'] == 'apollo':
+        scene_name = 'Record006/'
+        data_path = os.path.join(common.blockfile_path, 'test/' + scene_name + 'infer_feature/')
+        gt_path = os.path.join(common.blockfile_path, 'test/' + scene_name + '/gt/')
+        data_source_path = common.get_file_list(data_path)
+        data_source_path.sort()
+        gt_source_path = common.get_file_list(gt_path)
+        gt_source_path.sort()
+    if common.para_dict['dataset_class_config'] == 'S3DIS':
+        data_source_path = common.get_file_list_with_pattern('infer_feature',os.path.join(common.blockfile_path,'test'))
+        gt_source_path = common.get_file_list_with_pattern('gt',os.path.join(common.blockfile_path,'test'))
 
     length = len(data_source_path)
 
