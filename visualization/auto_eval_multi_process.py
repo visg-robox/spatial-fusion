@@ -153,7 +153,9 @@ if __name__ == '__main__' :
         gt_source_path.sort()
     if common.para_dict['dataset_class_config'] == 'S3DIS':
         data_source_path = common.get_file_list_with_pattern('infer_feature',os.path.join(common.blockfile_path,'test'))
+        gt_path = 1
         gt_source_path = common.get_file_list_with_pattern('gt',os.path.join(common.blockfile_path,'test'))
+
 
     length = len(data_source_path)
 
