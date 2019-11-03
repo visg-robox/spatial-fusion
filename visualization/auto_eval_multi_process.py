@@ -124,9 +124,9 @@ def visualize_pc(all_path, save_path = '.', fusion_method = 0, model_path=None):
             result_map.insert(key_to_center(key), infer_label)
 
     if fusion_method is common.FsMethod.GT:
-        result_map.write_map(save_path, map_name+source_filename.split('/')[-1].split('.')[0], onehot = False)
+        result_map.write_map(os.path.join(save_path,source_filename.split('/')[-3]), map_name+source_filename.split('/')[-1].split('.')[0], onehot = False)
     else:
-        result_map.write_map(save_path, map_name+source_filename.split('/')[-1].split('.')[0], onehot=True)
+        result_map.write_map(os.path.join(save_path,source_filename.split('/')[-3]), map_name+source_filename.split('/')[-1].split('.')[0], onehot=True)
 
 
 
