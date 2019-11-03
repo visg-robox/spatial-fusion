@@ -123,10 +123,13 @@ def visualize_pc(all_path, save_path = '.', fusion_method = 0, model_path=None):
             infer_label = choice(cur_voxel.feature_info_list).feature_list
             result_map.insert(key_to_center(key), infer_label)
 
+
+    save_path_new = os.path.join(save_path,source_filename.split('/')[-3])
+    make_dir(save_path_new)
     if fusion_method is common.FsMethod.GT:
-        result_map.write_map(os.path.join(save_path,source_filename.split('/')[-3]), map_name+source_filename.split('/')[-1].split('.')[0], onehot = False)
+        result_map.write_map(save_path_new, map_name+source_filename.split('/')[-1].split('.')[0], onehot = False)
     else:
-        result_map.write_map(os.path.join(save_path,source_filename.split('/')[-3]), map_name+source_filename.split('/')[-1].split('.')[0], onehot=True)
+        result_map.write_map(save_path_new, map_name+source_filename.split('/')[-1].split('.')[0], onehot=True)
 
 
 
@@ -143,6 +146,7 @@ def do(all_path):
 
 if __name__ == '__main__' :
     time1 = time.time()
+    pool = multiprocessing.Pool(processes=2)
     if common.para_dict['dataset_class_config'] == 'apollo':
         scene_name = 'Record006/'
         data_path = os.path.join(common.blockfile_path, 'test/' + scene_name + 'infer_feature/')
@@ -151,23 +155,41 @@ if __name__ == '__main__' :
         data_source_path.sort()
         gt_source_path = common.get_file_list(gt_path)
         gt_source_path.sort()
+        length = len(data_source_path)
+
+        all_paths = []
+        for i in range(length):
+            all_paths.append([data_source_path[i], gt_source_path[i]])
+
+        pool.map(do, all_paths)
     if common.para_dict['dataset_class_config'] == 'S3DIS':
-        data_source_path = common.get_file_list_with_pattern('infer_feature',os.path.join(common.blockfile_path,'test'))
-        gt_path = 1
-        gt_source_path = common.get_file_list_with_pattern('gt',os.path.join(common.blockfile_path,'test'))
+        list_path = sys.argv[4]
+        room_list = []
+        with open(list_path, 'r') as r_f:
+            for line in r_f:
+                room_list.append(line.strip())
+        for item in room_list:
+            data_path = os.path.join(common.blockfile_path, 'test/' + item + 'infer_feature/')
+            gt_path = os.path.join(common.blockfile_path, 'test/' + item + 'gt/')
+            data_source_path = common.get_file_list(data_path)
+            data_source_path.sort()
+            gt_source_path = common.get_file_list(gt_path)
+            gt_source_path.sort()
+            length = len(data_source_path)
 
+            all_paths = []
+            for i in range(length):
+                all_paths.append([data_source_path[i], gt_source_path[i]])
 
-    length = len(data_source_path)
+            pool.map(do, all_paths)
 
-    all_paths = []
-    for i in range(length):
-        all_paths.append([data_source_path[i], gt_source_path[i]])
-    pool = multiprocessing.Pool(processes=2)
-
-    pool.map(do, all_paths)
 
     pool.close()
     pool.join()
     time2 = time.time()
     print("Sub-process(es) done.")
     print(time2 - time1)
+
+
+
+
