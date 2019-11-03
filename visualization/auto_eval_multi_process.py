@@ -1,9 +1,8 @@
 import sys
-sys.path.append('../spatial-fusion/')
+sys.path.append('../')
 import multiprocessing
-import common
 import os
-from data_process.data_process_label import *
+#from data_process.data_process_label import *
 # import common
 from torch import nn
 import torch
@@ -12,6 +11,7 @@ from model.rnn import *
 from torch.autograd import Variable
 from data_process.data_process_label import *
 from data_process import data_loader_torch,data_balance
+import common
 import shelve
 
 BATCH_SIZE = 32
