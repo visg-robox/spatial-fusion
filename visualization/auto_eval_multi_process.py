@@ -138,7 +138,7 @@ def do(all_path):
     save_path = os.path.join(common.test_model_path, 'visual_spnet_multiprocess')
     make_dir(save_path)
 
-    visualize_pc(all_path, save_path, common.FsMethod.STF, model_path)
+    #visualize_pc(all_path, save_path, common.FsMethod.STF, model_path)
     visualize_pc(all_path, save_path, common.FsMethod.GT, model_path)
 
 
