@@ -57,13 +57,14 @@ def visualize_pc(all_path, save_path = '.', fusion_method = 0, model_path=None):
     if fusion_method is common.FsMethod.STF:
         label_p = np.ones(common.class_num)
         infer_dict_res, gt_dict_res = data_balance.data_balance(voxel_dict, gt_dict, label_p)
-        batch_num = (len(keys_list) // BATCH_SIZE) + 1
+        infer_keys_list = common.get_common_keys(infer_dict_res,gt_dict_res)
+        batch_num = (len(infer_keys_list) // BATCH_SIZE) + 1
         for i in range(batch_num):
             start_time = time.time()
             if i == batch_num - 1:
-                current_keys = keys_list[i * BATCH_SIZE:]
+                current_keys = infer_keys_list[i * BATCH_SIZE:]
             else:
-                current_keys = keys_list[i * BATCH_SIZE:(i + 1) * BATCH_SIZE]
+                current_keys = infer_keys_list[i * BATCH_SIZE:(i + 1) * BATCH_SIZE]
 
             input_data = data_loader_torch.featuremap_to_batch_ivo_with_neighbour(infer_dict_res,
                                                                 current_keys,
