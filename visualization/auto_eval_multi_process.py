@@ -45,7 +45,7 @@ def visualize_pc(all_path, save_path = '.', fusion_method = 0, model_path=None):
                                                         len(keys_list),
                                                         ignore_list=common.ignore_list)
 
-        valid_index = np.where(np.logical_and(np.greater_equal(gt, 0), np.less_equal(gt, common.class_num)))
+        valid_index = np.where(np.logical_and(np.greater_equal(gt, 0), np.less(gt, common.class_num)))
 
         keys_list = list(np.array(keys_list)[valid_index])
         keys_list = list(map(lambda a:tuple(a), keys_list))
