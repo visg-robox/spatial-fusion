@@ -90,7 +90,7 @@ def divide_multi_sequence(phase, list):
         cur_lidardata_path = os.path.join(lidardata_path, phase, item)
         cur_save_path = os.path.join(blockfile_path, phase, item)
         common.make_path(cur_save_path)
-        with open(os.path.join(cur_save_path, phase + '_log.txt'), 'a+') as log_f:
+        with open(os.path.join(blockfile_path, phase + '_log.txt'), 'a+') as log_f:
             preprocess_record_feature(cur_lidardata_path, cur_save_path)
             log_f.write(item + '\n')
     # save_preserve_ratio()
