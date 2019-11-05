@@ -10,7 +10,7 @@ dataset_name:S3DIS_small
 multi_sequence:1
 raw_data_path:/data1/3d_map/data/S3DIS_raw
 lidardata_path:/data1/3d_map/data/S3DIS/S3DIS_small/lidar_data
-blockfile_path:/data1/3d_map/data/S3DIS/S3DIS_small/block_data
+blockfile_path:/data1/3d_map/data/S3DIS/S3DIS_small/block_data_copy
 class_preserve_proba_path:data_dropout_ratio.txt
 
 

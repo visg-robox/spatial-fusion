@@ -1,7 +1,8 @@
+import sys
+sys.path.append('../')
 import multiprocessing
-import common
 import os
-from data_process.data_process_label import *
+#from data_process.data_process_label import *
 # import common
 from torch import nn
 import torch
@@ -10,9 +11,8 @@ from model.rnn import *
 from torch.autograd import Variable
 from data_process.data_process_label import *
 from data_process import data_loader_torch,data_balance
-import sys
+import common
 import shelve
-sys.path.append('../spatial-fusion/')
 
 BATCH_SIZE = 32
 
@@ -27,10 +27,7 @@ def visualize_pc(all_path, save_path = '.', fusion_method = 0, model_path=None):
         rnn.cuda()
         rnn.eval()
     map_name = common.FsMethod(fusion_method).name + '_res'
-
     source_filename = data_source_path
-
-
     position = source_filename.split('/')[-1].split('.')[0].split('_')
     position = np.array(position,dtype=np.int)
 
@@ -40,7 +37,7 @@ def visualize_pc(all_path, save_path = '.', fusion_method = 0, model_path=None):
     voxel_dict = np.load(source_filename).item()
     keys_list = list(voxel_dict.keys())
     print(len(keys_list))
-    if gt_path:
+    if gt_source_path:
         gt_filename = gt_source_path
         gt_dict = np.load(gt_filename).item()
         gt = data_loader_torch.featuremap_to_gt_num(gt_dict,
@@ -48,7 +45,7 @@ def visualize_pc(all_path, save_path = '.', fusion_method = 0, model_path=None):
                                                         len(keys_list),
                                                         ignore_list=common.ignore_list)
 
-        valid_index = np.where(np.logical_and(np.greater_equal(gt, 0), np.less_equal(gt, common.class_num)))
+        valid_index = np.where(np.logical_and(np.greater_equal(gt, 0), np.less(gt, common.class_num)))
 
         keys_list = list(np.array(keys_list)[valid_index])
         keys_list = list(map(lambda a:tuple(a), keys_list))
@@ -56,17 +53,18 @@ def visualize_pc(all_path, save_path = '.', fusion_method = 0, model_path=None):
         print(len(keys_list))
 
 
-        print('source file name: ', source_filename)
+    print('source file name: ', source_filename)
     if fusion_method is common.FsMethod.STF:
         label_p = np.ones(common.class_num)
         infer_dict_res, gt_dict_res = data_balance.data_balance(voxel_dict, gt_dict, label_p)
-        batch_num = (len(keys_list) // BATCH_SIZE) + 1
+        infer_keys_list = common.get_common_keys(infer_dict_res,gt_dict_res)
+        batch_num = (len(infer_keys_list) // BATCH_SIZE) + 1
         for i in range(batch_num):
             start_time = time.time()
             if i == batch_num - 1:
-                current_keys = keys_list[i * BATCH_SIZE:]
+                current_keys = infer_keys_list[i * BATCH_SIZE:]
             else:
-                current_keys = keys_list[i * BATCH_SIZE:(i + 1) * BATCH_SIZE]
+                current_keys = infer_keys_list[i * BATCH_SIZE:(i + 1) * BATCH_SIZE]
 
             input_data = data_loader_torch.featuremap_to_batch_ivo_with_neighbour(infer_dict_res,
                                                                 current_keys,
@@ -123,46 +121,78 @@ def visualize_pc(all_path, save_path = '.', fusion_method = 0, model_path=None):
             infer_label = choice(cur_voxel.feature_info_list).feature_list
             result_map.insert(key_to_center(key), infer_label)
 
+
     if fusion_method is common.FsMethod.GT:
-        result_map.write_map(save_path, map_name+source_filename.split('/')[-1].split('.')[0], onehot = False)
+        save_path_new = os.path.join(save_path,source_filename.split('/')[-3],'gt')
+        make_dir(save_path_new)
+        result_map.write_map(save_path_new, map_name+source_filename.split('/')[-1].split('.')[0], onehot = False)
     else:
-        result_map.write_map(save_path, map_name+source_filename.split('/')[-1].split('.')[0], onehot=True)
+        save_path_new = os.path.join(save_path, source_filename.split('/')[-3], 'infer')
+        make_dir(save_path_new)
+        result_map.write_map(save_path_new, map_name+source_filename.split('/')[-1].split('.')[0], onehot=True)
 
 
 
 
 def do(all_path):
-    model_path = common.test_model_path + '/spfnet_res_100000_model.pkl'
+    model_path = common.test_model_path + '/95000_model.pkl'
     save_path = os.path.join(common.test_model_path, 'visual_spnet_multiprocess')
     make_dir(save_path)
 
-    visualize_pc(all_path, save_path, common.FsMethod.STF, model_path)
+    #visualize_pc(all_path, save_path, common.FsMethod.STF, model_path)
+    visualize_pc(all_path, save_path, common.FsMethod.RNN_FEATURE, model_path)
+    #visualize_pc(all_path, save_path, common.FsMethod.GT, model_path)
+
 
     return
 
 
 if __name__ == '__main__' :
     time1 = time.time()
-    scene_name = 'Record006/'
-    data_path = os.path.join(common.blockfile_path, 'test/' + scene_name + 'infer_feature/')
-    gt_path = os.path.join(common.blockfile_path, 'test/' + scene_name + '/gt/')
-
-    data_source_path = common.get_file_list(data_path)
-    data_source_path.sort()
-    gt_source_path = common.get_file_list(gt_path)
-    gt_source_path.sort()
-
-    length = len(data_source_path)
-
-    all_paths = []
-    for i in range(length):
-        all_paths.append([data_source_path[i], gt_source_path[i]])
     pool = multiprocessing.Pool(processes=2)
+    if common.para_dict['dataset_class_config'] == 'apollo':
+        scene_name = 'Record006/'
+        data_path = os.path.join(common.blockfile_path, 'test/' + scene_name + 'infer_feature/')
+        gt_path = os.path.join(common.blockfile_path, 'test/' + scene_name + 'gt/')
+        data_source_path = common.get_file_list(data_path)
+        data_source_path.sort()
+        gt_source_path = common.get_file_list(gt_path)
+        gt_source_path.sort()
+        length = len(data_source_path)
 
-    pool.map(do, all_paths)
+        all_paths = []
+        for i in range(length):
+            all_paths.append([data_source_path[i], gt_source_path[i]])
+
+        pool.map(do, all_paths)
+    if common.para_dict['dataset_class_config'] == 'S3DIS':
+        list_path = sys.argv[4]
+        room_list = []
+        with open(list_path, 'r') as r_f:
+            for line in r_f:
+                room_list.append(line.strip())
+        for item in room_list:
+            data_path = os.path.join(common.blockfile_path, 'test/' + item + '/infer_feature/')
+            gt_path = os.path.join(common.blockfile_path, 'test/' + item + '/gt/')
+            data_source_path = common.get_file_list(data_path)
+            data_source_path.sort()
+            gt_source_path = common.get_file_list(gt_path)
+            gt_source_path.sort()
+            length = len(data_source_path)
+
+            all_paths = []
+            for i in range(length):
+                all_paths.append([data_source_path[i], gt_source_path[i]])
+
+            pool.map(do, all_paths)
+
 
     pool.close()
     pool.join()
     time2 = time.time()
     print("Sub-process(es) done.")
     print(time2 - time1)
+
+
+
+
