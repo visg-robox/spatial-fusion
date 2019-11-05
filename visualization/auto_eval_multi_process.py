@@ -135,11 +135,12 @@ def visualize_pc(all_path, save_path = '.', fusion_method = 0, model_path=None):
 
 
 def do(all_path):
-    model_path = common.test_model_path + '/150000_model.pkl'
+    model_path = common.test_model_path + '/95000_model.pkl'
     save_path = os.path.join(common.test_model_path, 'visual_spnet_multiprocess')
     make_dir(save_path)
 
-    visualize_pc(all_path, save_path, common.FsMethod.STF, model_path)
+    #visualize_pc(all_path, save_path, common.FsMethod.STF, model_path)
+    visualize_pc(all_path, save_path, common.FsMethod.RNN_FEATURE, model_path)
     #visualize_pc(all_path, save_path, common.FsMethod.GT, model_path)
 
 
