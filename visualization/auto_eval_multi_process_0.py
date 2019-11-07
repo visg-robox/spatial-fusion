@@ -139,15 +139,15 @@ def do(all_path):
     save_path = os.path.join(common.test_model_path, 'visual_spnet_multiprocess')
     make_dir(save_path)
     mode = common.method_name
-    if mode == 'STFNET' or 'STFNET_res':
+    if mode == "STFNET" or mode =="STFNET_res":
         visualize_pc(all_path, save_path, common.FsMethod.STF, model_path)
-    if mode == 'lstm_i' or 'lstm_iv_balance':
+    if mode == "lstm_i" or mode =="lstm_iv_balance":
         visualize_pc(all_path, save_path, common.FsMethod.RNN_FEATURE, model_path)
-    if mode == 'GT':
+    if mode == "GT":
         visualize_pc(all_path, save_path, common.FsMethod.GT, model_path)
-    if mode == 'baseline':
+    if mode == "baseline":
         visualize_pc(all_path, save_path, common.FsMethod.BASELINE)
-    if mode == 'bayes':
+    if mode == "bayes":
         visualize_pc(all_path, save_path, common.FsMethod.BAYES)
 
 
@@ -179,7 +179,7 @@ if __name__ == '__main__' :
             for line in r_f:
                 room_list.append(line.strip())
         for item in room_list:
-            if common.method_name == 'baseline':
+            if common.method_name == "baseline":
                 data_path = os.path.join(common.blockfile_path,'test/' + item + '/infer_label/')
             else:
                 data_path = os.path.join(common.blockfile_path, 'test/' + item + '/infer_feature/')
