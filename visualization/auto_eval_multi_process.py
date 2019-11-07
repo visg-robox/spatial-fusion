@@ -142,7 +142,7 @@ def do(all_path):
     #visualize_pc(all_path, save_path, common.FsMethod.STF, model_path)
     #visualize_pc(all_path, save_path, common.FsMethod.RNN_FEATURE, model_path)
     #visualize_pc(all_path, save_path, common.FsMethod.GT, model_path)
-    visualize_pc(all_path, save_path, common.FsMethod.BASELINE, model_path)
+    visualize_pc(all_path, save_path, common.FsMethod.BASELINE)
 
 
     return
