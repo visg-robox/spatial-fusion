@@ -158,6 +158,10 @@ class VoxelMap:
                     index =  self.map[i][key]
                     if index < 0:
                         index = 0
+                    else:
+                        if index >= common.class_num:
+                            index = common.class_num-1
+                print('index=', index)
                 color = ID_COLOR[index]
                 line = str(location[0]) + ' ' + str(location[1]) + ' ' + str(location[2]) + ' ' + \
                        str(color[0]) + ' ' + str(color[1]) + ' ' + str(color[2]) + '\n'
