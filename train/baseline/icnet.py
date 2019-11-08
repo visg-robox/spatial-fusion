@@ -57,8 +57,8 @@ if __name__ == '__main__':
             if gt_label in common.ignore_list:
                 gt_label = int(-100)
             gt_res.append(int(gt_label))
-            # infer_label = choice(infer_voxel.feature_info_list).feature_list
-            infer_label = choice(infer_voxel.semantic_info_list).label_list
+            infer_label = choice(infer_voxel.feature_info_list).feature_list
+            #infer_label = choice(infer_voxel.semantic_info_list).label_list
             # infer_res.append(infer_label.argmax())
             infer_res.append(np.array(infer_label).argmax())
     total_accuracy = getaccuracy(infer_res, gt_res, common.class_num)
