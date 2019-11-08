@@ -1,3 +1,5 @@
+import sys
+sys.path.append("../../")
 from data_process.data_loader_torch import *
 from model_evaluate.eval_API import *
 from random import choice
