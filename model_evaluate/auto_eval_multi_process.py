@@ -40,16 +40,7 @@ def auto_eval(model_dir_path):
     model_name_list.sort()
     for model_name in model_name_list:
         if model_name not in model_test_state:
-            if common.para_dict['dataset_class_config'] == 'S3DIS':
-                list_path = sys.argv[4]
-                room_list = []
-                with open(list_path, 'r') as r_f:
-                    for line in r_f:
-                        room_list.append(line.strip())
-                for item in room_list:
-                    eval_spnet_multi_process(model_name,item)
-            else:
-                eval_spnet_multi_process(model_name)
+            eval_spnet_multi_process(model_name)
             model_test_state[model_name] = 1
     model_test_state.close()
 
