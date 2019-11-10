@@ -115,7 +115,7 @@ if __name__ == '__main__':
                 #     writer.add_histogram(name, param.clone().cpu().data.numpy(), record_iter)
                 optimizer.step()
                 record_iter += 1
-                if epoch % 10 ==0:
+                if epoch <= 10:
                     writer.add_scalar('data/feature_training_loss', loss, record_iter)
                 print(record_iter,epoch)
                 if record_iter % common.model_save_step == 0:
