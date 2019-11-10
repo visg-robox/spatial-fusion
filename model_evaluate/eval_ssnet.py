@@ -114,9 +114,18 @@ def eval_spnet_balance(test_path,
         print(time2 - time1)
 
     total_accuracy_rnn = getaccuracy(test_pred_y, test_gt_y, common.class_num)
-    evaluate_name = model_path.split('/')[-1].split('.')[0]
-    eval_print_save(total_accuracy_rnn, evaluate_name, log_dir)
-    return test_loss_all
+    if sys.argv[2] == 'test':
+        evaluate_name = model_path.split('/')[-1].split('.')[0]
+        eval_print_save(total_accuracy_rnn, evaluate_name, log_dir)
+        return test_loss_all
+    else:
+        per_class_accuracy = total_accuracy_rnn[:, 1] / total_accuracy_rnn[:, 2]
+        mean_accuracy = np.sum(total_accuracy_rnn[:, 1]) / np.sum(total_accuracy_rnn[:, 2])
+        per_class_iou = total_accuracy_rnn[:, 1] / (total_accuracy_rnn[:, 0] + total_accuracy_rnn[:, 2] - total_accuracy_rnn[:, 1])
+        index = np.where(np.greater(total_accuracy_rnn[:, 2], 0))
+        new_iou = per_class_iou[index]
+        miou = np.mean(new_iou)
+        return mean_accuracy,miou
 
 
 def eval_spnet_balance_multi_process(all_path,
