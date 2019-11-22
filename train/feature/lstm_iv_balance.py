@@ -103,7 +103,7 @@ if __name__ == '__main__':
                 loss.backward()
                 # for name, param in rnn.named_parameters():
                 #     writer.add_histogram(name, param.clone().cpu().data.numpy(), record_iter)
-                total_norm=nn.utils.clip_grad_norm(rnn.parameters(),2)
+                total_norm=nn.utils.clip_grad_norm(rnn.parameters(),1)
                 optimizer.step()
                 record_iter += 1
                 writer.add_scalar('data/feature_training_total_norm', total_norm, record_iter)
