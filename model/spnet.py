@@ -24,7 +24,7 @@ class SPNet(nn.Module):
     def __init__(self, input_size, kv_input_size, label_num, gpu=True):
         super(SPNet, self).__init__()
         self._gpu = gpu
-        self.lstm = SSNet(ENBEDDING_DIM*3, SSNET_HIDDENSIZE, SSNET_OUTPUTSIZE, gpu=self._gpu)
+        self.lstm = SSNet(ENBEDDING_DIM, SSNET_HIDDENSIZE, SSNET_OUTPUTSIZE, gpu=self._gpu)
         self.encoder = encorder(SSNET_OUTPUTSIZE)
 
         #wait correct
@@ -34,16 +34,20 @@ class SPNet(nn.Module):
         self.attention = attention(SSNET_OUTPUTSIZE, SSNET_OUTPUTSIZE, label_num)
 
     def forward(self, input):
-        shape = input.shape  # [batch_size, near_num, time_step, feature_dim]
         # query = self.lstm.forward(query_input, SSNET_TIMESTEP)
-        kv, feature_raw = self.encoder.forward(input)
-        feature_raw = feature_raw.permute(0, 2, 3, 1)
-        feature_raw = feature_raw[:, 0, :, :]
-        flag = input[:, 0, :, 0].unsqueeze(2)
-        feature_raw = torch.cat((flag, feature_raw), dim = 2)
-        query = self.lstm.forward(feature_raw, SSNET_TIMESTEP)
+        # kv, _ = self.encoder.forward(input)
+        img_feature_raw = input[:, :, :, :1+common.feature_num_i]
+        shape = img_feature_raw.shape  # [batch_size, near_num, time_step, feature_dim]
 
-        output = self.attention.forward(kv, kv, query, input)
+        # feature_raw = feature_raw[:, 0, :, :]
+        img_feature_raw = img_feature_raw.view(shape[0]*shape[1], shape[2], shape[3])
+        # feature_raw = torch.cat((flag, feature_raw), dim = 2)
+        kv = self.lstm.forward(img_feature_raw, SSNET_TIMESTEP)
+        kv = kv.view(shape[0], shape[1], kv.shape[1])
+        kv = kv.unsqueeze(2)
+        q = kv[:, 0, 0, :]
+
+        output = self.attention.forward(kv, kv, q, input)
         #print(kv[0, :, 62, 0])
         #print(query[0])
         return output

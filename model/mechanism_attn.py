@@ -3,25 +3,28 @@ import torch.nn as nn
 from torch.autograd import Variable
 import numpy as np
 import torch.nn.functional as F
-
+import common
 
 #相关系数的求解使用的是K和Q的点乘
 
 class attention(nn.Module):
-    def __init__(self, k_dim, v_dim, label_num):
+    def __init__(self, k_dim, v_dim, label_num, shape = (common.near_num, 1)):
         super(attention, self).__init__()
         self.k_dim = k_dim
         self.v_dim = v_dim
         self.label_num = label_num
-
+        self.maxpool_2d = nn.AdaptiveMaxPool2d(shape)
         self.decoder = nn.Linear(self.v_dim, self.label_num)
         #self.layernorm = nn.LayerNorm(d_model)
         self.dropout = nn.Dropout(0.1)
 
     def forward(self, K0, V0, Q, input_data):
-        K = K0.permute(0, 2, 3, 1)
-        V = V0.permute(0, 2, 3, 1)
-        flag = input_data[:, :, :, 0]
+        K = K0
+        V = V0
+        flag = input_data[:, :, :, 0:1]
+        flag = flag.permute(0, 3, 1, 2)
+        flag = self.maxpool_2d(flag)
+
         shape = K.shape
         K = K.view(shape[0], shape[1] * shape[2], shape[3])
         V = V.view(shape[0], shape[1] * shape[2], shape[3])
