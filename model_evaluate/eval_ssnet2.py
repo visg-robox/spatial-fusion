@@ -21,7 +21,7 @@ from data_process import data_balance
 from torch import nn
 from torch.autograd import Variable
 from functools import partial
-from glob import glob
+import xlrd
 
 # Hyper Parameters
 TEST_BATCH_SIZE = common.test_batch_size
@@ -115,9 +115,19 @@ def eval_spnet_balance(test_path,
         print(time2 - time1)
 
     total_accuracy_rnn = getaccuracy(test_pred_y, test_gt_y, common.class_num)
-    evaluate_name = model_path.split('/')[-1].split('.')[0]
-    eval_print_save(total_accuracy_rnn, evaluate_name, log_dir)
-    return test_loss_all
+    if sys.argv[2] == 'test':
+        evaluate_name = model_path.split('/')[-1].split('.')[0]
+        eval_print_save(total_accuracy_rnn, evaluate_name, log_dir)
+        return test_loss_all
+    else:
+        per_class_accuracy = total_accuracy_rnn[:, 1] / total_accuracy_rnn[:, 2]
+        mean_accuracy = np.sum(total_accuracy_rnn[:, 1]) / np.sum(total_accuracy_rnn[:, 2])
+        per_class_iou = total_accuracy_rnn[:, 1] / (
+        total_accuracy_rnn[:, 0] + total_accuracy_rnn[:, 2] - total_accuracy_rnn[:, 1])
+        index = np.where(np.greater(total_accuracy_rnn[:, 2], 0))
+        new_iou = per_class_iou[index]
+        miou = np.mean(new_iou)
+        return mean_accuracy, miou
 
 
 def eval_spnet_balance_multi_process(all_path,
@@ -224,7 +234,7 @@ def do(all_path, model, model_path, save_path):
 def eval_spnet_multi_process(model_path, scene_name="Record006/"):
     time1 = time.time()
     print(model_path)
-    save_path = os.path.join(os.path.dirname(model_path), 'eval_result', model_path.split('/')[-1].split('.')[0])
+    save_path = os.path.join(os.path.dirname(model_path), 'eval_result')
     print(save_path)
     common.make_path(save_path)
     data_path = os.path.join(common.blockfile_path, 'test', scene_name, 'infer_feature')
@@ -234,8 +244,6 @@ def eval_spnet_multi_process(model_path, scene_name="Record006/"):
     data_source_path.sort()
     gt_source_path = common.get_file_list(gt_path)
     gt_source_path.sort()
-    # data_source_path = data_source_path[:5]
-    # gt_source_path = gt_source_path[:5]
 
     length = len(data_source_path)
 
@@ -247,7 +255,7 @@ def eval_spnet_multi_process(model_path, scene_name="Record006/"):
     model.cuda()
     model.eval()
 
-    pool = multiprocessing.Pool(processes=3)
+    pool = multiprocessing.Pool(processes=2)
     partial_do = partial(do, model=model, model_path=model_path, save_path=save_path)
     pool.map(partial_do, all_paths)
 
@@ -257,46 +265,34 @@ def eval_spnet_multi_process(model_path, scene_name="Record006/"):
     print("Sub-process(es) done.")
     print(time2 - time1)
 
-    # excel_file_list = os.listdir(save_path)
-    excel_file_list = glob(os.path.join(save_path, '*xlwt.xls'))
-    matrix_file_list = glob(os.path.join(save_path, '*matrix.txt'))
+    excel_file_list = os.listdir(save_path)
     class_dict = {}  # {class_name: class_acc, class_iou, class_percentage}
     num_points_all = 0
-
-    total_matrix = 0
     for i in range(len(excel_file_list)):
-        # points_num = int(excel_file_list[i].split('_')[-2])
-        # excel_file_name = excel_file_list[i]
-        matrix_file_name = matrix_file_list[i]
-        # assert excel_file_name.split('/')[-1].split('_')[:-1] == matrix_file_name.split('/')[-1].split('_')[:-1]
-        # wb = xlrd.open_workbook(excel_file_name)
-        # sheet1 = wb.sheet_by_index(0)
-        # class_name = sheet1.row_values(0)
-        # class_acc  = sheet1.row_values(1)
-        # class_iou  = sheet1.row_values(4)
-        # class_percentage = sheet1.row_values(7)
-        matrix = np.loadtxt(matrix_file_name)
-        print(i)
-        if i == 0:
-            total_matrix = matrix
-        else:
-            total_matrix += matrix
+        points_num = int(excel_file_list[i].split('_')[-2])
+        excel_file_name = os.path.join(save_path, excel_file_list[i])
 
+        wb = xlrd.open_workbook(excel_file_name)
+        sheet1 = wb.sheet_by_index(0)
+        class_name = sheet1.row_values(0)
+        class_acc = sheet1.row_values(1)
+        class_iou = sheet1.row_values(4)
+        class_percentage = sheet1.row_values(7)
 
-            # for index in range(len(class_name)-3):
-            #     real_index = index + 3
-            #     if class_name[real_index] in class_dict:
-            #         [past_acc, past_iou, past_percentage] = class_dict[class_name[real_index]]
-            #         new_percentage = (past_percentage * num_points_all + class_percentage * points_num) / (num_points_all + points_num)
-            #         new_acc = (past_percentage * num_points_all * past_acc + class_percentage * points_num * class_acc) / new_percentage * (num_points_all + points_num)
-            #         new_iou = 0
-            #         class_dict[class_name[real_index]] = [new_ac`c, new_iou, new_percentage]
-            #     else:
-            #         class_dict[class_name[real_index]] = [class_acc, class_iou, class_percentage]
-            # num_points_all += points_num
-    points_num = np.sum(total_matrix, axis=0)[2]
-    eval_print_save(total_matrix, model_path.split('/')[-1].split('.')[0], os.path.dirname(save_path),
-                    points_num=points_num)
+        for index in range(len(class_name) - 3):
+            real_index = index + 3
+            if class_name[real_index] in class_dict:
+                [past_acc, past_iou, past_percentage] = class_dict[class_name[real_index]]
+                new_percentage = (past_percentage * num_points_all + class_percentage * points_num) / (
+                num_points_all + points_num)
+                new_acc = (
+                          past_percentage * num_points_all * past_acc + class_percentage * points_num * class_acc) / new_percentage * (
+                          num_points_all + points_num)
+                new_iou = 0
+                class_dict[class_name[real_index]] = [new_acc, new_iou, new_percentage]
+            else:
+                class_dict[class_name[real_index]] = [class_acc, class_iou, class_percentage]
+        num_points_all += points_num
 
 
 '''

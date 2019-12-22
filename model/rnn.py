@@ -8,9 +8,61 @@ import torch.nn as nn
 from torch.autograd import Variable
 import numpy as np
 from model.lstm_cell import *
+class SSNet_observation_invariance(nn.Module):
+    # ENBEDDING_DIM*3, qk_dim, qk_dim
+    def __init__(self, input_size, hidden_size, output_size, dropout=0, gpu=True):
+        super(SSNet_observation_invariance, self).__init__()
+        # parameter
+        self._input_size = input_size
+        self._hidden_size = hidden_size
+        self._output_size = output_size
+        self._gpu = gpu
+        # model
+        self.lstm_cell = ConditionLSTMCell_obin(input_size, hidden_size)            #  position
+        self.lstm_cell2 = ConditionLSTMCell_obin_state(input_size, hidden_size)     #  time_state
+        self.drop = nn.Dropout(p=dropout)
+        self.linear = nn.Linear(hidden_size, output_size)
+        self.bn = nn.BatchNorm1d(output_size, affine=False)
+        # self.init_linear()
 
+    def forward(self, input_data, time_step):
+        # input_data shape: (batch_size, time_step, input_size)
+        h0_t = Variable(torch.zeros(input_data.size(0), self._hidden_size), requires_grad=True)
+        c0_t = Variable(torch.zeros(input_data.size(0), self._hidden_size), requires_grad=True)
+        h1_t = Variable(torch.zeros(input_data.size(0), self._hidden_size*2), requires_grad=True)  #time_state
+        c1_t = Variable(torch.zeros(input_data.size(0), self._hidden_size*2), requires_grad=True)
+        flag = torch.zeros(input_data.size(0), 1)
+        if self._gpu is True:
+            h0_t = h0_t.cuda()
+            c0_t = c0_t.cuda()
+            h1_t = h1_t.cuda()
+            c1_t = c1_t.cuda()
+        for i in range(time_step):
+            h0_t, c0_t = self.lstm_cell(input_data[:, i, :], h0_t, c0_t)
+            flag[:, 0] = input_data[:, i, 0]
+            input_data2 = torch.cat((flag, h0_t.cpu()), 1)
+            if self._gpu is True:
+                input_data2 = input_data2.cuda()
+            h1_t, c1_t = self.lstm_cell2(input_data2, h1_t, c1_t)
+        outputs = self.linear(h1_t)
+        return outputs
+
+    def freeze_linear(self):
+        for p in self.linear.parameters():
+            p.requires_grad = False
+
+    def free_linear(self):
+        for p in self.linear.parameters():
+            p.requires_grad = True
+
+    def init_linear(self):
+        weights, bias = load_icnet_parameter()
+        self.freeze_linear()
+        self.linear.weight.data = torch.from_numpy(weights[0, 0, :, :].T)
+        self.linear.bias.data = torch.from_numpy(bias)
 
 class SSNet(nn.Module):
+    # ENBEDDING_DIM*3, qk_dim, qk_dim
     def __init__(self, input_size, hidden_size, output_size, dropout=0, gpu=True):
         super(SSNet, self).__init__()
         # parameter
