@@ -35,17 +35,17 @@ class SPNet(nn.Module):
 
     def forward(self, input):
         # query = self.lstm.forward(query_input, SSNET_TIMESTEP)
-        # kv, _ = self.encoder.forward(input)
-        img_feature_raw = input[:, :, :, :1+common.feature_num_i]
-        shape = img_feature_raw.shape  # [batch_size, near_num, time_step, feature_dim]
-
-        # feature_raw = feature_raw[:, 0, :, :]
-        img_feature_raw = img_feature_raw.view(shape[0]*shape[1], shape[2], shape[3])
-        # feature_raw = torch.cat((flag, feature_raw), dim = 2)
-        kv = self.lstm.forward(img_feature_raw, SSNET_TIMESTEP)
-        kv = kv.view(shape[0], shape[1], kv.shape[1])
-        kv = kv.unsqueeze(2)
-        q = kv[:, 0, 0, :]
+        kv, q = self.encoder.forward(input)
+        # img_feature_raw = input[:, :, :, :1+common.feature_num_i]
+        # shape = img_feature_raw.shape  # [batch_size, near_num, time_step, feature_dim]
+        #
+        # # feature_raw = feature_raw[:, 0, :, :]
+        # img_feature_raw = img_feature_raw.view(shape[0]*shape[1], shape[2], shape[3])
+        # # feature_raw = torch.cat((flag, feature_raw), dim = 2)
+        # kv = self.lstm.forward(img_feature_raw, SSNET_TIMESTEP)
+        # kv = kv.view(shape[0], shape[1], kv.shape[1])
+        # kv = kv.unsqueeze(2)
+        # q = kv[:, 0, 0, :]
 
         output = self.attention.forward(kv, kv, q, input)
         #print(kv[0, :, 62, 0])
