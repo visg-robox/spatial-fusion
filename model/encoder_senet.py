@@ -8,8 +8,8 @@
 # concat
 # MLP
 
-#TODO(luo) : completed, TRANSPOSE, SLICE
-#TODO(luo) : completed, MLP, relu, bias,　由于有很多无效点，所以考虑不使用ＢＮ层
+# TODO(luo) : completed, TRANSPOSE, SLICE
+# TODO(luo) : completed, MLP, relu, bias,　由于有很多无效点，所以考虑不使用ＢＮ层
 
 
 import torch
@@ -27,13 +27,14 @@ VECTOR_DIM = common.vector_size
 OFFSET_DIM = common.offset_size
 LOCATION_DIM = common.location_size
 
-class encorder(nn.Module):
+
+class encoder_senet(nn.Module):
     def __init__(self, qk_dim):
-        super(encorder, self).__init__()
+        super(encoder_senet, self).__init__()
         self.conv_img = nn.Conv2d(IMG_FEATURE_DIM, ENBEDDING_DIM, 1)
         self.conv_vector = nn.Conv2d(VECTOR_DIM, ENBEDDING_DIM, 1)
         self.conv_offset = nn.Conv2d(OFFSET_DIM, ENBEDDING_DIM, 1)
-        self.conv1 = nn.Conv2d(IMG_FEATURE_DIM + ENBEDDING_DIM * 2, qk_dim, 1)
+        self.conv1 = nn.Conv2d(IMG_FEATURE_DIM + ENBEDDING_DIM, qk_dim, 1)
         self.conv2 = nn.Conv2d(qk_dim, qk_dim, 1)
         self.relu0_1 = nn.LeakyReLU(0.2)
         self.relu0_2 = nn.LeakyReLU(0.2)
@@ -44,40 +45,54 @@ class encorder(nn.Module):
         self.bn1 = nn.BatchNorm2d(ENBEDDING_DIM)
         self.bn2 = nn.BatchNorm2d(ENBEDDING_DIM)
         self.bn3 = nn.BatchNorm2d(ENBEDDING_DIM)
-        self.bn4 = nn.BatchNorm2d(ENBEDDING_DIM*2)
-        self.bn5 = nn.BatchNorm2d(ENBEDDING_DIM*2)
+        self.bn4 = nn.BatchNorm2d(ENBEDDING_DIM * 2)
+        self.bn5 = nn.BatchNorm2d(ENBEDDING_DIM * 2)
+
+        self.ave_pool = nn.AvgPool2d((common.near_num, common.time_step))
+        self.fc1 = nn.Conv2d(qk_dim, qk_dim//16, 1)
+        self.fc2 = nn.Conv2d(qk_dim//16, qk_dim, 1)
+        self.scale_layer = nn.Sigmoid()
 
     def forward(self, input):
-        transpose_input = input.permute(0,3,1,2)
-        flag = transpose_input[:,:1,:,:]
-        img_feature = transpose_input[:,1 : 1 + IMG_FEATURE_DIM,:,:]
-        vector = transpose_input[:,1 + IMG_FEATURE_DIM :1 + IMG_FEATURE_DIM + VECTOR_DIM,:,:]
-        offset = transpose_input[:,1 + IMG_FEATURE_DIM + VECTOR_DIM:,:,:]
-        #location = transpose_input[:,1 + IMG_FEATURE_DIM + VECTOR_DIM + LOCATION_DIM:,:,:]
+        transpose_input = input.permute(0, 3, 1, 2)
+        flag = transpose_input[:, :1, :, :]
+        img_feature = transpose_input[:, 1: 1 + IMG_FEATURE_DIM, :, :]
+        # vector = transpose_input[:,1 + IMG_FEATURE_DIM :1 + IMG_FEATURE_DIM + VECTOR_DIM,:,:]
+        offset = transpose_input[:, 1 + IMG_FEATURE_DIM + VECTOR_DIM:, :, :]
+        # location = transpose_input[:,1 + IMG_FEATURE_DIM + VECTOR_DIM + LOCATION_DIM:,:,:]
 
         img_feature = self.conv_img(img_feature)
         img_feature = self.bn1(img_feature)
         img_feature = self.relu0_1(img_feature)
 
-        vector = self.conv_vector(vector)
-        vector = self.bn2(vector)
-        vector = self.relu0_2(vector)
+        # vector = self.conv_vector(vector)
+        # vector = self.bn2(vector)
+        # vector = self.relu0_2(vector)
 
         offset = self.conv_offset(offset)
         offset = self.bn3(offset)
         offset = self.relu0_3(offset)
 
-        #location = self.conv_location(location)
-        #location = self.relu0_3(location)
-        feature_raw = torch.cat((img_feature, vector, offset), dim = 1)   #[batch_size, near_num, time_step, feature_dim]
+        # location = self.conv_location(location)
+        # location = self.relu0_3(location)
+        feature_raw = torch.cat((img_feature, offset), dim=1)  # [batch_size, near_num, time_step, feature_dim]
         feature = self.conv1(feature_raw)
         feature = self.bn4(feature)
         feature = self.relu1(feature)
+
+        feature_weight = self.ave_pool(feature)
+        feature_weight = self.fc1(feature_weight)
+        feature_weight = self.fc2(feature_weight)
+        feature_weight = self.scale_layer(feature_weight)
+
+        feature_weight = feature_weight.expand(-1, -1, common.near_num, common.time_step) #[128, 256, 1, 1]   #[128, 256, 25, 50]
+        feature = feature * feature_weight
+
         feature = self.conv2(feature)
         feature = self.bn5(feature)
         feature = self.relu2(feature)
         feature = flag * feature
-        return feature,  feature_raw  #[bz, ]
+        return feature, feature_raw  # [bz, ]
 
 
 

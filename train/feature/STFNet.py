@@ -126,9 +126,9 @@ if __name__ == '__main__':
                 if record_iter % common.model_save_step == 0:
                     model_name = os.path.join(res_save_path, str(record_iter) + '_model.pkl')
                     torch.save(model, model_name)
-                    train_mean_accuracy, train_miou = eval_spnet_balance(train_path, model_name)
-                    writer.add_scalar('data/train_mean_accuracy', train_mean_accuracy, record_iter)
-                    writer.add_scalar('data/train_miou', train_miou, record_iter)
+                    #train_mean_accuracy, train_miou = eval_spnet_balance(train_path, model_name)
+                    #writer.add_scalar('data/train_mean_accuracy', train_mean_accuracy, record_iter)
+                    #writer.add_scalar('data/train_miou', train_miou, record_iter)
                     #test_loss = eval_spnet_balance(test_infer_path, test_gt_path, model, res_save_path, WINDOW_SIZE, time_step=TIME_STEP, log_dir=res_save_path)
                     #writer.add_scalar('data/feature_test_loss', test_loss, record_iter)
             trainEndTime = timer.time()

@@ -196,7 +196,7 @@ def eval_print_save(total_accuracy, method_name, logdir, classname = CLASSNAME, 
     log_string(logfile,'miou: %f' % (miou))
     log_string(logfile,'')
     logfile.close()
-    np.savetxt(logdir + '/confusion_matrix.txt', total_accuracy)
+    np.savetxt(logdir + '/' + method_name + '_' + str(points_num) + '_confusion_matrix.txt', total_accuracy)
 
 
 class eval_time(object):

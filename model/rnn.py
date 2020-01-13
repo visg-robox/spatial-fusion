@@ -13,24 +13,25 @@ class SSNet_observation_invariance(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, dropout=0, gpu=True):
         super(SSNet_observation_invariance, self).__init__()
         # parameter
-        self._input_size = input_size
+        self._input_size = input_size  #128
         self._hidden_size = hidden_size
         self._output_size = output_size
         self._gpu = gpu
         # model
-        self.lstm_cell = ConditionLSTMCell_obin(input_size, hidden_size)            #  position
+        self.lstm_cell = ConditionLSTMCell_obin(input_size, input_size)            #  position
         self.lstm_cell2 = ConditionLSTMCell_obin_state(input_size, hidden_size)     #  time_state
         self.drop = nn.Dropout(p=dropout)
-        self.linear = nn.Linear(hidden_size, output_size)
+        self.linear_out = nn.Linear(hidden_size, output_size)
         self.bn = nn.BatchNorm1d(output_size, affine=False)
         # self.init_linear()
 
     def forward(self, input_data, time_step):
         # input_data shape: (batch_size, time_step, input_size)
-        h0_t = Variable(torch.zeros(input_data.size(0), self._hidden_size), requires_grad=True)
-        c0_t = Variable(torch.zeros(input_data.size(0), self._hidden_size), requires_grad=True)
-        h1_t = Variable(torch.zeros(input_data.size(0), self._hidden_size*2), requires_grad=True)  #time_state
-        c1_t = Variable(torch.zeros(input_data.size(0), self._hidden_size*2), requires_grad=True)
+        # input_data content: flag img_feature vector offset
+        h0_t = Variable(torch.zeros(input_data.size(0), self._input_size), requires_grad=True)
+        c0_t = Variable(torch.zeros(input_data.size(0), self._input_size), requires_grad=True)
+        h1_t = Variable(torch.zeros(input_data.size(0), self._hidden_size), requires_grad=True)  #time_state
+        c1_t = Variable(torch.zeros(input_data.size(0), self._hidden_size), requires_grad=True)
         flag = torch.zeros(input_data.size(0), 1)
         if self._gpu is True:
             h0_t = h0_t.cuda()
@@ -38,13 +39,15 @@ class SSNet_observation_invariance(nn.Module):
             h1_t = h1_t.cuda()
             c1_t = c1_t.cuda()
         for i in range(time_step):
+            h0_tmp = h0_t
             h0_t, c0_t = self.lstm_cell(input_data[:, i, :], h0_t, c0_t)
             flag[:, 0] = input_data[:, i, 0]
-            input_data2 = torch.cat((flag, h0_t.cpu()), 1)
+            #h0_delta = h0_t - h0_tmp
+            input_data_tmp = torch.cat((flag, h0_t.cpu(), input_data[:, i, 1:1+self._input_size].cpu()), 1)
             if self._gpu is True:
-                input_data2 = input_data2.cuda()
-            h1_t, c1_t = self.lstm_cell2(input_data2, h1_t, c1_t)
-        outputs = self.linear(h1_t)
+                input_data_tmp = input_data_tmp.cuda()
+            h1_t, c1_t = self.lstm_cell2(input_data_tmp, h1_t, c1_t)
+        outputs = self.linear_out(h1_t)
         return outputs
 
     def freeze_linear(self):

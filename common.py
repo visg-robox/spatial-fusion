@@ -1,5 +1,5 @@
 import os
-from enum import Enum, unique
+#from enum import Enum, unique
 import sys
 import glob
 import numpy as np
@@ -180,6 +180,7 @@ if sys.argv[2] == 'test':
     test_model_path = os.path.join(res_save_path, dataset_name, method_name)
 
 # fusion method
+'''
 @unique
 class FsMethod(Enum):
     RNN_FEATURE = 0
@@ -188,7 +189,7 @@ class FsMethod(Enum):
     BASELINE = 3
     GT = 4
     STF = 5
-
+'''
 
 # tag
 USING_RNN_FEATURE = False

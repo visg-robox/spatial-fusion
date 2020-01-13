@@ -5,17 +5,17 @@ region_z:2
 
 multi_sequence:0
 lidardata_path:/home/wangkai/project2/data/carla
-blockfile_path:/home/wangkai/project2/scene1/block_file/
+blockfile_path:/home/wangkai/project2/dataset/scene1/block_file/
 class_preserve_proba_path:data_dropout_ratio.txt
 
 dataset_class_config:carla
 dataset_name:carla_scene1
-res_save_path = /home/wangkai/spatial-fusion/result
+res_save_path:/home/wangkai/spatial-fusion/result2
 class_num:13
 ignore_list_str:0 4 12
 near_num:25
 
-epoch:10
+epoch: 100
 lr:0.001
 batch_size:128
 time_step:50

@@ -17,7 +17,7 @@ class ConditionLSTMCell(nn.Module):
         self.input_size_raw = input_size
         self.input_size = input_size
         self.hidden_size = hidden_size
-        self.lstm_cell = nn.LSTMCell(input_size, hidden_size)
+        self.lstm_cell = nn.LSTMCell(hidden_size, hidden_size)
         self._gpu = gpu
 
     # x shape: (batch_size, input_size)
@@ -27,7 +27,7 @@ class ConditionLSTMCell(nn.Module):
         flag = flag.repeat(1, self.hidden_size)
         if self._gpu is True:
             flag = flag.cuda()
-        h_1, c_1 = self.lstm_cell(x[:, 1:], (h_0, c_0))
+        h_1, c_1 = self.lstm_cell(x[:, 1+self.hidden_size : 1+2*self.hidden_size], (h_0, c_0))
         h_2 = torch.add(torch.mul(flag, h_1), torch.mul(h_0, torch.add(torch.neg(flag), 1)))
         c_2 = torch.add(torch.mul(flag, c_1), torch.mul(c_0, torch.add(torch.neg(flag), 1)))
         return h_2, c_2
@@ -47,9 +47,9 @@ class ConditionLSTMCell_obin_state(nn.Module):
     def __init__(self, input_size, hidden_size, gpu=True):
         super(ConditionLSTMCell_obin_state, self).__init__()
         self.hidden_size_raw = hidden_size
-        self.input_size = hidden_size*2
-        self.hidden_size = hidden_size*2
-        self.lstm_cell = nn.LSTMCell(input_size, hidden_size)
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.lstm_cell = nn.LSTMCell(hidden_size, hidden_size)
         self._gpu = gpu
 
     # x shape: (batch_size, input_size)
@@ -59,7 +59,7 @@ class ConditionLSTMCell_obin_state(nn.Module):
         flag = flag.repeat(1, self.hidden_size)
         if self._gpu is True:
             flag = flag.cuda()
-        h_1, c_1 = self.lstm_cell(torch.cat([x[:, 1:1+self.hidden_size_raw], x[:, 1+self.hidden_size_raw*2: 1+self.hidden_size_raw*3]], dim=1), (h_0, c_0))
+        h_1, c_1 = self.lstm_cell(x[:, 1:], (h_0, c_0))
         h_2 = torch.add(torch.mul(flag, h_1), torch.mul(h_0, torch.add(torch.neg(flag), 1)))
         c_2 = torch.add(torch.mul(flag, c_1), torch.mul(c_0, torch.add(torch.neg(flag), 1)))
         return h_2, c_2
@@ -70,9 +70,9 @@ class ConditionLSTMCell_obin(nn.Module):
     # hidden_size – The number of features in the hidden state h
     def __init__(self, input_size, hidden_size, gpu=True):
         super(ConditionLSTMCell_obin, self).__init__()
-        self.input_size = hidden_size                        #input_size 128
+        self.input_size = input_size                        #input_size 128
         self.hidden_size = hidden_size                      #hidden_size 128
-        self.lstm_cell = nn.LSTMCell(input_size, hidden_size)
+        self.lstm_cell = nn.LSTMCell(self.input_size, hidden_size)
         self._gpu = gpu
 
     # x shape: (batch_size, input_size)
@@ -82,7 +82,7 @@ class ConditionLSTMCell_obin(nn.Module):
         flag = flag.repeat(1, self.hidden_size)
         if self._gpu is True:
             flag = flag.cuda()
-        h_1, c_1 = self.lstm_cell(x[:, 1+self.input_size:1 : 1+2*self.input_size], (h_0, c_0))
+        h_1, c_1 = self.lstm_cell(x[:, 1+self.hidden_size : 1+2*self.hidden_size], (h_0, c_0))
         h_2 = torch.add(torch.mul(flag, h_1), torch.mul(h_0, torch.add(torch.neg(flag), 1)))
         c_2 = torch.add(torch.mul(flag, c_1), torch.mul(c_0, torch.add(torch.neg(flag), 1)))
         return h_2, c_2

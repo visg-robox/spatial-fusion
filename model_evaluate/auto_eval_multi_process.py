@@ -40,7 +40,7 @@ def auto_eval(model_dir_path):
     model_name_list.sort()
     for model_name in model_name_list:
         if model_name not in model_test_state:
-            eval_spnet_multi_process(model_name)
+            eval_spnet_multi_process(model_name, scene_name='')
             model_test_state[model_name] = 1
     model_test_state.close()
 

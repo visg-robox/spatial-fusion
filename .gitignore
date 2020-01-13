@@ -9,7 +9,7 @@ train/feature/runs/
 
 train/feature/log\.txt
 
-result/
+result*/
 
 *.xlsx
 

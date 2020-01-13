@@ -7,6 +7,7 @@ from model.lstm_cell import *
 import common
 from model.rnn import *
 from model.encorder import *
+from model.encoder_senet import *
 from model.mechanism_attn import *
 
 
@@ -24,8 +25,10 @@ class SPNet(nn.Module):
     def __init__(self, input_size, kv_input_size, label_num, gpu=True):
         super(SPNet, self).__init__()
         self._gpu = gpu
-        self.lstm = SSNet(ENBEDDING_DIM*3, SSNET_HIDDENSIZE, SSNET_OUTPUTSIZE, gpu=self._gpu)
+        #self.lstm = SSNet(ENBEDDING_DIM*3, SSNET_HIDDENSIZE, SSNET_OUTPUTSIZE, gpu=self._gpu)
+        self.lstm = SSNet_observation_invariance(ENBEDDING_DIM, SSNET_HIDDENSIZE, SSNET_OUTPUTSIZE, gpu=self._gpu)
         self.encoder = encorder(SSNET_OUTPUTSIZE)
+        self.encoder_senet = encoder_senet(SSNET_OUTPUTSIZE)
 
         #wait correct
         # encoder 的输入维度与SPnet不协调
@@ -36,7 +39,8 @@ class SPNet(nn.Module):
     def forward(self, input):
         shape = input.shape  # [batch_size, near_num, time_step, feature_dim]
         # query = self.lstm.forward(query_input, SSNET_TIMESTEP)
-        kv, feature_raw = self.encoder.forward(input)
+        #kv, feature_raw = self.encoder.forward(input)
+        kv, feature_raw = self.encoder_senet.forward(input)
         feature_raw = feature_raw.permute(0, 2, 3, 1)
         feature_raw = feature_raw[:, 0, :, :]
         flag = input[:, 0, :, 0].unsqueeze(2)
